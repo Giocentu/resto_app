@@ -6,5 +6,6 @@ namespace RestoApp.Data.Repositories;
 
 public interface IEmpleadoRepository : IRepository<Empleado>
 {
-    Task<IEnumerable<Empleado>> GetEmpleadosActivosConDetallesAsync();
+    Task<IEnumerable<Empleado>> GetEmpleadosConDetallesAsync();
+
 }

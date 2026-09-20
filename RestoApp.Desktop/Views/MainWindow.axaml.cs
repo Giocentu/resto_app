@@ -27,4 +27,11 @@ public partial class MainWindow : Window
             clickedButton.Classes.Add("active");
         }
     }
+    private void CerrarSesion(object? sender, RoutedEventArgs e )
+    {
+        var loginWindow = new LoginWindow();
+        loginWindow.Show();
+
+        this.Close();
+    }
 }

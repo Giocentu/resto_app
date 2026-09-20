@@ -3,6 +3,8 @@ using CommunityToolkit.Mvvm.Input;
 using RestoApp.Business.Services;
 using RestoApp.Data;
 using RestoApp.Data.Repositories;
+using RestoApp.Desktop.Views;
+using RestoApp.Entities;
 
 namespace RestoApp.Desktop.ViewModels;
 
@@ -12,142 +14,110 @@ public partial class MainViewModel : ObservableObject
     private object? _currentView;
 
     // Propiedades de visibilidad basadas en el rol global
-    public bool EsAdmin => SesionGlobal.TipoUsuarioActual == 1;
+    public bool EsDueno => SesionGlobal.RolActual ==  RolUsuario.Dueno;
+    public bool PuedeVerClientes => SesionGlobal.RolActual == RolUsuario.Dueno 
+                                ||  SesionGlobal.RolActual == RolUsuario.Cajero
+                                ||  SesionGlobal.RolActual == RolUsuario.Recepcion
+                                ||  SesionGlobal.RolActual == RolUsuario.Gerente;
+    
+    public bool PuedeVerMesas => SesionGlobal.RolActual == RolUsuario.Dueno 
+                                ||  SesionGlobal.RolActual == RolUsuario.Cajero
+                                ||  SesionGlobal.RolActual == RolUsuario.Recepcion
+                                ||  SesionGlobal.RolActual == RolUsuario.Gerente;
+    
+    public bool PuedeVerEventos => SesionGlobal.RolActual == RolUsuario.Dueno 
+                                ||  SesionGlobal.RolActual == RolUsuario.Cajero
+                                ||  SesionGlobal.RolActual == RolUsuario.Recepcion
+                                ||  SesionGlobal.RolActual == RolUsuario.Gerente;
+    
+    public bool PuedeVerReservas => SesionGlobal.RolActual == RolUsuario.Dueno 
+                                ||  SesionGlobal.RolActual == RolUsuario.Cajero
+                                ||  SesionGlobal.RolActual == RolUsuario.Recepcion
+                                ||  SesionGlobal.RolActual == RolUsuario.Gerente;
 
-    // Si el mozo no debe ver clientes/personal, solo devolvemos true si es Admin
-    public bool PuedeVerClientes => SesionGlobal.TipoUsuarioActual == 1;
+    public bool PuedeVerPersonal => SesionGlobal.RolActual == RolUsuario.Dueno 
+                                ||  SesionGlobal.RolActual == RolUsuario.Cajero
+                                ||  SesionGlobal.RolActual == RolUsuario.Recepcion
+                                ||  SesionGlobal.RolActual == RolUsuario.Gerente;
 
-    // Los mozos y admins pueden ver mesas
-    public bool PuedeVerMesas => SesionGlobal.TipoUsuarioActual == 1 || SesionGlobal.TipoUsuarioActual == 2;
+    public bool PuedeVerCaja => SesionGlobal.RolActual == RolUsuario.Cajero;
 
-    // 0 = Admin, 1 = Mozo. Empezamos en 0 (Admin)
+    public bool PuedeVerPrincipal => SesionGlobal.RolActual == RolUsuario.Dueno 
+                                ||  SesionGlobal.RolActual == RolUsuario.Cajero
+                                ||  SesionGlobal.RolActual == RolUsuario.Recepcion
+                                ||  SesionGlobal.RolActual == RolUsuario.Gerente
+                                ||  SesionGlobal.RolActual == RolUsuario.Mozo;
+
+// 0 = Admin, 1 = Mozo. Empezamos en 1 (Mozo)
     [ObservableProperty]
-    private int _indiceRolSeleccionado = 0;
-
-    public MainViewModel()
-    {
-        // Al iniciar la aplicación cargamos la vista Inicio por defecto
-        IrAInicio();
-    }
+    private int _indiceRolSeleccionado = 0; 
 
     // Este método se ejecuta automáticamente cuando IndiceRolSeleccionado cambia
     partial void OnIndiceRolSeleccionadoChanged(int value)
     {
-        // Actualizamos la sesión global: 0 -> 1 (Admin), 1 -> 2 (Mozo)
-        SesionGlobal.TipoUsuarioActual = value == 0 ? 1 : 2;
+        // Actualizamos la sesión global
+        SesionGlobal.RolActual = value switch
+        {
+            0 => RolUsuario.Dueno,
+            1 => RolUsuario.Gerente,
+            2 => RolUsuario.Cajero,
+            3 => RolUsuario.Recepcion,
+            _ => RolUsuario.Mozo 
+        };
 
-        // Notificamos a la barra lateral que re-evalúe los permisos
-        OnPropertyChanged(nameof(EsAdmin));
+        // Notificamos a la barra lateral que re-evalúe qué botones mostrar
+        OnPropertyChanged(nameof(EsDueno));
         OnPropertyChanged(nameof(PuedeVerClientes));
         OnPropertyChanged(nameof(PuedeVerMesas));
 
-        // Si estamos en Inicio o Mesas, recargamos la vista activa
-        if (CurrentView is InicioViewModel)
-        {
-            IrAInicio();
-        }
-        else if (CurrentView is MesasViewModel)
+        // Recargamos la vista central actual para que se apliquen u oculten las columnas
+        if (CurrentView is MesasViewModel)
         {
             IrAMesas();
         }
+        else if (CurrentView is ReservasViewModel)
+        {
+            IrAReservas();
+        }
+        else if (CurrentView is EmpleadosViewModel)
+        {
+            IrAEmpleados();
+        }
+        // Puedes agregar más if() aquí a medida que crees las otras vistas (Clientes, Empleados)
     }
 
-    private InicioViewModel? _inicioViewModel;
-    private CajaViewModel? _cajaViewModel;
-    private MesasViewModel? _mesasViewModel;
 
-    // Comandos de navegación para la barra lateral
+    // Comandos para cambiar de sección al hacer clic en los botones del menú
     [RelayCommand]
-    private void IrAInicio()
+    private void IrAClientes()
     {
-        if (_inicioViewModel == null)
-        {
-            MesaService? service = null;
-            try
-            {
-                var mesaRepo = new MesaRepository(new RestoAppDbContext());
-                service = new MesaService(mesaRepo);
-            }
-            catch
-            {
-            }
-            _inicioViewModel = new InicioViewModel(service, navigateAMesasAction: IrAMesas);
-        }
+        // Aquí asignaremos el ViewModel correspondiente al CRUD de clientes más adelante
+        // CurrentView = new ClientesViewModel();
+    }
 
-        CurrentView = _inicioViewModel;
+    [RelayCommand]
+    private void IrAEmpleados()
+    {
+        var empleadoRepo = new EmpleadoRepository(new RestoAppDbContext());
+        var empleadoService = new EmpleadoService(empleadoRepo);
+        CurrentView = new EmpleadosViewModel(empleadoService);
     }
 
     [RelayCommand]
     private void IrAReservas()
     {
-        // Se asignará ReservasViewModel cuando se implemente la vista
+        var reservaRepo = new ReservaRepository(new RestoAppDbContext());
+        var reservaService = new ReservaService(reservaRepo);
+        CurrentView = new ReservasViewModel(reservaService);
     }
 
-    [RelayCommand]
-    private void IrAPersonal()
-    {
-        // Se asignará PersonalViewModel cuando se implemente la vista
-    }
-
-    [RelayCommand]
-    private void IrACaja()
-    {
-        if (_cajaViewModel == null)
-        {
-            PagoService? service = null;
-            try
-            {
-                var pagoRepo = new PagoRepository(new RestoAppDbContext());
-                service = new PagoService(pagoRepo);
-            }
-            catch
-            {
-            }
-            _cajaViewModel = new CajaViewModel(service);
-        }
-
-        CurrentView = _cajaViewModel;
-    }
-
-    private EventosViewModel? _eventosViewModel;
-
-    [RelayCommand]
-    private void IrAEventos()
-    {
-        if (_eventosViewModel == null)
-        {
-            EventoService? service = null;
-            try
-            {
-                var eventoRepo = new EventoRepository(new RestoAppDbContext());
-                service = new EventoService(eventoRepo);
-            }
-            catch
-            {
-            }
-            _eventosViewModel = new EventosViewModel(service);
-        }
-
-        CurrentView = _eventosViewModel;
-    }
 
     [RelayCommand]
     private void IrAMesas()
     {
-        if (_mesasViewModel == null)
-        {
-            MesaService? service = null;
-            try
-            {
-                var mesaRepo = new MesaRepository(new RestoAppDbContext());
-                service = new MesaService(mesaRepo);
-            }
-            catch
-            {
-            }
-            _mesasViewModel = new MesasViewModel(service ?? new MesaService(new MesaRepository(new RestoAppDbContext())));
-        }
-
-        CurrentView = _mesasViewModel;
+        var mesaRepo = new MesaRepository(new RestoAppDbContext());
+        var mesaService = new MesaService(mesaRepo);
+        CurrentView = new MesasViewModel(mesaService);
     }
+    
 }

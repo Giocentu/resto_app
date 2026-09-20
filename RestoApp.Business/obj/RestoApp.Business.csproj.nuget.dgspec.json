@@ -1,37 +1,37 @@
 {
   "format": 1,
   "restore": {
-    "/home/shiox/git_Projects/resto_app/RestoApp.Business/RestoApp.Business.csproj": {}
+    "C:\\Users\\herna\\Documents\\Taller2\\resto_app\\RestoApp.Business\\RestoApp.Business.csproj": {}
   },
   "projects": {
-    "/home/shiox/git_Projects/resto_app/RestoApp.Business/RestoApp.Business.csproj": {
+    "C:\\Users\\herna\\Documents\\Taller2\\resto_app\\RestoApp.Business\\RestoApp.Business.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/shiox/git_Projects/resto_app/RestoApp.Business/RestoApp.Business.csproj",
+        "projectUniqueName": "C:\\Users\\herna\\Documents\\Taller2\\resto_app\\RestoApp.Business\\RestoApp.Business.csproj",
         "projectName": "RestoApp.Business",
-        "projectPath": "/home/shiox/git_Projects/resto_app/RestoApp.Business/RestoApp.Business.csproj",
-        "packagesPath": "/home/shiox/.nuget/packages/",
-        "outputPath": "/home/shiox/git_Projects/resto_app/RestoApp.Business/obj/",
+        "projectPath": "C:\\Users\\herna\\Documents\\Taller2\\resto_app\\RestoApp.Business\\RestoApp.Business.csproj",
+        "packagesPath": "C:\\Users\\herna\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\herna\\Documents\\Taller2\\resto_app\\RestoApp.Business\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/home/shiox/.nuget/NuGet/NuGet.Config"
+          "C:\\Users\\herna\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net10.0"
         ],
         "sources": {
-          "/usr/lib64/dotnet/library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net10.0": {
+            "framework": "net10.0",
             "targetAlias": "net10.0",
             "projectReferences": {
-              "/home/shiox/git_Projects/resto_app/RestoApp.Data/RestoApp.Data.csproj": {
-                "projectPath": "/home/shiox/git_Projects/resto_app/RestoApp.Data/RestoApp.Data.csproj"
+              "C:\\Users\\herna\\Documents\\Taller2\\resto_app\\RestoApp.Data\\RestoApp.Data.csproj": {
+                "projectPath": "C:\\Users\\herna\\Documents\\Taller2\\resto_app\\RestoApp.Data\\RestoApp.Data.csproj"
               },
-              "/home/shiox/git_Projects/resto_app/RestoApp.Entities/RestoApp.Entities.csproj": {
-                "projectPath": "/home/shiox/git_Projects/resto_app/RestoApp.Entities/RestoApp.Entities.csproj"
+              "C:\\Users\\herna\\Documents\\Taller2\\resto_app\\RestoApp.Entities\\RestoApp.Entities.csproj": {
+                "projectPath": "C:\\Users\\herna\\Documents\\Taller2\\resto_app\\RestoApp.Entities\\RestoApp.Entities.csproj"
               }
             }
           }
@@ -46,10 +46,11 @@
           "auditLevel": "low",
           "auditMode": "all"
         },
-        "SdkAnalysisLevel": "10.0.100"
+        "SdkAnalysisLevel": "10.0.400"
       },
       "frameworks": {
         "net10.0": {
+          "framework": "net10.0",
           "targetAlias": "net10.0",
           "imports": [
             "net461",
@@ -67,7 +68,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/lib64/dotnet/sdk/10.0.111/PortableRuntimeIdentifierGraph.json",
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.400/PortableRuntimeIdentifierGraph.json",
           "packagesToPrune": {
             "Microsoft.CSharp": "(,4.7.32767]",
             "Microsoft.VisualBasic": "(,10.4.32767]",
@@ -345,31 +346,31 @@
         }
       }
     },
-    "/home/shiox/git_Projects/resto_app/RestoApp.Data/RestoApp.Data.csproj": {
+    "C:\\Users\\herna\\Documents\\Taller2\\resto_app\\RestoApp.Data\\RestoApp.Data.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/shiox/git_Projects/resto_app/RestoApp.Data/RestoApp.Data.csproj",
+        "projectUniqueName": "C:\\Users\\herna\\Documents\\Taller2\\resto_app\\RestoApp.Data\\RestoApp.Data.csproj",
         "projectName": "RestoApp.Data",
-        "projectPath": "/home/shiox/git_Projects/resto_app/RestoApp.Data/RestoApp.Data.csproj",
-        "packagesPath": "/home/shiox/.nuget/packages/",
-        "outputPath": "/home/shiox/git_Projects/resto_app/RestoApp.Data/obj/",
+        "projectPath": "C:\\Users\\herna\\Documents\\Taller2\\resto_app\\RestoApp.Data\\RestoApp.Data.csproj",
+        "packagesPath": "C:\\Users\\herna\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\herna\\Documents\\Taller2\\resto_app\\RestoApp.Data\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/home/shiox/.nuget/NuGet/NuGet.Config"
+          "C:\\Users\\herna\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net10.0"
         ],
         "sources": {
-          "/usr/lib64/dotnet/library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net10.0": {
+            "framework": "net10.0",
             "targetAlias": "net10.0",
             "projectReferences": {
-              "/home/shiox/git_Projects/resto_app/RestoApp.Entities/RestoApp.Entities.csproj": {
-                "projectPath": "/home/shiox/git_Projects/resto_app/RestoApp.Entities/RestoApp.Entities.csproj"
+              "C:\\Users\\herna\\Documents\\Taller2\\resto_app\\RestoApp.Entities\\RestoApp.Entities.csproj": {
+                "projectPath": "C:\\Users\\herna\\Documents\\Taller2\\resto_app\\RestoApp.Entities\\RestoApp.Entities.csproj"
               }
             }
           }
@@ -384,10 +385,11 @@
           "auditLevel": "low",
           "auditMode": "all"
         },
-        "SdkAnalysisLevel": "10.0.100"
+        "SdkAnalysisLevel": "10.0.400"
       },
       "frameworks": {
         "net10.0": {
+          "framework": "net10.0",
           "targetAlias": "net10.0",
           "dependencies": {
             "Microsoft.EntityFrameworkCore.Design": {
@@ -417,7 +419,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/lib64/dotnet/sdk/10.0.111/PortableRuntimeIdentifierGraph.json",
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.400/PortableRuntimeIdentifierGraph.json",
           "packagesToPrune": {
             "Microsoft.CSharp": "(,4.7.32767]",
             "Microsoft.VisualBasic": "(,10.4.32767]",
@@ -695,27 +697,27 @@
         }
       }
     },
-    "/home/shiox/git_Projects/resto_app/RestoApp.Entities/RestoApp.Entities.csproj": {
+    "C:\\Users\\herna\\Documents\\Taller2\\resto_app\\RestoApp.Entities\\RestoApp.Entities.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/shiox/git_Projects/resto_app/RestoApp.Entities/RestoApp.Entities.csproj",
+        "projectUniqueName": "C:\\Users\\herna\\Documents\\Taller2\\resto_app\\RestoApp.Entities\\RestoApp.Entities.csproj",
         "projectName": "RestoApp.Entities",
-        "projectPath": "/home/shiox/git_Projects/resto_app/RestoApp.Entities/RestoApp.Entities.csproj",
-        "packagesPath": "/home/shiox/.nuget/packages/",
-        "outputPath": "/home/shiox/git_Projects/resto_app/RestoApp.Entities/obj/",
+        "projectPath": "C:\\Users\\herna\\Documents\\Taller2\\resto_app\\RestoApp.Entities\\RestoApp.Entities.csproj",
+        "packagesPath": "C:\\Users\\herna\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\herna\\Documents\\Taller2\\resto_app\\RestoApp.Entities\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/home/shiox/.nuget/NuGet/NuGet.Config"
+          "C:\\Users\\herna\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net10.0"
         ],
         "sources": {
-          "/usr/lib64/dotnet/library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net10.0": {
+            "framework": "net10.0",
             "targetAlias": "net10.0",
             "projectReferences": {}
           }
@@ -730,10 +732,11 @@
           "auditLevel": "low",
           "auditMode": "all"
         },
-        "SdkAnalysisLevel": "10.0.100"
+        "SdkAnalysisLevel": "10.0.400"
       },
       "frameworks": {
         "net10.0": {
+          "framework": "net10.0",
           "targetAlias": "net10.0",
           "imports": [
             "net461",
@@ -751,7 +754,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/lib64/dotnet/sdk/10.0.111/PortableRuntimeIdentifierGraph.json",
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.400/PortableRuntimeIdentifierGraph.json",
           "packagesToPrune": {
             "Microsoft.CSharp": "(,4.7.32767]",
             "Microsoft.VisualBasic": "(,10.4.32767]",

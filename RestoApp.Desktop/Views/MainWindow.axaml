@@ -3,43 +3,39 @@
         xmlns:vm="using:RestoApp.Desktop.ViewModels"
         x:Class="RestoApp.Desktop.Views.MainWindow"
         x:DataType="vm:MainViewModel"
-        Title="RestoApp - Sistema POS Gastronómico Desktop" 
-        Height="720" Width="1180"
-        MinHeight="680" MinWidth="1150"
+        Title="RestoApp - Sistema de Gestión" Height="600" Width="900"
         WindowStartupLocation="CenterScreen">
 
     <Design.DataContext>
         <vm:MainViewModel/>
     </Design.DataContext>
-
     <Window.Styles>
-        <!-- Estilo base del botón de navegación -->
+        <!-- Estilo base del boton -->
         <Style Selector="Button.navBtn">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="Foreground" Value="#BDC3C7"/>
-            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="FontSize" Value="16"/>
             <Setter Property="Padding" Value="0,12"/>
-            <Setter Property="Margin" Value="15,4"/>
+            <Setter Property="Margin" Value="15,5"/>
             <Setter Property="CornerRadius" Value="8"/>
             <Setter Property="HorizontalAlignment" Value="Stretch"/>
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
             <Setter Property="Cursor" Value="Hand"/>
         </Style>
 
-        <!-- Estilo hover del botón -->
+        <!-- Estilo del boton cuando el cursor esta encima -->
         <Style Selector="Button.navBtn:pointerover /template/ ContentPresenter">
             <Setter Property="Background" Value="#34495E"/>
             <Setter Property="Foreground" Value="White"/>
         </Style>
 
-        <!-- Estilo del botón activo/seleccionado -->
+        <!-- Estilo del boton cuando esta seleccionado -->
         <Style Selector="Button.navBtn.active /template/ ContentPresenter">
             <Setter Property="Background" Value="#3498DB"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
         </Style>
-
-        <!-- Estilo para el botón de cerrar sesión -->
+                <!-- Estilo para el boton de cerrar sesion-->
         <Style Selector="Button.logoutBtn /template/ ContentPresenter">
             <Setter Property="Foreground" Value="#E74C3C"/>
         </Style>
@@ -49,45 +45,45 @@
         </Style>
     </Window.Styles>
 
-    <!-- GRID EXTERIOR: Divide la pantalla en Barra Lateral (230px) y Área Principal (*) -->
-    <Grid ColumnDefinitions="230, *">
+    <!-- GRID EXTERIOR: Divide la pantalla en Izquierda (220px) y Derecha (Resto) -->
+    <Grid ColumnDefinitions="220, *">
         
         <!-- ========================================== -->
-        <!-- COLUMNA 0: BARRA LATERAL -->
+        <!-- COLUMNA 0: BARRA LATERAL (Con su propio Grid interno) -->
         <!-- ========================================== -->
         <Grid Grid.Column="0" Background="#2C3E50" RowDefinitions="*, Auto">
             
-            <!-- Menú de Opciones para Admin y Personal -->
-            <StackPanel Grid.Row="0" Spacing="4">
-                <TextBlock Text="RestoApp" Foreground="White" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,30,0,25"/>
+            <!-- Fila 0: Menú de Navegación (Arriba, ocupa el espacio disponible) -->
+            <StackPanel Grid.Row="0" Spacing="5">
+                <TextBlock Text="RestoApp" Foreground="White" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,30,0,30"/>
                 
-                <Button x:Name="BtnInicio" Classes="navBtn active" Content="Inicio" Click="MenuButton_Click" Command="{Binding IrAInicioCommand}"/>
+                <Button x:Name="BtnClientes" IsVisible="{Binding PuedeVerClientes}" Classes="navBtn" Content="Clientes" Click="MenuButton_Click" Command="{Binding IrAClientesCommand}"/>
+                <Button x:Name="BtnEmpleados" Classes="navBtn" Content="Empleados" Click="MenuButton_Click" Command="{Binding IrAEmpleadosCommand}"/>
                 <Button x:Name="BtnReservas" Classes="navBtn" Content="Reservas" Click="MenuButton_Click" Command="{Binding IrAReservasCommand}"/>
-                <Button x:Name="BtnPersonal" Classes="navBtn" Content="Personal" Click="MenuButton_Click" Command="{Binding IrAPersonalCommand}"/>
-                <Button x:Name="BtnCaja" Classes="navBtn" Content="Caja" Click="MenuButton_Click" Command="{Binding IrACajaCommand}"/>
-                <Button x:Name="BtnEventos" Classes="navBtn" Content="Eventos" Click="MenuButton_Click" Command="{Binding IrAEventosCommand}"/>
+                <Button x:Name="BtnMesas" Classes="navBtn active" Content="Mesas" Click="MenuButton_Click" Command="{Binding IrAMesasCommand}"/>
             </StackPanel>
 
-            <!-- Área de Usuario, Cambio de Rol y Logout -->
-            <StackPanel Grid.Row="1" Spacing="10" Margin="15,20,15,25">
-                <!-- Tarjeta visual de Usuario / Rol -->
+            <!-- Fila 1: Área de Usuario y Logout (Abajo, se ajusta a su contenido) -->
+            <StackPanel Grid.Row="1" Spacing="10" Margin="15,20,15,30">
+                <!-- Tarjeta visual del Usuario -->
                 <Border Background="#34495E" CornerRadius="8" Padding="10">
-                    <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
-                        <Ellipse Width="26" Height="26" Fill="#3498DB"/>
+                    <StackPanel Orientation="Horizontal" Spacing="10" HorizontalAlignment="Center">
+                        <Ellipse Width="30" Height="30" Fill="#3498DB"/>
+                        <!--<TextBlock Text="herna" Foreground="White" FontSize="16" VerticalAlignment="Center" FontWeight="SemiBold"/> -->
                         <ComboBox SelectedIndex="{Binding IndiceRolSeleccionado}" 
                                   Background="Transparent" Foreground="White" 
                                   BorderThickness="0" Width="120">
-                            <ComboBoxItem Content="Admin"/>
+                            <ComboBoxItem Content="Dueño"/>
                             <ComboBoxItem Content="Gerente"/>
-                            <ComboBoxItem Content="Mozo"/>
                             <ComboBoxItem Content="Cajero"/>
-                            <ComboBoxItem Content="Recepcionista"/>
+                            <ComboBoxItem Content="Recepcion"/>
+                            <ComboBoxItem Content="Mozo"/>
                         </ComboBox>
                     </StackPanel>
                 </Border>
                 
                 <!-- Botón de Cerrar Sesión -->
-                <Button Classes="navBtn logoutBtn" Content="Cerrar Sesión"/>
+                <Button Classes="navBtn logoutBtn" Content="Cerrar Sesión" Click="CerrarSesion"/>
             </StackPanel>
             
         </Grid>

@@ -7,19 +7,18 @@
 
     <Application.DataTemplates>
         <!-- Mapeo automático de ViewModel a Vista -->
-        <DataTemplate DataType="{x:Type vm:InicioViewModel}">
-            <v:InicioView/>
-        </DataTemplate>
         <DataTemplate DataType="{x:Type vm:MesasViewModel}">
             <v:MesasView/>
         </DataTemplate>
-        <DataTemplate DataType="{x:Type vm:CajaViewModel}">
-            <v:CajaView/>
+
+        <DataTemplate DataType="{x:Type vm:ReservasViewModel}">
+            <v:ReservasView/>
         </DataTemplate>
-        <DataTemplate DataType="{x:Type vm:EventosViewModel}">
-            <v:EventosView/>
+
+        <DataTemplate DataType="{x:Type vm:EmpleadosViewModel}">
+            <v:EmpleadosView/>
         </DataTemplate>
-    </Application.DataTemplates>
+        </Application.DataTemplates>
 
     <Application.Styles>
         <FluentTheme/>

@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace RestoApp.Data.Repositories;
 
-public interface IReservaRepository : IRepository<Reserva>
+public interface IReservaRepository
 {
     Task<IEnumerable<Reserva>> GetReservasConDetallesAsync();
 }

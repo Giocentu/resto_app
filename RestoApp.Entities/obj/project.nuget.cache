@@ -1,8 +1,18 @@
 {
   "version": 2,
-  "dgSpecHash": "AFGDvacbE/A=",
+  "dgSpecHash": "C+gWl9ImaQc=",
   "success": true,
-  "projectFilePath": "/home/shiox/git_Projects/resto_app/RestoApp.Entities/RestoApp.Entities.csproj",
+  "projectFilePath": "C:\\Users\\herna\\Documents\\Taller2\\resto_app\\RestoApp.Entities\\RestoApp.Entities.csproj",
   "expectedPackageFiles": [],
-  "logs": []
+  "logs": [
+    {
+      "code": "Undefined",
+      "level": "Warning",
+      "message": "Problem reading the cache file C:\\Users\\herna\\Documents\\Taller2\\resto_app\\RestoApp.Entities\\obj\\project.nuget.cache : '<' is an invalid start of a property name. Expected a '\"'. Path: $ | LineNumber: 2 | BytePositionInLine: 0.",
+      "projectPath": "C:\\Users\\herna\\Documents\\Taller2\\resto_app\\RestoApp.Entities\\RestoApp.Entities.csproj",
+      "warningLevel": 1,
+      "filePath": "C:\\Users\\herna\\Documents\\Taller2\\resto_app\\RestoApp.Entities\\RestoApp.Entities.csproj",
+      "targetGraphs": []
+    }
+  ]
 }
