@@ -42,5 +42,15 @@
     "C:\\Users\\herna\\.nuget\\packages\\system.security.cryptography.pkcs\\9.0.11\\system.security.cryptography.pkcs.9.0.11.nupkg.sha512",
     "C:\\Users\\herna\\.nuget\\packages\\system.security.cryptography.protecteddata\\9.0.11\\system.security.cryptography.protecteddata.9.0.11.nupkg.sha512"
   ],
-  "logs": []
+  "logs": [
+    {
+      "code": "Undefined",
+      "level": "Warning",
+      "message": "Problem reading the cache file C:\\Users\\herna\\Documents\\Taller2\\resto_app\\RestoApp.Business\\obj\\project.nuget.cache : '<' is an invalid start of a property name. Expected a '\"'. Path: $ | LineNumber: 2 | BytePositionInLine: 0.",
+      "projectPath": "C:\\Users\\herna\\Documents\\Taller2\\resto_app\\RestoApp.Business\\RestoApp.Business.csproj",
+      "warningLevel": 1,
+      "filePath": "C:\\Users\\herna\\Documents\\Taller2\\resto_app\\RestoApp.Business\\RestoApp.Business.csproj",
+      "targetGraphs": []
+    }
+  ]
 }
