@@ -1,0 +1,36 @@
+## Visual Studio / .NET Ignore rules
+
+# Build results & binaries
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+[P3]ublish/
+
+# Visual Studio / Rider / VS Code cache & user-specific settings
+.vs/
+.idea/
+.vscode/
+*.user
+*.userossc
+*.sln.docstates
+*.suo
+*.userprefs
+*.pidb
+*.booproj
+*.svclog
+
+# NuGet packages & restore artifacts
+*.nupkg
+**/packages/*
+!**/packages/build/
+*.nuget.props
+*.nuget.targets
+
+# Test results
+[Tt]est[Rr]esults/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+desktop.ini
