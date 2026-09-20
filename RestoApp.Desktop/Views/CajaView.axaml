@@ -1,0 +1,382 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:RestoApp.Desktop.ViewModels"
+             x:Class="RestoApp.Desktop.Views.CajaView"
+             x:DataType="vm:CajaViewModel">
+
+    <Grid RowDefinitions="Auto, *">
+        <!-- ========================================== -->
+        <!-- FILA 0: ENCABEZADO Y SELECTOR DE VISTAS   -->
+        <!-- ========================================== -->
+        <Grid Grid.Row="0" ColumnDefinitions="*, Auto" Margin="0,0,0,15">
+            <!-- Título y Subtítulo del Módulo -->
+            <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                <TextBlock Text="Módulo de Caja, Pagos y Balance de Turno" FontSize="22" FontWeight="Bold" Foreground="#2C3E50"/>
+                <TextBlock Text="Registro de cobros por múltiples medios de pago, apertura, arqueo y cierre de caja" FontSize="12" Foreground="#7F8C8D"/>
+            </StackPanel>
+
+            <!-- Selector de Vistas / Pestañas (Pagos vs Arqueo) -->
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                <Button Content="💳 Registrar Pagos y Cuentas"
+                        Command="{Binding CambiarVistaCommand}" CommandParameter="Pagos"
+                        Classes.activeTab="{Binding EsVistaPagos}"
+                        Classes="tabBtn"/>
+
+                <Button Content="📊 Control de Caja y Arqueo"
+                        Command="{Binding CambiarVistaCommand}" CommandParameter="Arqueo"
+                        Classes.activeTab="{Binding EsVistaArqueo}"
+                        Classes="tabBtn"/>
+            </StackPanel>
+        </Grid>
+
+        <!-- ========================================== -->
+        <!-- FILA 1: ÁREA PRINCIPAL DE CONTENIDO       -->
+        <!-- ========================================== -->
+        <Grid Grid.Row="1">
+
+            <!-- ========================================== -->
+            <!-- VISTA 1: REGISTRAR PAGOS E HISTORIAL (CRUD)-->
+            <!-- ========================================== -->
+            <Grid IsVisible="{Binding EsVistaPagos}">
+                <Border Background="White" BorderBrush="#BDC3C7" BorderThickness="1" CornerRadius="10" Padding="18">
+                    <Grid RowDefinitions="Auto, *">
+                        <!-- Barra Superior de Acciones del CRUD -->
+                        <Grid Grid.Row="0" ColumnDefinitions="Auto, *, Auto, Auto" Margin="0,0,0,15">
+                            <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                                <TextBlock Text="Historial de Cobros del Turno" FontSize="18" FontWeight="Bold" Foreground="#2C3E50"/>
+                                <Border Background="#EFF6FF" CornerRadius="12" Padding="8,2">
+                                    <TextBlock Text="{Binding PagosFiltrados.Count, StringFormat='{}{0} registros'}" Foreground="#3498DB" FontSize="11" FontWeight="Bold"/>
+                                </Border>
+                            </StackPanel>
+
+                            <!-- Buscador en Tiempo Real -->
+                            <TextBox Grid.Column="2" 
+                                     Text="{Binding TextoBusqueda, Mode=TwoWay}"
+                                     Watermark="🔍 Buscar por mesa, cliente o medio..." 
+                                     Width="280" Height="38"
+                                     Margin="0,0,12,0" VerticalContentAlignment="Center"/>
+
+                            <!-- Botón Principal "Procesar Pago" -->
+                            <Button Grid.Column="3" 
+                                    Command="{Binding AbrirModalProcesarPagoCommand}"
+                                    Background="#3498DB" Foreground="White" 
+                                    CornerRadius="6" Padding="16,9"
+                                    FontWeight="Bold" FontSize="13" Cursor="Hand">
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <TextBlock Text="💳" FontSize="14" VerticalAlignment="Center"/>
+                                    <TextBlock Text="Procesar Pago" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                        </Grid>
+
+                        <!-- DataGrid de Historial de Pagos -->
+                        <DataGrid Grid.Row="1" 
+                                  ItemsSource="{Binding PagosFiltrados}"
+                                  SelectedItem="{Binding PagoSeleccionado}"
+                                  AutoGenerateColumns="False" 
+                                  IsReadOnly="True"
+                                  GridLinesVisibility="Horizontal"
+                                  HeadersVisibility="Column"
+                                  BorderThickness="1" BorderBrush="#E0E6ED"
+                                  CornerRadius="6">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="#" Binding="{Binding IdPago}" Width="60"/>
+                                <DataGridTextColumn Header="Hora" Binding="{Binding Hora}" Width="100"/>
+                                <DataGridTextColumn Header="Descripción / Mesa" Binding="{Binding Descripcion}" Width="*"/>
+                                <DataGridTextColumn Header="Cliente" Binding="{Binding ClienteNombre}" Width="180"/>
+                                
+                                <!-- Columna Medio de Pago con Badge Coloreado -->
+                                <DataGridTemplateColumn Header="Medio de Pago" Width="160">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate DataType="vm:PagoItemViewModel">
+                                            <Border Background="{Binding MedioPagoBadgeBackground}" 
+                                                    CornerRadius="12" Padding="10,4" 
+                                                    HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding MedioPago}" 
+                                                           Foreground="{Binding MedioPagoBadgeForeground}" 
+                                                           FontWeight="Bold" FontSize="11"/>
+                                            </Border>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+
+                                <DataGridTextColumn Header="Monto Total" Binding="{Binding MontoTexto}" Width="140"/>
+
+                                <!-- Acciones CRUD: Ver Comprobante / Eliminar -->
+                                <DataGridTemplateColumn Header="Acciones" Width="170">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate DataType="vm:PagoItemViewModel">
+                                            <StackPanel Orientation="Horizontal" Spacing="6" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                <Button Content="📜 Ticket" 
+                                                        Command="{Binding $parent[UserControl].((vm:CajaViewModel)DataContext).VerComprobanteCommand}"
+                                                        CommandParameter="{Binding}"
+                                                        Background="#34495E" Foreground="White" 
+                                                        FontSize="11" FontWeight="SemiBold" CornerRadius="4" Padding="8,4" Cursor="Hand"/>
+                                                
+                                                <Button Content="🗑️" 
+                                                        Command="{Binding $parent[UserControl].((vm:CajaViewModel)DataContext).EliminarPagoCommand}"
+                                                        CommandParameter="{Binding}"
+                                                        Background="#FEE2E2" Foreground="#E74C3C" 
+                                                        FontSize="12" CornerRadius="4" Padding="6,4" Cursor="Hand"/>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+                </Border>
+            </Grid>
+
+            <!-- ========================================== -->
+            <!-- VISTA 2: CONTROL DE CAJA Y ARQUEO          -->
+            <!-- ========================================== -->
+            <Grid IsVisible="{Binding EsVistaArqueo}">
+                <Grid ColumnDefinitions="*, *">
+                    
+                    <!-- COLUMNA IZQUIERDA: Balance y Totales del Turno -->
+                    <Border Grid.Column="0" Background="White" BorderBrush="#BDC3C7" BorderThickness="1" CornerRadius="10" Padding="18" Margin="0,0,10,0">
+                        <Grid RowDefinitions="Auto, *, Auto">
+                            <TextBlock Grid.Row="0" Text="Balance y Totales del Turno" FontSize="18" FontWeight="Bold" Foreground="#2C3E50" Margin="0,0,0,15"/>
+                            
+                            <!-- Grilla 2x2 de Tarjetas KPI -->
+                            <UniformGrid Grid.Row="1" Columns="2" Rows="2" Margin="0,0,0,15">
+                                <!-- Fondo Inicial -->
+                                <Border Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="8" Padding="14" Margin="4">
+                                    <StackPanel Spacing="4" VerticalAlignment="Center">
+                                        <TextBlock Text="Fondo Inicial:" Foreground="#7F8C8D" FontSize="12" FontWeight="SemiBold"/>
+                                        <TextBlock Text="{Binding FondoInicial, StringFormat='{}{0:C2}'}" Foreground="#2C3E50" FontSize="18" FontWeight="Bold"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Cobrado Efectivo -->
+                                <Border Background="#F0FDF4" BorderBrush="#BBF7D0" BorderThickness="1" CornerRadius="8" Padding="14" Margin="4">
+                                    <StackPanel Spacing="4" VerticalAlignment="Center">
+                                        <TextBlock Text="Cobrado Efectivo:" Foreground="#27AE60" FontSize="12" FontWeight="Bold"/>
+                                        <TextBlock Text="{Binding CobradoEfectivo, StringFormat='{}{0:C2}'}" Foreground="#27AE60" FontSize="18" FontWeight="Bold"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Cobrado Tarjetas -->
+                                <Border Background="#EFF6FF" BorderBrush="#BFDBFE" BorderThickness="1" CornerRadius="8" Padding="14" Margin="4">
+                                    <StackPanel Spacing="4" VerticalAlignment="Center">
+                                        <TextBlock Text="Cobrado Tarjetas:" Foreground="#2980B9" FontSize="12" FontWeight="Bold"/>
+                                        <TextBlock Text="{Binding CobradoTarjetas, StringFormat='{}{0:C2}'}" Foreground="#2980B9" FontSize="18" FontWeight="Bold"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Cobrado Transferencia / QR -->
+                                <Border Background="#F3E8FF" BorderBrush="#E9D5FF" BorderThickness="1" CornerRadius="8" Padding="14" Margin="4">
+                                    <StackPanel Spacing="4" VerticalAlignment="Center">
+                                        <TextBlock Text="Cobrado Transferencia/QR:" Foreground="#8E44AD" FontSize="12" FontWeight="Bold"/>
+                                        <TextBlock Text="{Binding CobradoTransferenciaQR, StringFormat='{}{0:C2}'}" Foreground="#8E44AD" FontSize="18" FontWeight="Bold"/>
+                                    </StackPanel>
+                                </Border>
+                            </UniformGrid>
+
+                            <!-- Banner Verde de Total Ingresos Turno -->
+                            <Border Grid.Row="2" Background="#2ECC71" CornerRadius="8" Padding="16,14">
+                                <Grid ColumnDefinitions="*, Auto">
+                                    <TextBlock Grid.Column="0" Text="TOTAL INGRESOS TURNO:" Foreground="White" FontSize="15" FontWeight="Bold" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding TotalIngresosTurno, StringFormat='{}{0:C2}'}" Foreground="White" FontSize="22" FontWeight="Bold" VerticalAlignment="Center"/>
+                                </Grid>
+                            </Border>
+                        </Grid>
+                    </Border>
+
+                    <!-- COLUMNA DERECHA: Arqueo y Cierre de Caja -->
+                    <Border Grid.Column="1" Background="White" BorderBrush="#BDC3C7" BorderThickness="1" CornerRadius="10" Padding="18" Margin="10,0,0,0">
+                        <StackPanel Spacing="16">
+                            <TextBlock Text="Arqueo y Cierre de Caja" FontSize="18" FontWeight="Bold" Foreground="#2C3E50"/>
+                            
+                            <!-- Box Efectivo Esperado -->
+                            <StackPanel Spacing="6">
+                                <TextBlock Text="Efectivo Esperado en Caja (Fondo Inicial + Cobros en Efectivo):" Foreground="#7F8C8D" FontSize="12" FontWeight="SemiBold"/>
+                                <Border Background="#EFF6FF" BorderBrush="#3498DB" BorderThickness="1" CornerRadius="8" Padding="14">
+                                    <TextBlock Text="{Binding EfectivoEsperado, StringFormat='{}{0:C2}'}" Foreground="#2980B9" FontSize="22" FontWeight="Bold" HorizontalAlignment="Center"/>
+                                </Border>
+                            </StackPanel>
+
+                            <!-- Campo Efectivo Recontado Físicamente -->
+                            <StackPanel Spacing="6">
+                                <TextBlock Text="Efectivo Recontado Físicamente:" Foreground="#34495E" FontSize="13" FontWeight="Bold"/>
+                                <TextBox Text="{Binding EfectivoRecontado, Mode=TwoWay}"
+                                         FontSize="18" FontWeight="Bold" Height="42" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
+                            </StackPanel>
+
+                            <!-- Botón Calcular Arqueo -->
+                            <Button Content="📊 Calcular Arqueo" 
+                                    Command="{Binding CalcularArqueoCommand}"
+                                    Background="#34495E" Foreground="White" 
+                                    Height="40" CornerRadius="6" FontWeight="Bold"
+                                    HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Cursor="Hand"/>
+
+                            <!-- Box Diferencia de Arqueo -->
+                            <Border Background="#F8FAFC" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="8" Padding="14">
+                                <Grid ColumnDefinitions="*, Auto">
+                                    <TextBlock Grid.Column="0" Text="Diferencia de Arqueo:" Foreground="#34495E" FontSize="14" FontWeight="Bold" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding DiferenciaArqueo, StringFormat='{}{0:C2}'}" Foreground="#2C3E50" FontSize="18" FontWeight="Bold" VerticalAlignment="Center"/>
+                                </Grid>
+                            </Border>
+
+                            <!-- Mensaje informativo de Arqueo / Cierre -->
+                            <TextBlock Text="{Binding MensajeCierre}" Foreground="#27AE60" FontWeight="SemiBold" FontSize="12" HorizontalAlignment="Center" IsVisible="{Binding MensajeCierre, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+
+                            <!-- Botón Crítico Cerrar Caja -->
+                            <Button Content="🔒 Finalizar y Cerrar Caja" 
+                                    Command="{Binding FinalizarYCerrarCajaCommand}"
+                                    Background="#E74C3C" Foreground="White" 
+                                    Height="46" CornerRadius="8" FontSize="15" FontWeight="Bold"
+                                    HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Cursor="Hand" Margin="0,10,0,0"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </Grid>
+
+        </Grid>
+
+        <!-- ========================================== -->
+        <!-- MODAL 1: PROCESAR COBRO                    -->
+        <!-- ========================================== -->
+        <Grid Grid.RowSpan="2" Background="#80000000" IsVisible="{Binding MostrarModalProcesarPago}">
+            <Border Background="White" CornerRadius="12" Padding="24" Width="460" VerticalAlignment="Center" HorizontalAlignment="Center" BorderBrush="#BDC3C7" BorderThickness="1">
+                <StackPanel Spacing="16">
+                    <Grid ColumnDefinitions="*, Auto">
+                        <TextBlock Grid.Column="0" Text="Procesar Cobro" FontSize="20" FontWeight="Bold" Foreground="#2C3E50"/>
+                        <Button Grid.Column="1" Content="✕" Command="{Binding CerrarModalProcesarPagoCommand}" Background="Transparent" Foreground="#7F8C8D" FontSize="16" FontWeight="Bold" Cursor="Hand"/>
+                    </Grid>
+
+                    <Separator Background="#E2E8F0"/>
+
+                    <!-- Selección Mesa / Cuenta Pendiente -->
+                    <StackPanel Spacing="6">
+                        <TextBlock Text="Seleccionar Mesa / Cuenta Pendiente:" Foreground="#34495E" FontWeight="Bold" FontSize="13"/>
+                        <ComboBox ItemsSource="{Binding CuentasPendientes}"
+                                  SelectedItem="{Binding CuentaSeleccionada}"
+                                  DisplayMemberBinding="{Binding DisplayCombo}"
+                                  HorizontalAlignment="Stretch" Height="40"/>
+                    </StackPanel>
+
+                    <!-- Selección Medio de Pago -->
+                    <StackPanel Spacing="6">
+                        <TextBlock Text="Medio de Pago:" Foreground="#34495E" FontWeight="Bold" FontSize="13"/>
+                        <ComboBox ItemsSource="{Binding MediosPago}"
+                                  SelectedItem="{Binding MedioPagoSeleccionado}"
+                                  HorizontalAlignment="Stretch" Height="40"/>
+                    </StackPanel>
+
+                    <!-- Monto Total a Cobrar -->
+                    <StackPanel Spacing="6">
+                        <TextBlock Text="Monto Total a Cobrar:" Foreground="#34495E" FontWeight="Bold" FontSize="13"/>
+                        <Border Background="#F0FDF4" BorderBrush="#2ECC71" BorderThickness="1.5" CornerRadius="6" Padding="12,8">
+                            <TextBlock Text="{Binding MontoCobrarTexto}" Foreground="#27AE60" FontSize="22" FontWeight="Bold"/>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- Vista previa comprobante -->
+                    <Border Background="#F8FAFC" BorderBrush="#3498DB" BorderThickness="1" CornerRadius="8" Padding="12">
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="📜 Comprobante RestoApp" Foreground="#3498DB" FontWeight="Bold" FontSize="13"/>
+                            <TextBlock Text="{Binding ClienteNombreModal, StringFormat='Cliente: {0}'}" Foreground="#2C3E50" FontSize="12"/>
+                            <TextBlock Text="{Binding MedioPagoSeleccionado, StringFormat='Método: {0}'}" Foreground="#7F8C8D" FontSize="12"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Botones de Acción -->
+                    <Grid ColumnDefinitions="*, *" ColumnSpacing="12" Margin="0,15,0,0">
+                        <Button Grid.Column="0" Content="Cancelar" 
+                                Command="{Binding CerrarModalProcesarPagoCommand}" 
+                                Background="#95A5A6" Foreground="White" 
+                                Height="44" CornerRadius="8" FontSize="14" FontWeight="Bold" 
+                                HorizontalContentAlignment="Center" VerticalContentAlignment="Center" 
+                                Cursor="Hand"/>
+                        
+                        <Button Grid.Column="1" 
+                                Command="{Binding ProcesarPagoYLiquidarCommand}" 
+                                Background="#3498DB" Foreground="White" 
+                                Height="44" CornerRadius="8" FontSize="14" FontWeight="Bold" 
+                                HorizontalContentAlignment="Center" VerticalContentAlignment="Center" 
+                                Cursor="Hand">
+                            <StackPanel Orientation="Horizontal" Spacing="6" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <TextBlock Text="💳" FontSize="14" VerticalAlignment="Center"/>
+                                <TextBlock Text="Procesar Pago" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                    </Grid>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- ========================================== -->
+        <!-- MODAL 2: VISTA DE COMPROBANTE DIGITAL      -->
+        <!-- ========================================== -->
+        <Grid Grid.RowSpan="2" Background="#80000000" IsVisible="{Binding MostrarModalComprobante}">
+            <Border Background="White" CornerRadius="12" Padding="24" Width="400" VerticalAlignment="Center" HorizontalAlignment="Center" BorderBrush="#BDC3C7" BorderThickness="1">
+                <StackPanel Spacing="14" DataContext="{Binding ComprobantePago}">
+                    <TextBlock Text="📜 Ticket de Comprobante" FontSize="18" FontWeight="Bold" Foreground="#2C3E50" HorizontalAlignment="Center"/>
+                    <TextBlock Text="RestoApp Gastronómico POS" FontSize="12" Foreground="#7F8C8D" HorizontalAlignment="Center"/>
+
+                    <Separator Background="#CBD5E1"/>
+
+                    <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto" ColumnDefinitions="120, *" RowSpacing="8">
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="N° Pago:" Foreground="#7F8C8D" FontWeight="SemiBold"/>
+                        <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding IdPago, StringFormat='#000{0}'}" FontWeight="Bold" Foreground="#2C3E50"/>
+
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Fecha y Hora:" Foreground="#7F8C8D" FontWeight="SemiBold"/>
+                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding FechaPago, StringFormat='{}{0:dd/MM/yyyy HH:mm}'}" Foreground="#2C3E50"/>
+
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Cliente:" Foreground="#7F8C8D" FontWeight="SemiBold"/>
+                        <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding ClienteNombre}" Foreground="#2C3E50"/>
+
+                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Medio de Pago:" Foreground="#7F8C8D" FontWeight="SemiBold"/>
+                        <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding MedioPago}" FontWeight="Bold" Foreground="#3498DB"/>
+
+                        <TextBlock Grid.Row="4" Grid.Column="0" Text="Monto Total:" Foreground="#7F8C8D" FontWeight="SemiBold"/>
+                        <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding MontoTexto}" FontWeight="Bold" Foreground="#27AE60" FontSize="18"/>
+                    </Grid>
+
+                    <Separator Background="#CBD5E1"/>
+
+                    <Button Content="Cerrar Ticket" 
+                            Command="{Binding $parent[UserControl].((vm:CajaViewModel)DataContext).CerrarModalComprobanteCommand}" 
+                            Background="#2C3E50" Foreground="White" 
+                            Height="42" CornerRadius="6" FontWeight="Bold" HorizontalAlignment="Stretch" 
+                            HorizontalContentAlignment="Center" VerticalContentAlignment="Center" 
+                            Cursor="Hand" Margin="0,10,0,0"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+    </Grid>
+
+    <UserControl.Styles>
+        <!-- Estilo Base del Botón de Pestaña -->
+        <Style Selector="Button.tabBtn">
+            <Setter Property="Background" Value="#FFFFFF"/>
+            <Setter Property="Foreground" Value="#7F8C8D"/>
+            <Setter Property="BorderBrush" Value="#BDC3C7"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="Padding" Value="14,8"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+        <Style Selector="Button.tabBtn:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#F1F5F9"/>
+            <Setter Property="Foreground" Value="#2C3E50"/>
+        </Style>
+
+        <!-- Pestaña Activa -->
+        <Style Selector="Button.tabBtn.activeTab">
+            <Setter Property="Background" Value="#2C3E50"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="#2C3E50"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+        </Style>
+        <Style Selector="Button.tabBtn.activeTab /template/ ContentPresenter">
+            <Setter Property="Background" Value="#2C3E50"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+    </UserControl.Styles>
+</UserControl>

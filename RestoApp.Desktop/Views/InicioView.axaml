@@ -1,0 +1,206 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:RestoApp.Desktop.ViewModels"
+             x:Class="RestoApp.Desktop.Views.InicioView"
+             x:DataType="vm:InicioViewModel">
+
+    <Grid RowDefinitions="Auto, Auto, *">
+        <!-- ========================================== -->
+        <!-- FILA 0: ENCABEZADO, BOTÓN MESAS Y BADGES -->
+        <!-- ========================================== -->
+        <Grid Grid.Row="0" ColumnDefinitions="Auto, *, Auto" Margin="0,0,0,15">
+            <!-- Columna 0: Título y Subtítulo -->
+            <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                <TextBlock Text="Gestión Visual de Mesas" FontSize="22" FontWeight="Bold" Foreground="#2C3E50"/>
+                <TextBlock Text="Control de disponibilidad y asignación por sector" FontSize="12" Foreground="#7F8C8D"/>
+            </StackPanel>
+
+            <!-- Columna 1: Botón Mesas (Separado para evitar solapamientos) -->
+            <Button Grid.Column="1" Command="{Binding IrAMesasCommand}" 
+                    Background="#3498DB" Foreground="White" 
+                    CornerRadius="6" Padding="14,8"
+                    FontWeight="Bold" Cursor="Hand" 
+                    VerticalAlignment="Center" HorizontalAlignment="Left"
+                    Margin="20,0,0,0">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                    <TextBlock Text="📋" FontSize="14" VerticalAlignment="Center"/>
+                    <TextBlock Text="Mesas" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                </StackPanel>
+            </Button>
+
+            <!-- Columna 2: Badges KPIs de Estados -->
+            <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                <Border Background="#2ECC71" CornerRadius="6" Padding="12,7">
+                    <TextBlock Text="{Binding LibresCount, StringFormat='Libres: {0}'}" Foreground="White" FontWeight="Bold" FontSize="13"/>
+                </Border>
+                <Border Background="#3498DB" CornerRadius="6" Padding="12,7">
+                    <TextBlock Text="{Binding ReservadasCount, StringFormat='Reservadas: {0}'}" Foreground="White" FontWeight="Bold" FontSize="13"/>
+                </Border>
+                <Border Background="#F39C12" CornerRadius="6" Padding="12,7">
+                    <TextBlock Text="{Binding OcupadasCount, StringFormat='Ocupadas: {0}'}" Foreground="White" FontWeight="Bold" FontSize="13"/>
+                </Border>
+                <Border Background="#E74C3C" CornerRadius="6" Padding="12,7">
+                    <TextBlock Text="{Binding LimpiezaCount, StringFormat='En Limpieza: {0}'}" Foreground="White" FontWeight="Bold" FontSize="13"/>
+                </Border>
+            </StackPanel>
+        </Grid>
+
+        <!-- ========================================== -->
+        <!-- FILA 1: BARRA DE FILTRADO POR SECTOR -->
+        <!-- ========================================== -->
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="10" Margin="0,0,0,15">
+            <TextBlock Text="Sector:" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="#34495E" Margin="0,0,5,0"/>
+            <Button Content="Todos" Command="{Binding FiltrarPorSectorCommand}" CommandParameter="Todos" Classes="sectorBtn" />
+            <Button Content="Salón Principal" Command="{Binding FiltrarPorSectorCommand}" CommandParameter="Salón Principal" Classes="sectorBtn"/>
+            <Button Content="Terraza" Command="{Binding FiltrarPorSectorCommand}" CommandParameter="Terraza" Classes="sectorBtn"/>
+            <Button Content="Barra" Command="{Binding FiltrarPorSectorCommand}" CommandParameter="Barra" Classes="sectorBtn"/>
+            <Button Content="VIP" Command="{Binding FiltrarPorSectorCommand}" CommandParameter="VIP" Classes="sectorBtn"/>
+        </StackPanel>
+
+        <!-- ========================================== -->
+        <!-- FILA 2: CONTENIDO PRINCIPAL (GRILLA + PANEL LATERAL) -->
+        <!-- ========================================== -->
+        <Grid Grid.Row="2" ColumnDefinitions="*, 310">
+            <!-- Columna Izquierda: Tarjetas Visuales de Mesas -->
+            <ScrollViewer Grid.Column="0" Margin="0,0,15,0" VerticalScrollBarVisibility="Auto">
+                <ItemsControl ItemsSource="{Binding MesasFiltradas}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <UniformGrid Columns="3" HorizontalAlignment="Stretch"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="vm:VisualMesaItemViewModel">
+                            <Button Command="{Binding $parent[UserControl].((vm:InicioViewModel)DataContext).SeleccionarMesaCommand}"
+                                    CommandParameter="{Binding}"
+                                    Background="Transparent" BorderThickness="0" Padding="0" Margin="0,0,10,12"
+                                    HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Cursor="Hand">
+                                
+                                <Border Background="{Binding EstadoLightBackground}" 
+                                        BorderBrush="{Binding EstadoCardBorder}" 
+                                        BorderThickness="2" CornerRadius="10" 
+                                        ClipToBounds="True" Height="135">
+                                    <Grid RowDefinitions="Auto, *">
+                                        <!-- Header de Estado -->
+                                        <Border Grid.Row="0" Background="{Binding EstadoHeaderBackground}" Padding="8,5">
+                                            <TextBlock Text="{Binding BannerText}" Foreground="White" 
+                                                       FontWeight="Bold" FontSize="11" HorizontalAlignment="Center"/>
+                                        </Border>
+
+                                        <!-- Cuerpo de la Tarjeta -->
+                                        <Border Grid.Row="1" Padding="12,8">
+                                            <StackPanel Spacing="4">
+                                                <Grid ColumnDefinitions="*, Auto">
+                                                    <TextBlock Grid.Column="0" Text="{Binding NroMesa, StringFormat='Mesa #{0}'}" 
+                                                               FontSize="18" FontWeight="Bold" Foreground="#2C3E50"/>
+                                                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="3" VerticalAlignment="Center">
+                                                        <TextBlock Text="👤" FontSize="12" Foreground="#7F8C8D"/>
+                                                        <TextBlock Text="{Binding Capacidad}" FontSize="13" FontWeight="SemiBold" Foreground="#7F8C8D"/>
+                                                    </StackPanel>
+                                                </Grid>
+
+                                                <TextBlock Text="{Binding UbicacionDescripcion}" FontSize="12" Foreground="#7F8C8D"/>
+
+                                                <TextBlock Text="{Binding MozoNombre}" FontSize="12" FontWeight="SemiBold" Foreground="#2980B9" 
+                                                           IsVisible="{Binding MozoNombre, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                                                <TextBlock Text="{Binding ClienteNombre}" FontSize="12" FontWeight="SemiBold" Foreground="#27AE60" 
+                                                           IsVisible="{Binding ClienteNombre, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                                            </StackPanel>
+                                        </Border>
+                                    </Grid>
+                                </Border>
+                            </Button>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+
+            <!-- Columna Derecha: Panel de Detalles y Acciones -->
+            <Border Grid.Column="1" Background="White" BorderBrush="#BDC3C7" BorderThickness="1" CornerRadius="10" Padding="18">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Spacing="15" DataContext="{Binding SelectedMesa}">
+                        <TextBlock Text="Detalles y Acciones de Mesa" FontSize="16" FontWeight="Bold" Foreground="#2C3E50"/>
+                        <Separator Background="#BDC3C7" Margin="0,0,0,5"/>
+
+                        <!-- Atributos de la Mesa Seleccionada -->
+                        <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto" ColumnDefinitions="110, *" RowSpacing="10">
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Número Mesa:" Foreground="#7F8C8D" FontWeight="SemiBold"/>
+                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding NroMesa, StringFormat='Mesa #{0}'}" FontWeight="Bold" Foreground="#2C3E50"/>
+
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Sector:" Foreground="#7F8C8D" FontWeight="SemiBold"/>
+                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding UbicacionDescripcion}" Foreground="#2C3E50"/>
+
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Capacidad:" Foreground="#7F8C8D" FontWeight="SemiBold"/>
+                            <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Capacidad, StringFormat='{}{0} comensales'}" Foreground="#2C3E50"/>
+
+                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Estado Actual:" Foreground="#7F8C8D" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                            <Border Grid.Row="3" Grid.Column="1" Background="{Binding EstadoHeaderBackground}" CornerRadius="4" Padding="8,3" HorizontalAlignment="Left">
+                                <TextBlock Text="{Binding Estado}" Foreground="White" FontWeight="Bold" FontSize="11"/>
+                            </Border>
+
+                            <TextBlock Grid.Row="4" Grid.Column="0" Text="Cliente/Mozo:" Foreground="#7F8C8D" FontWeight="SemiBold"/>
+                            <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding MozoNombre}" Foreground="#2C3E50"/>
+
+                            <TextBlock Grid.Row="5" Grid.Column="0" Text="Consumo:" Foreground="#7F8C8D" FontWeight="SemiBold"/>
+                            <TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding ConsumoTexto}" FontWeight="Bold" Foreground="#27AE60" FontSize="15"/>
+                        </Grid>
+
+                        <Separator Background="#BDC3C7" Margin="0,10,0,5"/>
+
+                        <!-- Cambiar Estado de la Mesa -->
+                        <TextBlock Text="Cambiar Estado de la Mesa:" FontSize="13" FontWeight="Bold" Foreground="#34495E" Margin="0,5,0,0"/>
+
+                        <UniformGrid Columns="2" Rows="2" HorizontalAlignment="Stretch" Margin="0,6,0,0">
+                            <Button Content="LIBRE" Command="{Binding $parent[UserControl].((vm:InicioViewModel)DataContext).CambiarEstadoCommand}" CommandParameter="LIBRE"
+                                    Classes="stateBtn" Background="#2ECC71"/>
+                            <Button Content="RESERVADA" Command="{Binding $parent[UserControl].((vm:InicioViewModel)DataContext).CambiarEstadoCommand}" CommandParameter="RESERVADA"
+                                    Classes="stateBtn" Background="#3498DB"/>
+                            <Button Content="OCUPADA" Command="{Binding $parent[UserControl].((vm:InicioViewModel)DataContext).CambiarEstadoCommand}" CommandParameter="OCUPADA"
+                                    Classes="stateBtn" Background="#F39C12"/>
+                            <Button Content="EN LIMPIEZA" Command="{Binding $parent[UserControl].((vm:InicioViewModel)DataContext).CambiarEstadoCommand}" CommandParameter="EN LIMPIEZA"
+                                    Classes="stateBtn" Background="#E74C3C"/>
+                        </UniformGrid>
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+        </Grid>
+    </Grid>
+
+    <UserControl.Styles>
+        <Style Selector="Button.sectorBtn">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="#34495E"/>
+            <Setter Property="BorderBrush" Value="#BDC3C7"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="Padding" Value="14,6"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+        <Style Selector="Button.sectorBtn:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#3498DB"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+
+        <!-- Estilo uniforme para los botones de cambio de estado de mesa -->
+        <Style Selector="Button.stateBtn">
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="VerticalAlignment" Value="Stretch"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="MinHeight" Value="42"/>
+            <Setter Property="Height" Value="42"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="Margin" Value="4"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+        <Style Selector="Button.stateBtn /template/ ContentPresenter">
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+    </UserControl.Styles>
+</UserControl>

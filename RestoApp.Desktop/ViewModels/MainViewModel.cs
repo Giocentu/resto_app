@@ -13,62 +13,141 @@ public partial class MainViewModel : ObservableObject
 
     // Propiedades de visibilidad basadas en el rol global
     public bool EsAdmin => SesionGlobal.TipoUsuarioActual == 1;
-    
-    // Si el mozo no debe ver clientes, solo devolvemos true si es Admin
-    public bool PuedeVerClientes => SesionGlobal.TipoUsuarioActual == 1; 
 
-    // Los mozos y admins sí pueden ver mesas
+    // Si el mozo no debe ver clientes/personal, solo devolvemos true si es Admin
+    public bool PuedeVerClientes => SesionGlobal.TipoUsuarioActual == 1;
+
+    // Los mozos y admins pueden ver mesas
     public bool PuedeVerMesas => SesionGlobal.TipoUsuarioActual == 1 || SesionGlobal.TipoUsuarioActual == 2;
-// 0 = Admin, 1 = Mozo. Empezamos en 1 (Mozo)
+
+    // 0 = Admin, 1 = Mozo. Empezamos en 0 (Admin)
     [ObservableProperty]
-    private int _indiceRolSeleccionado = 1; 
+    private int _indiceRolSeleccionado = 0;
+
+    public MainViewModel()
+    {
+        // Al iniciar la aplicación cargamos la vista Inicio por defecto
+        IrAInicio();
+    }
 
     // Este método se ejecuta automáticamente cuando IndiceRolSeleccionado cambia
     partial void OnIndiceRolSeleccionadoChanged(int value)
     {
-        // Actualizamos la sesión global
+        // Actualizamos la sesión global: 0 -> 1 (Admin), 1 -> 2 (Mozo)
         SesionGlobal.TipoUsuarioActual = value == 0 ? 1 : 2;
 
-        // Notificamos a la barra lateral que re-evalúe qué botones mostrar
+        // Notificamos a la barra lateral que re-evalúe los permisos
         OnPropertyChanged(nameof(EsAdmin));
         OnPropertyChanged(nameof(PuedeVerClientes));
         OnPropertyChanged(nameof(PuedeVerMesas));
 
-        // Recargamos la vista central actual para que se apliquen u oculten las columnas
-        if (CurrentView is MesasViewModel)
+        // Si estamos en Inicio o Mesas, recargamos la vista activa
+        if (CurrentView is InicioViewModel)
+        {
+            IrAInicio();
+        }
+        else if (CurrentView is MesasViewModel)
         {
             IrAMesas();
         }
-        // Puedes agregar más if() aquí a medida que crees las otras vistas (Clientes, Empleados)
     }
 
+    private InicioViewModel? _inicioViewModel;
+    private CajaViewModel? _cajaViewModel;
+    private MesasViewModel? _mesasViewModel;
 
-    // Comandos para cambiar de sección al hacer clic en los botones del menú
+    // Comandos de navegación para la barra lateral
     [RelayCommand]
-    private void IrAClientes()
+    private void IrAInicio()
     {
-        // Aquí asignaremos el ViewModel correspondiente al CRUD de clientes más adelante
-        // CurrentView = new ClientesViewModel();
-    }
+        if (_inicioViewModel == null)
+        {
+            MesaService? service = null;
+            try
+            {
+                var mesaRepo = new MesaRepository(new RestoAppDbContext());
+                service = new MesaService(mesaRepo);
+            }
+            catch
+            {
+            }
+            _inicioViewModel = new InicioViewModel(service, navigateAMesasAction: IrAMesas);
+        }
 
-    [RelayCommand]
-    private void IrAEmpleados()
-    {
-        // CurrentView = new EmpleadosViewModel();
+        CurrentView = _inicioViewModel;
     }
 
     [RelayCommand]
     private void IrAReservas()
     {
-        // CurrentView = new ReservasViewModel();
+        // Se asignará ReservasViewModel cuando se implemente la vista
+    }
+
+    [RelayCommand]
+    private void IrAPersonal()
+    {
+        // Se asignará PersonalViewModel cuando se implemente la vista
+    }
+
+    [RelayCommand]
+    private void IrACaja()
+    {
+        if (_cajaViewModel == null)
+        {
+            PagoService? service = null;
+            try
+            {
+                var pagoRepo = new PagoRepository(new RestoAppDbContext());
+                service = new PagoService(pagoRepo);
+            }
+            catch
+            {
+            }
+            _cajaViewModel = new CajaViewModel(service);
+        }
+
+        CurrentView = _cajaViewModel;
+    }
+
+    private EventosViewModel? _eventosViewModel;
+
+    [RelayCommand]
+    private void IrAEventos()
+    {
+        if (_eventosViewModel == null)
+        {
+            EventoService? service = null;
+            try
+            {
+                var eventoRepo = new EventoRepository(new RestoAppDbContext());
+                service = new EventoService(eventoRepo);
+            }
+            catch
+            {
+            }
+            _eventosViewModel = new EventosViewModel(service);
+        }
+
+        CurrentView = _eventosViewModel;
     }
 
     [RelayCommand]
     private void IrAMesas()
     {
-        var mesaRepo = new MesaRepository(new RestoAppDbContext());
-        var mesaService = new MesaService(mesaRepo);
-        CurrentView = new MesasViewModel(mesaService);
+        if (_mesasViewModel == null)
+        {
+            MesaService? service = null;
+            try
+            {
+                var mesaRepo = new MesaRepository(new RestoAppDbContext());
+                service = new MesaService(mesaRepo);
+            }
+            catch
+            {
+            }
+            _mesasViewModel = new MesasViewModel(service ?? new MesaService(new MesaRepository(new RestoAppDbContext())));
+        }
+
+        CurrentView = _mesasViewModel;
     }
-    
 }
