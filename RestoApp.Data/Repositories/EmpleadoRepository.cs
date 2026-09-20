@@ -17,6 +17,8 @@ public class EmpleadoRepository : Repository<Empleado>, IEmpleadoRepository
             .Include(e => e.Rol)
             .Include(e => e.Turno)
             .Where(e => e.ActivoEnRol)
+            .Include(e => e.PersonaInfo) // Trae los datos personales (Nombre, Apellido, etc.)
+            // .Include(e => e.Rol)      // Descomenta o ajusta esto si el Rol está en otra tabla
             .ToListAsync();
-    }
+    }    
 }

@@ -15,3 +15,4 @@ C:\Users\herna\Documents\Taller2\RestoApp\RestoApp.Business\obj\Debug\net10.0\Re
 C:\Users\herna\Documents\Taller2\RestoApp\RestoApp.Business\obj\Debug\net10.0\refint\RestoApp.Business.dll
 C:\Users\herna\Documents\Taller2\RestoApp\RestoApp.Business\obj\Debug\net10.0\RestoApp.Business.pdb
 C:\Users\herna\Documents\Taller2\RestoApp\RestoApp.Business\obj\Debug\net10.0\ref\RestoApp.Business.dll
+C:\Users\herna\Documents\Taller2\RestoApp\RestoApp.Business\obj\Debug\net10.0\RestoApp.Business.sourcelink.json

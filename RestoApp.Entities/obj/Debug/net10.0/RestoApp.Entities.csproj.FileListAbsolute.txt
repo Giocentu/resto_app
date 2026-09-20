@@ -9,3 +9,4 @@ C:\Users\herna\Documents\Taller2\RestoApp\RestoApp.Entities\obj\Debug\net10.0\Re
 C:\Users\herna\Documents\Taller2\RestoApp\RestoApp.Entities\obj\Debug\net10.0\refint\RestoApp.Entities.dll
 C:\Users\herna\Documents\Taller2\RestoApp\RestoApp.Entities\obj\Debug\net10.0\RestoApp.Entities.pdb
 C:\Users\herna\Documents\Taller2\RestoApp\RestoApp.Entities\obj\Debug\net10.0\ref\RestoApp.Entities.dll
+C:\Users\herna\Documents\Taller2\RestoApp\RestoApp.Entities\obj\Debug\net10.0\RestoApp.Entities.sourcelink.json

@@ -3,6 +3,8 @@ using CommunityToolkit.Mvvm.Input;
 using RestoApp.Business.Services;
 using RestoApp.Data;
 using RestoApp.Data.Repositories;
+using RestoApp.Desktop.Views;
+using RestoApp.Entities;
 
 namespace RestoApp.Desktop.ViewModels;
 
@@ -12,13 +14,40 @@ public partial class MainViewModel : ObservableObject
     private object? _currentView;
 
     // Propiedades de visibilidad basadas en el rol global
-    public bool EsAdmin => SesionGlobal.TipoUsuarioActual == 1;
+    public bool EsDueno => SesionGlobal.RolActual ==  RolUsuario.Dueno;
+    public bool PuedeVerClientes => SesionGlobal.RolActual == RolUsuario.Dueno 
+                                ||  SesionGlobal.RolActual == RolUsuario.Cajero
+                                ||  SesionGlobal.RolActual == RolUsuario.Recepcion
+                                ||  SesionGlobal.RolActual == RolUsuario.Gerente;
     
-    // Si el mozo no debe ver clientes, solo devolvemos true si es Admin
-    public bool PuedeVerClientes => SesionGlobal.TipoUsuarioActual == 1; 
+    public bool PuedeVerMesas => SesionGlobal.RolActual == RolUsuario.Dueno 
+                                ||  SesionGlobal.RolActual == RolUsuario.Cajero
+                                ||  SesionGlobal.RolActual == RolUsuario.Recepcion
+                                ||  SesionGlobal.RolActual == RolUsuario.Gerente;
+    
+    public bool PuedeVerEventos => SesionGlobal.RolActual == RolUsuario.Dueno 
+                                ||  SesionGlobal.RolActual == RolUsuario.Cajero
+                                ||  SesionGlobal.RolActual == RolUsuario.Recepcion
+                                ||  SesionGlobal.RolActual == RolUsuario.Gerente;
+    
+    public bool PuedeVerReservas => SesionGlobal.RolActual == RolUsuario.Dueno 
+                                ||  SesionGlobal.RolActual == RolUsuario.Cajero
+                                ||  SesionGlobal.RolActual == RolUsuario.Recepcion
+                                ||  SesionGlobal.RolActual == RolUsuario.Gerente;
 
-    // Los mozos y admins sí pueden ver mesas
-    public bool PuedeVerMesas => SesionGlobal.TipoUsuarioActual == 1 || SesionGlobal.TipoUsuarioActual == 2;
+    public bool PuedeVerPersonal => SesionGlobal.RolActual == RolUsuario.Dueno 
+                                ||  SesionGlobal.RolActual == RolUsuario.Cajero
+                                ||  SesionGlobal.RolActual == RolUsuario.Recepcion
+                                ||  SesionGlobal.RolActual == RolUsuario.Gerente;
+
+    public bool PuedeVerCaja => SesionGlobal.RolActual == RolUsuario.Cajero;
+
+    public bool PuedeVerPrincipal => SesionGlobal.RolActual == RolUsuario.Dueno 
+                                ||  SesionGlobal.RolActual == RolUsuario.Cajero
+                                ||  SesionGlobal.RolActual == RolUsuario.Recepcion
+                                ||  SesionGlobal.RolActual == RolUsuario.Gerente
+                                ||  SesionGlobal.RolActual == RolUsuario.Mozo;
+
 // 0 = Admin, 1 = Mozo. Empezamos en 1 (Mozo)
     [ObservableProperty]
     private int _indiceRolSeleccionado = 1; 
@@ -27,10 +56,17 @@ public partial class MainViewModel : ObservableObject
     partial void OnIndiceRolSeleccionadoChanged(int value)
     {
         // Actualizamos la sesión global
-        SesionGlobal.TipoUsuarioActual = value == 0 ? 1 : 2;
+        SesionGlobal.RolActual = value switch
+        {
+            0 => RolUsuario.Dueno,
+            1 => RolUsuario.Gerente,
+            2 => RolUsuario.Cajero,
+            3 => RolUsuario.Recepcion,
+            _ => RolUsuario.Mozo 
+        };
 
         // Notificamos a la barra lateral que re-evalúe qué botones mostrar
-        OnPropertyChanged(nameof(EsAdmin));
+        OnPropertyChanged(nameof(EsDueno));
         OnPropertyChanged(nameof(PuedeVerClientes));
         OnPropertyChanged(nameof(PuedeVerMesas));
 
@@ -38,6 +74,10 @@ public partial class MainViewModel : ObservableObject
         if (CurrentView is MesasViewModel)
         {
             IrAMesas();
+        }
+        else if (CurrentView is ReservasViewModel)
+        {
+            IrAReservas();
         }
         // Puedes agregar más if() aquí a medida que crees las otras vistas (Clientes, Empleados)
     }
@@ -60,8 +100,11 @@ public partial class MainViewModel : ObservableObject
     [RelayCommand]
     private void IrAReservas()
     {
-        // CurrentView = new ReservasViewModel();
+        var reservaRepo = new ReservaRepository(new RestoAppDbContext());
+        var reservaService = new ReservaService(reservaRepo);
+        CurrentView = new ReservasViewModel(reservaService);
     }
+
 
     [RelayCommand]
     private void IrAMesas()

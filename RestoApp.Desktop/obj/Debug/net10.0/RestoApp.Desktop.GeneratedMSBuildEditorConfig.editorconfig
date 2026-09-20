@@ -47,6 +47,9 @@ build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 [C:/Users/herna/Documents/Taller2/RestoApp/RestoApp.Desktop/Views/ConfirmacionWindow.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 
+[C:/Users/herna/Documents/Taller2/RestoApp/RestoApp.Desktop/Views/LoginWindow.axaml]
+build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
+
 [C:/Users/herna/Documents/Taller2/RestoApp/RestoApp.Desktop/Views/MainWindow.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 
@@ -54,4 +57,7 @@ build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 
 [C:/Users/herna/Documents/Taller2/RestoApp/RestoApp.Desktop/Views/NuevaMesa.axaml]
+build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
+
+[C:/Users/herna/Documents/Taller2/RestoApp/RestoApp.Desktop/Views/ReservasView.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml

@@ -29,7 +29,7 @@ public partial class App : Application
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             // Aquí luego inyectaremos el ViewModel principal
-            desktop.MainWindow = new MainWindow();
+            desktop.MainWindow = new LoginWindow();
         }
 
         base.OnFrameworkInitializationCompleted();

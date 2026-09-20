@@ -73,14 +73,17 @@
                         <ComboBox SelectedIndex="{Binding IndiceRolSeleccionado}" 
                                   Background="Transparent" Foreground="White" 
                                   BorderThickness="0" Width="120">
-                            <ComboBoxItem Content="Admin"/>
+                            <ComboBoxItem Content="Dueño"/>
+                            <ComboBoxItem Content="Gerente"/>
+                            <ComboBoxItem Content="Cajero"/>
+                            <ComboBoxItem Content="Recepcion"/>
                             <ComboBoxItem Content="Mozo"/>
                         </ComboBox>
                     </StackPanel>
                 </Border>
                 
                 <!-- Botón de Cerrar Sesión -->
-                <Button Classes="navBtn logoutBtn" Content="Cerrar Sesión"/>
+                <Button Classes="navBtn logoutBtn" Content="Cerrar Sesión" Click="CerrarSesion"/>
             </StackPanel>
             
         </Grid>

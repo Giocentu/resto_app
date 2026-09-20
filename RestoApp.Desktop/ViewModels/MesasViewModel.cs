@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using RestoApp.Business.Services;
+using RestoApp.Entities;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 
@@ -11,9 +12,13 @@ public partial class MesasViewModel : ObservableObject
 
 
     // Propiedad que Avalonia leerá para el botón principal
-        
-    public bool EsAdmin => SesionGlobal.TipoUsuarioActual == 1;
     
+    public bool PuedeAgregar => SesionGlobal.RolActual == RolUsuario.Dueno;
+    public bool PuedeEditar => SesionGlobal.RolActual == RolUsuario.Dueno
+                        || SesionGlobal.RolActual == RolUsuario.Gerente
+                        || SesionGlobal.RolActual == RolUsuario.Recepcion
+                        || SesionGlobal.RolActual == RolUsuario.Cajero;
+
     [ObservableProperty]
     private ObservableCollection<MesaItemViewModel> _mesas = new();
 
@@ -38,7 +43,7 @@ public partial class MesasViewModel : ObservableObject
             UbicacionDescripcion = m.Ubicacion?.Ubicacion ?? "Sin ubicación",
             
             // Aquí inyectamos el permiso global a cada fila individualmente
-            PuedeEditar = SesionGlobal.TipoUsuarioActual == 1
+
         });
     }
     Mesas = listaMapeada;

@@ -15,3 +15,4 @@ C:\Users\herna\Documents\Taller2\RestoApp\RestoApp.Data\obj\Debug\net10.0\refint
 C:\Users\herna\Documents\Taller2\RestoApp\RestoApp.Data\obj\Debug\net10.0\RestoApp.Data.pdb
 C:\Users\herna\Documents\Taller2\RestoApp\RestoApp.Data\obj\Debug\net10.0\RestoApp.Data.genruntimeconfig.cache
 C:\Users\herna\Documents\Taller2\RestoApp\RestoApp.Data\obj\Debug\net10.0\ref\RestoApp.Data.dll
+C:\Users\herna\Documents\Taller2\RestoApp\RestoApp.Data\obj\Debug\net10.0\RestoApp.Data.sourcelink.json
