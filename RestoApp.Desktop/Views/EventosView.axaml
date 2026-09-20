@@ -1,0 +1,123 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:RestoApp.Desktop.ViewModels"
+             x:Class="RestoApp.Desktop.Views.EventosView"
+             x:DataType="vm:EventosViewModel">
+
+    <Grid RowDefinitions="Auto, *">
+        <!-- ========================================== -->
+        <!-- FILA 0: ENCABEZADO Y SUBTÍTULO            -->
+        <!-- ========================================== -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,18">
+            <TextBlock Text="Módulo de Eventos Especiales y Promociones" FontSize="22" FontWeight="Bold" Foreground="#2C3E50"/>
+            <TextBlock Text="Catálogo de fechas festivas, cenas show y vinculación con reservas de clientes" FontSize="12" Foreground="#7F8C8D"/>
+        </StackPanel>
+
+        <!-- ========================================== -->
+        <!-- FILA 1: CONTENIDO PRINCIPAL (GRILLA 2 COL) -->
+        <!-- ========================================== -->
+        <Grid Grid.Row="1" ColumnDefinitions="330, *">
+            
+            <!-- COLUMNA IZQUIERDA: Formulario Nuevo Evento -->
+            <Border Grid.Column="0" Background="White" BorderBrush="#BDC3C7" BorderThickness="1" CornerRadius="10" Padding="18" Margin="0,0,15,0">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Spacing="12">
+                        <TextBlock Text="Nuevo Evento Especial" FontSize="18" FontWeight="Bold" Foreground="#2C3E50"/>
+                        <Separator Background="#BDC3C7" Margin="0,0,0,4"/>
+
+                        <!-- Nombre del Evento -->
+                        <StackPanel Spacing="6">
+                            <TextBlock Text="Nombre del Evento:" Foreground="#34495E" FontWeight="Bold" FontSize="13"/>
+                            <TextBox Text="{Binding NuevoNombre, Mode=TwoWay}" 
+                                     Watermark="Ej. Día de la Madre..." 
+                                     Height="40" VerticalContentAlignment="Center"/>
+                        </StackPanel>
+
+                        <!-- Fecha del Evento -->
+                        <StackPanel Spacing="6" Margin="0,4,0,0">
+                            <TextBlock Text="Fecha del Evento:" Foreground="#34495E" FontWeight="Bold" FontSize="13"/>
+                            <DatePicker SelectedDate="{Binding NuevaFecha, Mode=TwoWay}"
+                                        HorizontalAlignment="Stretch" Height="40"/>
+                        </StackPanel>
+
+                        <!-- Descripción / Promoción -->
+                        <StackPanel Spacing="6" Margin="0,4,0,0">
+                            <TextBlock Text="Descripción / Promoción:" Foreground="#34495E" FontWeight="Bold" FontSize="13"/>
+                            <TextBox Text="{Binding NuevaDescripcion, Mode=TwoWay}" 
+                                     Watermark="Detalles del menú, show o promociones..." 
+                                     Height="110" TextWrapping="Wrap" AcceptsReturn="True"/>
+                        </StackPanel>
+
+                        <!-- Botón Registrar Evento -->
+                        <Button Command="{Binding RegistrarEventoCommand}" 
+                                Background="#8E44AD" Foreground="White" 
+                                Height="44" CornerRadius="8" FontSize="14" FontWeight="Bold" 
+                                HorizontalAlignment="Stretch" 
+                                HorizontalContentAlignment="Center" VerticalContentAlignment="Center" 
+                                Cursor="Hand" Margin="0,10,0,0">
+                            <StackPanel Orientation="Horizontal" Spacing="6" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <TextBlock Text="📋" FontSize="14" VerticalAlignment="Center"/>
+                                <TextBlock Text="Registrar Evento" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+
+            <!-- COLUMNA DERECHA: Catálogo de Tarjetas de Eventos -->
+            <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto">
+                <ItemsControl ItemsSource="{Binding Eventos}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <UniformGrid Columns="2" HorizontalAlignment="Stretch"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="vm:EventoItemViewModel">
+                            <Border Background="White" BorderBrush="#BDC3C7" BorderThickness="1" CornerRadius="10" Padding="18" Margin="0,0,12,12">
+                                <Grid RowDefinitions="Auto, Auto, *, Auto, Auto">
+                                    
+                                    <!-- Fila 0: Título e Insignia de Estado -->
+                                    <Grid Grid.Row="0" ColumnDefinitions="*, Auto" Margin="0,0,0,6">
+                                        <TextBlock Grid.Column="0" Text="{Binding NombreEvento}" FontSize="18" FontWeight="Bold" Foreground="#2C3E50" TextWrapping="Wrap" VerticalAlignment="Center"/>
+                                        <Border Grid.Column="1" Background="{Binding EstadoBadgeBackground}" CornerRadius="12" Padding="10,4" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding EstadoBadgeText}" Foreground="{Binding EstadoBadgeForeground}" FontWeight="Bold" FontSize="11"/>
+                                        </Border>
+                                    </Grid>
+
+                                    <!-- Fila 1: Fecha -->
+                                    <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="6" Margin="0,0,0,8">
+                                        <TextBlock Text="📅" FontSize="13" Foreground="#3498DB" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{Binding FechaTexto}" FontSize="13" FontWeight="Bold" Foreground="#3498DB" VerticalAlignment="Center"/>
+                                    </StackPanel>
+
+                                    <!-- Fila 2: Descripción -->
+                                    <TextBlock Grid.Row="2" Text="{Binding Descripcion}" FontSize="13" Foreground="#7F8C8D" TextWrapping="Wrap" Margin="0,0,0,12" MinHeight="36"/>
+
+                                    <!-- Fila 3: Box Reservas Vinculadas -->
+                                    <Border Grid.Row="3" Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="8" Padding="12,10" Margin="0,0,0,12">
+                                        <Grid ColumnDefinitions="*, Auto">
+                                            <TextBlock Grid.Column="0" Text="Reservas Vinculadas:" Foreground="#7F8C8D" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                            <TextBlock Grid.Column="1" Text="{Binding ReservasVinculadasTexto}" Foreground="#27AE60" FontSize="13" FontWeight="Bold" VerticalAlignment="Center"/>
+                                        </Grid>
+                                    </Border>
+
+                                    <!-- Fila 4: Botón Cambiar Estado Activo/Inactivo -->
+                                    <Button Grid.Row="4" Content="Cambiar Estado Activo/Inactivo" 
+                                            Command="{Binding ToggleEstadoCommand}"
+                                            Background="#34495E" Foreground="White" 
+                                            Height="38" CornerRadius="6" FontSize="12" FontWeight="SemiBold" 
+                                            HorizontalAlignment="Stretch" 
+                                            HorizontalContentAlignment="Center" VerticalContentAlignment="Center" 
+                                            Cursor="Hand"/>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+
+        </Grid>
+    </Grid>
+</UserControl>
