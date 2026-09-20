@@ -13,11 +13,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\herna\\Documents\\Taller2\\RestoApp\\RestoApp.Entities\\RestoApp.Entities.csproj",
+      "projectUniqueName": "C:\\Users\\herna\\Documents\\Taller2\\resto_app\\RestoApp.Entities\\RestoApp.Entities.csproj",
       "projectName": "RestoApp.Entities",
-      "projectPath": "C:\\Users\\herna\\Documents\\Taller2\\RestoApp\\RestoApp.Entities\\RestoApp.Entities.csproj",
+      "projectPath": "C:\\Users\\herna\\Documents\\Taller2\\resto_app\\RestoApp.Entities\\RestoApp.Entities.csproj",
       "packagesPath": "C:\\Users\\herna\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\herna\\Documents\\Taller2\\RestoApp\\RestoApp.Entities\\obj\\",
+      "outputPath": "C:\\Users\\herna\\Documents\\Taller2\\resto_app\\RestoApp.Entities\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\herna\\AppData\\Roaming\\NuGet\\NuGet.Config"

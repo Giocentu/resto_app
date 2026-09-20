@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "mq7EaRfAWpM=",
+  "dgSpecHash": "wVXzeaHQK+k=",
   "success": true,
-  "projectFilePath": "C:\\Users\\herna\\Documents\\Taller2\\RestoApp\\RestoApp.Desktop\\RestoApp.Desktop.csproj",
+  "projectFilePath": "C:\\Users\\herna\\Documents\\Taller2\\resto_app\\RestoApp.Desktop\\RestoApp.Desktop.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\herna\\.nuget\\packages\\avalonia\\12.1.2\\avalonia.12.1.2.nupkg.sha512",
     "C:\\Users\\herna\\.nuget\\packages\\avalonia.angle.windows.natives\\2.1.27548.20260419\\avalonia.angle.windows.natives.2.1.27548.20260419.nupkg.sha512",

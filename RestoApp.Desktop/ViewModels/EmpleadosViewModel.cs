@@ -12,7 +12,11 @@ public partial class EmpleadosViewModel : ObservableObject
     private readonly EmpleadoService _empleadoService;
 
     // Regla de negocio: Solo el Admin puede ver botones de crear/editar/eliminar personal
-    public bool PuedeAdministrarPersonal => SesionGlobal.RolActual == RolUsuario.Admin;
+    public bool PuedeAgregar => SesionGlobal.RolActual == RolUsuario.Dueno;
+    public bool PuedeEditar => SesionGlobal.RolActual == RolUsuario.Dueno
+                        || SesionGlobal.RolActual == RolUsuario.Gerente
+                        || SesionGlobal.RolActual == RolUsuario.Recepcion
+                        || SesionGlobal.RolActual == RolUsuario.Cajero;
 
     [ObservableProperty]
     private ObservableCollection<EmpleadoItemViewModel> _empleados = new();
@@ -24,41 +28,41 @@ public partial class EmpleadosViewModel : ObservableObject
     }
 
     public async Task CargarEmpleadosAsync()
+{
+    try
     {
-        try
+        var listaEntidades = await _empleadoService.ObtenerEmpleadosAsync();
+        var listaMapeada = new ObservableCollection<EmpleadoItemViewModel>();
+        
+        foreach (var emp in listaEntidades)
         {
-            var listaEntidades = await _empleadoService.ObtenerEmpleadosAsync();
-            var listaMapeada = new ObservableCollection<EmpleadoItemViewModel>();
+            // Extraemos los datos navegando hacia las entidades (asumiendo que Persona tiene Nombre/Apellido/Telefono)
+            string nombre = emp.PersonaInfo?.Nombre ?? "Sin Nombre";
+            string apellido = emp.PersonaInfo?.Apellido ?? "";
+            
+            
+            string cargo = emp.Rol?.Descripcion ?? $"Rol ID: {emp.IdRol}"; 
+            string telefono = emp.PersonaInfo?.Telefono ?? "No registrado";
 
-            foreach (var emp in listaEntidades)
+            listaMapeada.Add(new EmpleadoItemViewModel
             {
-                // Extraemos los datos navegando hacia las entidades relacionadas
-                string nombre = emp.PersonaInfo?.Nombre ?? "Sin Nombre";
-                string apellido = emp.PersonaInfo?.Apellido ?? "";
-
-                // Asumiendo que el Rol es un Enum en la entidad Empleado. 
-                // Si es una tabla, sería algo como emp.Rol?.NombreRol ?? "Sin Rol"
-                string cargo = emp.RolEmpleado.ToString(); 
-
-                listaMapeada.Add(new EmpleadoItemViewModel
-                {
-                    IdEmpleado = emp.DniEmpleado,
-                    NombreCompleto = $"{nombre} {apellido}".Trim(),
-                    RolCargo = cargo,
-                    Telefono = emp.PersonaInfo?.Telefono ?? "No registrado", // Si el teléfono está en PersonaInfo
-                    Estado = emp.ActivoEnRol ? "Activo" : "Inactivo",
-                    PuedeEditar = PuedeAdministrarPersonal
-                });
-            }
-
-            Empleados = listaMapeada;
+                DniEmpleado = emp.DniEmpleado, // Usamos tu propiedad DniEmpleado
+                NombreCompleto = $"{nombre} {apellido}".Trim(),
+                RolCargo = cargo,
+                Telefono = telefono,
+                Estado = emp.ActivoEnRol ? "Activo" : "Inactivo", // Usamos tu propiedad ActivoEnRol
+                PuedeEditar = PuedeEditar
+            });
         }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"\n--- ERROR AL CARGAR EMPLEADOS ---");
-            Console.WriteLine($"Mensaje: {ex.Message}");
-            if (ex.InnerException != null) Console.WriteLine($"Detalle: {ex.InnerException.Message}");
-            Console.WriteLine($"---------------------------------\n");
-        }
+
+        Empleados = listaMapeada;
     }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"\n--- ERROR AL CARGAR EMPLEADOS ---");
+        Console.WriteLine($"Mensaje: {ex.Message}");
+        if (ex.InnerException != null) Console.WriteLine($"Detalle: {ex.InnerException.Message}");
+        Console.WriteLine($"---------------------------------\n");
+    }
+}
 }

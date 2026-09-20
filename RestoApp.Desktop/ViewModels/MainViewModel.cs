@@ -50,7 +50,7 @@ public partial class MainViewModel : ObservableObject
 
 // 0 = Admin, 1 = Mozo. Empezamos en 1 (Mozo)
     [ObservableProperty]
-    private int _indiceRolSeleccionado = 1; 
+    private int _indiceRolSeleccionado = 0; 
 
     // Este método se ejecuta automáticamente cuando IndiceRolSeleccionado cambia
     partial void OnIndiceRolSeleccionadoChanged(int value)
@@ -79,6 +79,10 @@ public partial class MainViewModel : ObservableObject
         {
             IrAReservas();
         }
+        else if (CurrentView is EmpleadosViewModel)
+        {
+            IrAEmpleados();
+        }
         // Puedes agregar más if() aquí a medida que crees las otras vistas (Clientes, Empleados)
     }
 
@@ -94,7 +98,9 @@ public partial class MainViewModel : ObservableObject
     [RelayCommand]
     private void IrAEmpleados()
     {
-        // CurrentView = new EmpleadosViewModel();
+        var empleadoRepo = new EmpleadoRepository(new RestoAppDbContext());
+        var empleadoService = new EmpleadoService(empleadoRepo);
+        CurrentView = new EmpleadosViewModel(empleadoService);
     }
 
     [RelayCommand]

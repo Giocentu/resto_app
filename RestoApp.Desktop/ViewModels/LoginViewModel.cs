@@ -22,9 +22,24 @@ public partial class LoginViewModel : ObservableObject
         
         await Task.Delay(500); // Simulamos el tiempo de carga de la BD
 
-        if (NombreUsuario == "admin" && Password == "123")
+        if (NombreUsuario == "dueño" && Password == "123")
         {
             SesionGlobal.RolActual = RolUsuario.Dueno;
+            return true;
+        }
+        if (NombreUsuario == "gerente" && Password == "123")
+        {
+            SesionGlobal.RolActual = RolUsuario.Gerente;
+            return true;
+        }
+        if (NombreUsuario == "cajero" && Password == "123")
+        {
+            SesionGlobal.RolActual = RolUsuario.Cajero;
+            return true;
+        }
+        if (NombreUsuario == "recepcion" && Password == "123")
+        {
+            SesionGlobal.RolActual = RolUsuario.Recepcion;
             return true;
         }
         if (NombreUsuario == "mozo" && Password == "123")

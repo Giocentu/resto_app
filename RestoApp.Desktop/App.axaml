@@ -14,7 +14,11 @@
         <DataTemplate DataType="{x:Type vm:ReservasViewModel}">
             <v:ReservasView/>
         </DataTemplate>
-    </Application.DataTemplates>
+
+        <DataTemplate DataType="{x:Type vm:EmpleadosViewModel}">
+            <v:EmpleadosView/>
+        </DataTemplate>
+        </Application.DataTemplates>
 
     <Application.Styles>
         <FluentTheme/>

@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "j1BzfYfjm/w=",
+  "dgSpecHash": "jnPXoccdmZY=",
   "success": true,
-  "projectFilePath": "C:\\Users\\herna\\Documents\\Taller2\\RestoApp\\RestoApp.Business\\RestoApp.Business.csproj",
+  "projectFilePath": "C:\\Users\\herna\\Documents\\Taller2\\resto_app\\RestoApp.Business\\RestoApp.Business.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\herna\\.nuget\\packages\\azure.core\\1.50.0\\azure.core.1.50.0.nupkg.sha512",
     "C:\\Users\\herna\\.nuget\\packages\\azure.identity\\1.17.1\\azure.identity.1.17.1.nupkg.sha512",
