@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using RestoApp.Business.Services;
+using RestoApp.Entities;
 
 namespace RestoApp.Desktop.ViewModels;
 
@@ -38,7 +39,7 @@ public partial class InicioViewModel : ObservableObject
     [ObservableProperty]
     private int _limpiezaCount;
 
-    public bool EsAdmin => SesionGlobal.TipoUsuarioActual == 1;
+    public bool EsAdmin => SesionGlobal.RolActual == RolUsuario.Dueno || SesionGlobal.RolActual == RolUsuario.Gerente;
 
     public InicioViewModel(MesaService? mesaService = null, Action? navigateAMesasAction = null)
     {
