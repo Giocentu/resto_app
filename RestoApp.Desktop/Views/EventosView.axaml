@@ -29,7 +29,7 @@
                         <StackPanel Spacing="6">
                             <TextBlock Text="Nombre del Evento:" Foreground="#34495E" FontWeight="Bold" FontSize="13"/>
                             <TextBox Text="{Binding NuevoNombre, Mode=TwoWay}" 
-                                     Watermark="Ej. Día de la Madre..." 
+                                     PlaceholderText="Ej. Día de la Madre..." 
                                      Height="40" VerticalContentAlignment="Center"/>
                         </StackPanel>
 
@@ -44,7 +44,7 @@
                         <StackPanel Spacing="6" Margin="0,4,0,0">
                             <TextBlock Text="Descripción / Promoción:" Foreground="#34495E" FontWeight="Bold" FontSize="13"/>
                             <TextBox Text="{Binding NuevaDescripcion, Mode=TwoWay}" 
-                                     Watermark="Detalles del menú, show o promociones..." 
+                                     PlaceholderText="Detalles del menú, show o promociones..." 
                                      Height="110" TextWrapping="Wrap" AcceptsReturn="True"/>
                         </StackPanel>
 

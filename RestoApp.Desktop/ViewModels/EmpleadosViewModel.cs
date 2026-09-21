@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using RestoApp.Business.Services;
 using RestoApp.Entities;
 using System;
@@ -20,6 +21,51 @@ public partial class EmpleadosViewModel : ObservableObject
 
     [ObservableProperty]
     private ObservableCollection<EmpleadoItemViewModel> _empleados = new();
+
+    [ObservableProperty]
+    private ObservableCollection<EmpleadoItemViewModel> _empleadosBajas = new();
+
+    [ObservableProperty]
+    private bool _esVistaPrincipal = true;
+
+    [ObservableProperty]
+    private bool _esVistaBajas = false;
+
+    [RelayCommand]
+    private void VerBajas()
+    {
+        EsVistaPrincipal = false;
+        EsVistaBajas = true;
+        CargarEmpleadosBajas();
+    }
+
+    [RelayCommand]
+    private void VolverPrincipal()
+    {
+        EsVistaPrincipal = true;
+        EsVistaBajas = false;
+    }
+
+    [RelayCommand]
+    private void RestaurarEmpleado(EmpleadoItemViewModel empleado)
+    {
+        if (empleado != null)
+        {
+            EmpleadosBajas.Remove(empleado);
+            Empleados.Add(empleado);
+        }
+    }
+
+    private void CargarEmpleadosBajas()
+    {
+        if (!EmpleadosBajas.Any())
+        {
+            EmpleadosBajas = new ObservableCollection<EmpleadoItemViewModel>
+            {
+                new EmpleadoItemViewModel { DniEmpleado = 11223344, NombreCompleto = "Juan Perez (Retirado)", RolCargo = "Mozo", Telefono = "11-2233-4455", Estado = "Inactivo", PuedeEditar = PuedeEditar }
+            };
+        }
+    }
 
     public EmpleadosViewModel(EmpleadoService? empleadoService = null)
     {

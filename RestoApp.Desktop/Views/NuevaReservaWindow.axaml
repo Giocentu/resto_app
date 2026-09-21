@@ -1,0 +1,21 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="RestoApp.Desktop.Views.NuevaReservaWindow"
+        Title="Registrar Reserva" Height="400" Width="400"
+        WindowStartupLocation="CenterOwner">
+
+    <StackPanel Spacing="15" Margin="20">
+        <TextBlock Text="Datos de la Reserva" FontSize="18" FontWeight="Bold" Margin="0,0,0,10"/>
+        
+        <TextBox x:Name="TxtFechaHora" PlaceholderText="Fecha y Hora (Ej: 2023-10-15 20:00)"/>
+        <TextBox x:Name="TxtCliente" PlaceholderText="Nombre del Cliente"/>
+        <TextBox x:Name="TxtMesa" PlaceholderText="Nro Mesa"/>
+        <TextBox x:Name="TxtPersonas" PlaceholderText="Cantidad de Personas"/>
+
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10" Margin="0,20,0,0">
+            <Button Content="Cancelar" Click="BtnCancelar_Click" Background="Transparent"/>
+            <Button Content="Guardar" Click="BtnGuardar_Click" Background="#3498DB" Foreground="White"/>
+        </StackPanel>
+    </StackPanel>
+</Window>
+

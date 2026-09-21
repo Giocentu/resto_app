@@ -52,7 +52,7 @@
                             <!-- Buscador en Tiempo Real -->
                             <TextBox Grid.Column="2" 
                                      Text="{Binding TextoBusqueda, Mode=TwoWay}"
-                                     Watermark="🔍 Buscar por mesa, cliente o medio..." 
+                                     PlaceholderText="🔍 Buscar por mesa, cliente o medio..." 
                                      Width="280" Height="38"
                                      Margin="0,0,12,0" VerticalContentAlignment="Center"/>
 

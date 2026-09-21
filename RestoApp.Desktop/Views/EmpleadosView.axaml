@@ -4,21 +4,27 @@
              x:Class="RestoApp.Desktop.Views.EmpleadosView"
              x:DataType="vm:EmpleadosViewModel">
 
-    <Grid RowDefinitions="Auto, *" Margin="10">
-        <!-- Encabezado -->
-        <Grid Grid.Row="0" ColumnDefinitions="*, Auto" Margin="0,0,0,15">
-            <TextBlock Grid.Column="0" Text="Gestión de Personal" FontSize="22" FontWeight="Bold" Foreground="#2C3E50" VerticalAlignment="Center"/>
-            
-            <!-- El botón de agregar empleado solo lo ve el Admin -->
-            <Button Grid.Column="1" Content="+ Nuevo Empleado" 
-                    Background="#27AE60" Foreground="White" Padding="15,8" CornerRadius="5" Cursor="Hand"
-                    IsVisible="{Binding $parent[UserControl].((vm:EmpleadosViewModel)DataContext).PuedeAgregar}"/>
-        </Grid>
+    <Border Background="White" BorderBrush="#BDC3C7" BorderThickness="1" CornerRadius="10" Padding="18" Margin="10">
+        <Panel>
+            <!-- VISTA PRINCIPAL -->
+            <Grid RowDefinitions="Auto, *" IsVisible="{Binding EsVistaPrincipal}">
+                <!-- Encabezado -->
+                <Grid Grid.Row="0" ColumnDefinitions="*, Auto, Auto" Margin="0,0,0,15">
+                    <TextBlock Grid.Column="0" Text="Gestión de Personal" FontSize="22" FontWeight="Bold" Foreground="#2C3E50" VerticalAlignment="Center"/>
+                    
+                    <Button Grid.Column="1" Content="Personal Inactivo" Command="{Binding VerBajasCommand}" Background="#3498DB" Foreground="White" Padding="15,8" CornerRadius="5" Cursor="Hand" Margin="0,0,10,0"/>
+
+                    <Button Grid.Column="2" Content="+ Nuevo Empleado" 
+                            Background="#27AE60" Foreground="White" Padding="15,8" CornerRadius="5" Cursor="Hand"
+                            IsVisible="{Binding $parent[UserControl].((vm:EmpleadosViewModel)DataContext).PuedeAgregar}"
+                            Click="BtnNuevoEmpleado_Click"/>
+                </Grid>
 
         <!-- Tabla -->
         <DataGrid Grid.Row="1" ItemsSource="{Binding Empleados}" 
                   AutoGenerateColumns="False" IsReadOnly="True" 
-                  GridLinesVisibility="All" BorderBrush="LightGray" BorderThickness="1">
+                  GridLinesVisibility="Horizontal" HeadersVisibility="Column" 
+                  BorderThickness="1" BorderBrush="#E0E6ED" CornerRadius="6">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Nombre" Binding="{Binding NombreCompleto}" Width="2*"/>
                 <DataGridTextColumn Header="Cargo" Binding="{Binding RolCargo}" Width="1.5*"/>
@@ -31,13 +37,49 @@
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate x:DataType="vm:EmpleadoItemViewModel">
                             <StackPanel Orientation="Horizontal" Spacing="10">
-                                <Button Content="Editar" Background="Transparent" Foreground="#F39C12" Cursor="Hand"/>
-                                <Button Content="Baja" Background="Transparent" Foreground="#E74C3C" Cursor="Hand"/>
+                                <Button Content="Editar" Background="Transparent" Foreground="#F39C12" Cursor="Hand" Click="BtnEditar_Click"/>
+                                <Button Content="Baja" Background="Transparent" Foreground="#E74C3C" Cursor="Hand" Click="BtnEliminar_Click"/>
                             </StackPanel>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
             </DataGrid.Columns>
-        </DataGrid>
-    </Grid>
+            </DataGrid>
+            </Grid>
+
+            <!-- VISTA BAJAS / ARCHIVO -->
+            <Grid RowDefinitions="Auto, *" IsVisible="{Binding EsVistaBajas}">
+                <Grid Grid.Row="0" ColumnDefinitions="*, Auto" Margin="0,0,0,15">
+                    <TextBlock Grid.Column="0" Text="Personal Inactivo (Archivo)" FontSize="22" FontWeight="Bold" Foreground="#2C3E50" VerticalAlignment="Center"/>
+                    <Button Grid.Column="1" Content="Atrás" Command="{Binding VolverPrincipalCommand}" Background="#DE0A2D" Foreground="White" Padding="15,8" CornerRadius="5" Cursor="Hand"/>
+                </Grid>
+
+                <DataGrid Grid.Row="1" ItemsSource="{Binding EmpleadosBajas}" 
+                          AutoGenerateColumns="False" IsReadOnly="True" 
+                          GridLinesVisibility="Horizontal" HeadersVisibility="Column" 
+                          BorderThickness="1" BorderBrush="#E0E6ED" CornerRadius="6">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Nombre" Binding="{Binding NombreCompleto}" Width="2*"/>
+                        <DataGridTextColumn Header="Cargo" Binding="{Binding RolCargo}" Width="1.5*"/>
+                        <DataGridTextColumn Header="Teléfono" Binding="{Binding Telefono}" Width="1.5*"/>
+                        <DataGridTextColumn Header="Estado" Binding="{Binding Estado}" Width="*"/>
+                        
+                        <DataGridTemplateColumn Header="Acción" Width="Auto" IsVisible="{Binding $parent[UserControl].((vm:EmpleadosViewModel)DataContext).PuedeEditar}">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate x:DataType="vm:EmpleadoItemViewModel">
+                                    <Button Content="Restaurar (Alta)" 
+                                            Command="{Binding $parent[UserControl].((vm:EmpleadosViewModel)DataContext).RestaurarEmpleadoCommand}"
+                                            CommandParameter="{Binding}"
+                                            Background="Transparent" 
+                                            Foreground="#27AE60" 
+                                            Cursor="Hand"
+                                            HorizontalAlignment="Center"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+        </Panel>
+    </Border>
 </UserControl>

@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using RestoApp.Business.Services;
 using RestoApp.Entities;
 using System;
@@ -22,8 +23,54 @@ public partial class MesasViewModel : ObservableObject
     [ObservableProperty]
     private ObservableCollection<MesaItemViewModel> _mesas = new();
 
-    public MesasViewModel(MesaService? mesaService = null)
+    [ObservableProperty]
+    private ObservableCollection<MesaItemViewModel> _mesasBajas = new();
+
+    [ObservableProperty]
+    private bool _esVistaPrincipal = true;
+
+    [ObservableProperty]
+    private bool _esVistaBajas = false;
+
+    [RelayCommand]
+    private void VerBajas()
     {
+        EsVistaPrincipal = false;
+        EsVistaBajas = true;
+        CargarMesasBajas();
+    }
+
+    [RelayCommand]
+    private void VolverPrincipal()
+    {
+        EsVistaPrincipal = true;
+        EsVistaBajas = false;
+    }
+
+    [RelayCommand]
+    private void RestaurarMesa(MesaItemViewModel mesa)
+    {
+        if (mesa != null)
+        {
+            MesasBajas.Remove(mesa);
+            Mesas.Add(mesa);
+        }
+    }
+
+    private void CargarMesasBajas()
+    {
+        if (!MesasBajas.Any())
+        {
+            MesasBajas = new ObservableCollection<MesaItemViewModel>
+            {
+                new MesaItemViewModel { IdMesa = 99, NroMesa = 99, Capacidad = 4, UbicacionDescripcion = "Depósito" }
+            };
+        }
+    }
+
+    public MesasViewModel(MesaService? mesaService, Action volverInicio)
+    {
+        _volverInicio = volverInicio;
         _mesaService = mesaService;
         _ = CargarMesasAsync();
     }
@@ -74,5 +121,14 @@ public partial class MesasViewModel : ObservableObject
         }
 
         Mesas = new ObservableCollection<MesaItemViewModel>(listaMapeada);
+    }
+    private readonly Action _volverInicio;
+
+
+
+    [RelayCommand]
+    private void VolverInicio()
+    {
+        _volverInicio?.Invoke();
     }
 }

@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using RestoApp.Business.Services;
 using RestoApp.Entities;
 using System;
@@ -15,11 +16,54 @@ public partial class ReservasViewModel : ObservableObject
 
     public bool PuedeAgregarEditar => SesionGlobal.RolActual == RolUsuario.Dueno
                         || SesionGlobal.RolActual == RolUsuario.Gerente
-                        || SesionGlobal.RolActual == RolUsuario.Recepcion
-                        || SesionGlobal.RolActual == RolUsuario.Cajero;
-
+                        || SesionGlobal.RolActual == RolUsuario.Recepcion;
     [ObservableProperty]
     private ObservableCollection<ReservaItemViewModel> _reservas = new();
+
+    [ObservableProperty]
+    private ObservableCollection<ReservaItemViewModel> _reservasBajas = new();
+
+    [ObservableProperty]
+    private bool _esVistaPrincipal = true;
+
+    [ObservableProperty]
+    private bool _esVistaBajas = false;
+
+    [RelayCommand]
+    private void VerBajas()
+    {
+        EsVistaPrincipal = false;
+        EsVistaBajas = true;
+        CargarReservasBajas();
+    }
+
+    [RelayCommand]
+    private void VolverPrincipal()
+    {
+        EsVistaPrincipal = true;
+        EsVistaBajas = false;
+    }
+
+    [RelayCommand]
+    private void RestaurarReserva(ReservaItemViewModel reserva)
+    {
+        if (reserva != null)
+        {
+            ReservasBajas.Remove(reserva);
+            Reservas.Add(reserva);
+        }
+    }
+
+    private void CargarReservasBajas()
+    {
+        if (!ReservasBajas.Any())
+        {
+            ReservasBajas = new ObservableCollection<ReservaItemViewModel>
+            {
+                new ReservaItemViewModel { IdReserva = 999, FechaHora = DateTime.Now.ToString("dd/MM/yyyy HH:mm"), ClienteNombre = "Cliente Cancelado", NroMesa = "Ninguna", CantidadPersonas = 2 }
+            };
+        }
+    }
 
     public ReservasViewModel(ReservaService? reservaService = null)
     {

@@ -66,7 +66,6 @@
                 <Button x:Name="BtnPersonal" IsVisible="{Binding PuedeVerPersonal}" Classes="navBtn" Content="Personal" Click="MenuButton_Click" Command="{Binding IrAEmpleadosCommand}"/>
                 <Button x:Name="BtnCaja" IsVisible="{Binding PuedeVerCaja}" Classes="navBtn" Content="Caja" Click="MenuButton_Click" Command="{Binding IrACajaCommand}"/>
                 <Button x:Name="BtnEventos" IsVisible="{Binding PuedeVerEventos}" Classes="navBtn" Content="Eventos" Click="MenuButton_Click" Command="{Binding IrAEventosCommand}"/>
-                <Button x:Name="BtnClientes" IsVisible="{Binding PuedeVerClientes}" Classes="navBtn" Content="Clientes" Click="MenuButton_Click" Command="{Binding IrAClientesCommand}"/>
             </StackPanel>
 
             <!-- Fila 1: Área de Usuario y Logout -->

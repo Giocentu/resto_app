@@ -17,25 +17,18 @@ public partial class MainViewModel : ObservableObject
     // Propiedades de visibilidad basadas en el rol global
     public bool EsDueno => SesionGlobal.RolActual == RolUsuario.Dueno;
 
-    public bool PuedeVerClientes => SesionGlobal.RolActual == RolUsuario.Dueno 
-                                ||  SesionGlobal.RolActual == RolUsuario.Gerente
-                                ||  SesionGlobal.RolActual == RolUsuario.Cajero
-                                ||  SesionGlobal.RolActual == RolUsuario.Recepcion;
 
     public bool PuedeVerMesas => SesionGlobal.RolActual == RolUsuario.Dueno 
                               ||  SesionGlobal.RolActual == RolUsuario.Gerente
-                              ||  SesionGlobal.RolActual == RolUsuario.Cajero
                               ||  SesionGlobal.RolActual == RolUsuario.Recepcion
                               ||  SesionGlobal.RolActual == RolUsuario.Mozo;
 
     public bool PuedeVerEventos => SesionGlobal.RolActual == RolUsuario.Dueno 
                                 ||  SesionGlobal.RolActual == RolUsuario.Gerente
-                                ||  SesionGlobal.RolActual == RolUsuario.Cajero
                                 ||  SesionGlobal.RolActual == RolUsuario.Recepcion;
 
     public bool PuedeVerReservas => SesionGlobal.RolActual == RolUsuario.Dueno 
                                  ||  SesionGlobal.RolActual == RolUsuario.Gerente
-                                 ||  SesionGlobal.RolActual == RolUsuario.Cajero
                                  ||  SesionGlobal.RolActual == RolUsuario.Recepcion;
 
     public bool PuedeVerPersonal => SesionGlobal.RolActual == RolUsuario.Dueno 
@@ -86,7 +79,6 @@ public partial class MainViewModel : ObservableObject
 
         // Notificamos a la barra lateral que re-evalúe qué botones mostrar
         OnPropertyChanged(nameof(EsDueno));
-        OnPropertyChanged(nameof(PuedeVerClientes));
         OnPropertyChanged(nameof(PuedeVerMesas));
         OnPropertyChanged(nameof(PuedeVerEventos));
         OnPropertyChanged(nameof(PuedeVerReservas));
@@ -121,18 +113,25 @@ public partial class MainViewModel : ObservableObject
         }
     }
 
+    private InicioViewModel? _inicioViewModelCache;
+
     // Comandos para cambiar de sección al hacer clic en los botones del menú
     [RelayCommand]
     private void IrAInicio()
     {
-        MesaService? mesaService = null;
-        try
+        if (_inicioViewModelCache == null)
         {
-            var mesaRepo = new MesaRepository(new RestoAppDbContext());
-            mesaService = new MesaService(mesaRepo);
+            MesaService? mesaService = null;
+            try
+            {
+                var mesaRepo = new MesaRepository(new RestoAppDbContext());
+                mesaService = new MesaService(mesaRepo);
+            }
+            catch { }
+            _inicioViewModelCache = new InicioViewModel(mesaService, navigateAMesasAction: IrAMesas);
         }
-        catch { }
-        CurrentView = new InicioViewModel(mesaService, navigateAMesasAction: IrAMesas);
+        
+        CurrentView = _inicioViewModelCache;
     }
 
     [RelayCommand]
@@ -177,7 +176,7 @@ public partial class MainViewModel : ObservableObject
             service = new MesaService(mesaRepo);
         }
         catch { }
-        CurrentView = new MesasViewModel(service);
+        CurrentView = new MesasViewModel(service, () => IrAInicio() );
     }
 
     [RelayCommand]
@@ -205,4 +204,5 @@ public partial class MainViewModel : ObservableObject
         catch { }
         CurrentView = new EventosViewModel(eventoService);
     }
+
 }

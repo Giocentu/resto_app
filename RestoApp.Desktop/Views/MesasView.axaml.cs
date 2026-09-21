@@ -32,7 +32,7 @@ public partial class MesasView : UserControl
             // Aquí puedes re-utilizar NuevaMesaWindow pasándole el ID en el constructor, 
             // o crear una nueva EditarMesaWindow(mesaSeleccionada.IdMesa)
             
-            var formEditar = new NuevaMesaWindow(); // Reemplazar con ventana de edición
+            var formEditar = new NuevaMesaWindow(mesaSeleccionada);
             var mainWindow = TopLevel.GetTopLevel(this) as Window;
             
             if (mainWindow != null)
@@ -44,7 +44,6 @@ public partial class MesasView : UserControl
         }
     }
 
-    // NUEVO: Lógica para el botón de Baja en la fila
     private async void BtnEliminar_Click(object? sender, RoutedEventArgs e)
 {
     if (sender is Button btn && btn.DataContext is MesaItemViewModel mesaSeleccionada)

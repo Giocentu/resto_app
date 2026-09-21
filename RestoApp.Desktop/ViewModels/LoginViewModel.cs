@@ -17,10 +17,8 @@ public partial class LoginViewModel : ObservableObject
 
     public async Task<bool> IniciarSesionAsync()
     {
-        // TODO: Reemplazar esto con una consulta real a tu base de datos mediante un servicio
-        // Ejemplo: var usuarioDb = await _usuarioService.ValidarLoginAsync(NombreUsuario, Password);
         
-        await Task.Delay(500); // Simulamos el tiempo de carga de la BD
+        await Task.Delay(500); 
 
         if (NombreUsuario == "dueño" && Password == "123")
         {

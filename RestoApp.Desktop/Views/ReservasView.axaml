@@ -4,17 +4,22 @@
              x:Class="RestoApp.Desktop.Views.ReservasView"
              x:DataType="vm:ReservasViewModel">
 
-    <Grid RowDefinitions="Auto, *" Margin="10">
-        <!-- Encabezado -->
-        <Grid Grid.Row="0" ColumnDefinitions="*, Auto" Margin="0,0,0,15">
-            <TextBlock Grid.Column="0" Text="Listado de Reservas" FontSize="22" FontWeight="Bold" Foreground="#2C3E50" VerticalAlignment="Center"/>
-            <Button Grid.Column="1" Content="+ Nueva Reserva" IsVisible="{Binding $parent[UserControl].((vm:ReservasViewModel)DataContext).PuedeAgregarEditar}" Background="#27AE60" Foreground="White" Padding="15,8" CornerRadius="5" Cursor="Hand"/>
-        </Grid>
+    <Border Background="White" BorderBrush="#BDC3C7" BorderThickness="1" CornerRadius="10" Padding="18" Margin="10">
+        <Panel>
+            <!-- VISTA PRINCIPAL -->
+            <Grid RowDefinitions="Auto, *" IsVisible="{Binding EsVistaPrincipal}">
+                <!-- Encabezado -->
+                <Grid Grid.Row="0" ColumnDefinitions="*, Auto, Auto" Margin="0,0,0,15">
+                    <TextBlock Grid.Column="0" Text="Listado de Reservas" FontSize="22" FontWeight="Bold" Foreground="#2C3E50" VerticalAlignment="Center"/>
+                    <Button Grid.Column="1" Content="Reservas Canceladas" Command="{Binding VerBajasCommand}" Background="#3498DB" Foreground="White" Padding="15,8" CornerRadius="5" Cursor="Hand" Margin="0,0,10,0"/>
+                    <Button Grid.Column="2" Content="+ Nueva Reserva" IsVisible="{Binding $parent[UserControl].((vm:ReservasViewModel)DataContext).PuedeAgregarEditar}" Background="#27AE60" Foreground="White" Padding="15,8" CornerRadius="5" Cursor="Hand" Click="BtnNuevaReserva_Click"/>
+                </Grid>
 
         <!-- Tabla -->
         <DataGrid Grid.Row="1" ItemsSource="{Binding Reservas}" 
                   AutoGenerateColumns="False" IsReadOnly="True" 
-                  GridLinesVisibility="All" BorderBrush="LightGray" BorderThickness="1">
+                  GridLinesVisibility="Horizontal" HeadersVisibility="Column" 
+                  BorderThickness="1" BorderBrush="#E0E6ED" CornerRadius="6">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Fecha y Hora" Binding="{Binding FechaHora}" Width="1.5*"/>
                 <DataGridTextColumn Header="Cliente" Binding="{Binding ClienteNombre}" Width="2*"/>
@@ -24,9 +29,9 @@
                 <DataGridTemplateColumn Header="Editar" Width="Auto"
                                         IsVisible="{Binding $parent[UserControl].((vm:ReservasViewModel)DataContext).PuedeAgregarEditar}">
                     <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate x:DataType="vm:MesaItemViewModel">
+                        <DataTemplate x:DataType="vm:ReservaItemViewModel">
                             <Button Content="Editar" 
-                                     
+                                    Click="BtnEditar_Click" 
                                     Background="Transparent" 
                                     Foreground="#F39C12" 
                                     Cursor="Hand"
@@ -39,9 +44,9 @@
                 <DataGridTemplateColumn Header="Baja" Width="Auto"
                                         IsVisible="{Binding $parent[UserControl].((vm:ReservasViewModel)DataContext).PuedeAgregarEditar}">
                     <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate x:DataType="vm:MesaItemViewModel">
+                        <DataTemplate x:DataType="vm:ReservaItemViewModel">
                             <Button Content="Eliminar" 
-                                    
+                                    Click="BtnEliminar_Click"
                                     Background="Transparent" 
                                     Foreground="#E74C3C" 
                                     Cursor="Hand"
@@ -50,6 +55,42 @@
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
             </DataGrid.Columns>
-        </DataGrid>
-    </Grid>
+            </DataGrid>
+            </Grid>
+
+            <!-- VISTA BAJAS / ARCHIVO -->
+            <Grid RowDefinitions="Auto, *" IsVisible="{Binding EsVistaBajas}">
+                <Grid Grid.Row="0" ColumnDefinitions="*, Auto" Margin="0,0,0,15">
+                    <TextBlock Grid.Column="0" Text="Reservas Canceladas (Archivo)" FontSize="22" FontWeight="Bold" Foreground="#2C3E50" VerticalAlignment="Center"/>
+                    <Button Grid.Column="1" Content="Atrás" Command="{Binding VolverPrincipalCommand}" Background="#DE0A2D" Foreground="White" Padding="15,8" CornerRadius="5" Cursor="Hand"/>
+                </Grid>
+
+                <DataGrid Grid.Row="1" ItemsSource="{Binding ReservasBajas}" 
+                          AutoGenerateColumns="False" IsReadOnly="True" 
+                          GridLinesVisibility="Horizontal" HeadersVisibility="Column" 
+                          BorderThickness="1" BorderBrush="#E0E6ED" CornerRadius="6">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Fecha y Hora" Binding="{Binding FechaHora}" Width="1.5*"/>
+                        <DataGridTextColumn Header="Cliente" Binding="{Binding ClienteNombre}" Width="2*"/>
+                        <DataGridTextColumn Header="Mesa" Binding="{Binding NroMesa}" Width="*"/>
+                        <DataGridTextColumn Header="Personas" Binding="{Binding CantidadPersonas}" Width="*"/>
+                        
+                        <DataGridTemplateColumn Header="Acción" Width="Auto" IsVisible="{Binding $parent[UserControl].((vm:ReservasViewModel)DataContext).PuedeAgregarEditar}">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate x:DataType="vm:ReservaItemViewModel">
+                                    <Button Content="Restaurar (Alta)" 
+                                            Command="{Binding $parent[UserControl].((vm:ReservasViewModel)DataContext).RestaurarReservaCommand}"
+                                            CommandParameter="{Binding}"
+                                            Background="Transparent" 
+                                            Foreground="#27AE60" 
+                                            Cursor="Hand"
+                                            HorizontalAlignment="Center"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+        </Panel>
+    </Border>
 </UserControl>
