@@ -3,9 +3,11 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Microsoft.Extensions.DependencyInjection;
 using RestoApp.Desktop.Views;
-//using RestoApp.Business.Services;
+using RestoApp.Business.Services;
+
 using RestoApp.Data;
 using RestoApp.Data.Repositories;
+using Microsoft.EntityFrameworkCore;
 using System;
 
 namespace RestoApp.Desktop;
@@ -28,6 +30,29 @@ public partial class App : Application
 
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
+            // Probar la conexión a la base de datos al iniciar
+            try
+            {
+                using var scope = Services.CreateScope();
+                var dbContext = scope.ServiceProvider.GetRequiredService<RestoAppDbContext>();
+                var conn = dbContext.Database.GetDbConnection();
+                conn.Open();
+                conn.Close();
+                Console.WriteLine("==================================================");
+                Console.WriteLine("[DB SUCCESS] ¡Conexión exitosa a la base de datos resto_DB!");
+                Console.WriteLine("==================================================");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("==================================================");
+                Console.WriteLine($"[DB ERROR DETAIL] {ex.Message}");
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine($"[DB INNER ERROR] {ex.InnerException.Message}");
+                }
+                Console.WriteLine("==================================================");
+            }
+
             // Aquí luego inyectaremos el ViewModel principal
             desktop.MainWindow = new LoginWindow();
         }
@@ -45,8 +70,14 @@ public partial class App : Application
         services.AddScoped<IReservaRepository, ReservaRepository>();
         services.AddScoped<IEmpleadoRepository, EmpleadoRepository>();
         services.AddScoped<IMesaRepository, MesaRepository>();
+        services.AddScoped<IEventoRepository, EventoRepository>();
+        services.AddScoped<IPagoRepository, PagoRepository>();
 
-        // 3. Registrar Servicios de Negocio (Ejemplo)
-        //services.AddScoped<ReservaService>();
+        // 3. Registrar Servicios de Negocio
+        services.AddScoped<ReservaService>();
+        services.AddScoped<EmpleadoService>();
+        services.AddScoped<MesaService>();
+        services.AddScoped<EventoService>();
+        services.AddScoped<PagoService>();
     }
 }

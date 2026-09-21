@@ -29,6 +29,12 @@ public partial class ReservasViewModel : ObservableObject
     [ObservableProperty]
     private bool _esVistaBajas = false;
 
+    [ObservableProperty]
+    private string _origenDatosTexto = "🟢 Base de datos";
+
+    [ObservableProperty]
+    private string _origenDatosColor = "#27AE60";
+
     [RelayCommand]
     private void VerBajas()
     {
@@ -65,6 +71,24 @@ public partial class ReservasViewModel : ObservableObject
         }
     }
 
+    [RelayCommand]
+    private async Task CancelarReservaAsync(ReservaItemViewModel reserva)
+    {
+        if (reserva != null)
+        {
+            if (_reservaService != null)
+            {
+                try
+                {
+                    await _reservaService.CambiarEstadoReservaAsync(reserva.IdReserva, 2); // 2 = Cancelado
+                }
+                catch { }
+            }
+            Reservas.Remove(reserva);
+            ReservasBajas.Add(reserva);
+        }
+    }
+
     public ReservasViewModel(ReservaService? reservaService = null)
     {
         _reservaService = reservaService;
@@ -79,12 +103,14 @@ public partial class ReservasViewModel : ObservableObject
         {
             try
             {
-                using var cts = new System.Threading.CancellationTokenSource(TimeSpan.FromMilliseconds(500));
-                var listaEntidades = await _reservaService.ObtenerReservasAsync().WaitAsync(cts.Token);
+                var listaEntidades = await _reservaService.ObtenerReservasAsync();
                 
                 foreach (var r in listaEntidades)
                 {
-                    string nombreCliente = r.Cliente?.PersonaInfo?.Nombre ?? "Cliente General";
+                    string nombreCliente = r.Cliente?.PersonaInfo != null
+                        ? $"{r.Cliente.PersonaInfo.Nombre} {r.Cliente.PersonaInfo.Apellido}".Trim()
+                        : "Cliente General";
+
                     string mesasAsignadas = r.Mesas != null && r.Mesas.Any()
                         ? string.Join(", ", r.Mesas.Select(m => m.NroMesa))
                         : "Sin asignar";
@@ -106,6 +132,8 @@ public partial class ReservasViewModel : ObservableObject
 
         if (!listaMapeada.Any())
         {
+            OrigenDatosTexto = "🟠 Mock";
+            OrigenDatosColor = "#E67E22";
             listaMapeada = new List<ReservaItemViewModel>
             {
                 new ReservaItemViewModel { IdReserva = 101, FechaHora = DateTime.Now.AddHours(2).ToString("dd/MM/yyyy HH:mm"), ClienteNombre = "Roberto Gómez", NroMesa = "Mesa 7", CantidadPersonas = 4 },
@@ -113,7 +141,13 @@ public partial class ReservasViewModel : ObservableObject
                 new ReservaItemViewModel { IdReserva = 103, FechaHora = DateTime.Now.AddDays(1).ToString("dd/MM/yyyy HH:mm"), ClienteNombre = "Empresa ACME", NroMesa = "Mesa 11, 12", CantidadPersonas = 8 }
             };
         }
+        else
+        {
+            OrigenDatosTexto = "🟢 Base de datos";
+            OrigenDatosColor = "#27AE60";
+        }
 
         Reservas = new ObservableCollection<ReservaItemViewModel>(listaMapeada);
     }
+
 }

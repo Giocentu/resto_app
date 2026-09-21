@@ -32,6 +32,12 @@ public partial class MesasViewModel : ObservableObject
     [ObservableProperty]
     private bool _esVistaBajas = false;
 
+    [ObservableProperty]
+    private string _origenDatosTexto = "🟢 Base de datos";
+
+    [ObservableProperty]
+    private string _origenDatosColor = "#27AE60";
+
     [RelayCommand]
     private void VerBajas()
     {
@@ -48,12 +54,38 @@ public partial class MesasViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void RestaurarMesa(MesaItemViewModel mesa)
+    private async Task RestaurarMesaAsync(MesaItemViewModel mesa)
     {
         if (mesa != null)
         {
+            if (_mesaService != null)
+            {
+                try
+                {
+                    await _mesaService.RestaurarMesaAsync(mesa.IdMesa);
+                }
+                catch { }
+            }
             MesasBajas.Remove(mesa);
             Mesas.Add(mesa);
+        }
+    }
+
+    [RelayCommand]
+    private async Task DarBajaMesaAsync(MesaItemViewModel mesa)
+    {
+        if (mesa != null)
+        {
+            if (_mesaService != null)
+            {
+                try
+                {
+                    await _mesaService.BajaLogicaMesaAsync(mesa.IdMesa);
+                }
+                catch { }
+            }
+            Mesas.Remove(mesa);
+            MesasBajas.Add(mesa);
         }
     }
 
@@ -83,8 +115,7 @@ public partial class MesasViewModel : ObservableObject
         {
             try
             {
-                using var cts = new System.Threading.CancellationTokenSource(TimeSpan.FromMilliseconds(500));
-                var listaEntidades = await _mesaService.ObtenerMesasAsync().WaitAsync(cts.Token);
+                var listaEntidades = await _mesaService.ObtenerMesasAsync(soloActivas: true);
                 
                 foreach (var m in listaEntidades)
                 {
@@ -97,13 +128,16 @@ public partial class MesasViewModel : ObservableObject
                     });
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                Console.WriteLine($"[MESAS DB ERROR] Error al cargar mesas de la BD: {ex.Message}");
             }
         }
 
         if (!listaMapeada.Any())
         {
+            OrigenDatosTexto = "🟠 Mock";
+            OrigenDatosColor = "#E67E22";
             listaMapeada = new List<MesaItemViewModel>
             {
                 new MesaItemViewModel { IdMesa = 1, NroMesa = 1, Capacidad = 2, UbicacionDescripcion = "Salón Principal" },
@@ -119,9 +153,15 @@ public partial class MesasViewModel : ObservableObject
                 new MesaItemViewModel { IdMesa = 11, NroMesa = 11, Capacidad = 6, UbicacionDescripcion = "VIP" }
             };
         }
+        else
+        {
+            OrigenDatosTexto = "🟢 Base de datos";
+            OrigenDatosColor = "#27AE60";
+        }
 
         Mesas = new ObservableCollection<MesaItemViewModel>(listaMapeada);
     }
+
     private readonly Action _volverInicio;
 
 

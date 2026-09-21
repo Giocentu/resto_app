@@ -14,9 +14,25 @@ public class EmpleadoService
         _empleadoRepository = empleadoRepository;
     }
 
-    public async Task<IEnumerable<Empleado>> ObtenerEmpleadosAsync()
+    public async Task<IEnumerable<Empleado>> ObtenerEmpleadosAsync(bool soloActivos = true)
     {
-        // Ahora pedimos los empleados con todas sus tablas relacionadas
-        return await _empleadoRepository.GetEmpleadosConDetallesAsync();    
+        try
+        {
+            return await _empleadoRepository.GetEmpleadosSpAsync(soloActivos);
+        }
+        catch
+        {
+            return await _empleadoRepository.GetEmpleadosConDetallesAsync();
+        }
+    }
+
+    public async Task CrearEmpleadoAsync(long dni, string nombre, string apellido, string email, long telefono, string password, int idRol, int idTurno)
+    {
+        await _empleadoRepository.CrearEmpleadoSpAsync(dni, nombre, apellido, email, telefono, password, idRol, idTurno);
+    }
+
+    public async Task BajaLogicaEmpleadoAsync(long dniEmpleado, int idRol)
+    {
+        await _empleadoRepository.BajaLogicaEmpleadoSpAsync(dniEmpleado, idRol);
     }
 }

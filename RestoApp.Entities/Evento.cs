@@ -14,13 +14,13 @@ public class Evento
     [Column("nombre_evento")]
     public string NombreEvento { get; set; } = string.Empty;
 
-    [NotMapped]
-    public DateTime FechaEvento { get; set; } = DateTime.Now;
+    [Column("fecha_evento")]
+    public DateTime? FechaEvento { get; set; }
 
-    [NotMapped]
-    public string Descripcion { get; set; } = string.Empty;
+    [Column("descripcion")]
+    public string? Descripcion { get; set; }
 
-    [NotMapped]
+    [Column("es_activo")]
     public bool EsActivo { get; set; } = true;
 
     [NotMapped]

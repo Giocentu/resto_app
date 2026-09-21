@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using RestoApp.Data.Repositories;
@@ -14,24 +15,47 @@ public class EventoService
         _eventoRepository = eventoRepository;
     }
 
-    public async Task<IEnumerable<Evento>> ObtenerEventosAsync()
+    public async Task<IEnumerable<Evento>> ObtenerEventosAsync(bool soloActivos = true)
     {
-        return await _eventoRepository.GetEventosAsync();
+        try
+        {
+            return await _eventoRepository.GetEventosSpAsync(soloActivos);
+        }
+        catch
+        {
+            return await _eventoRepository.GetEventosAsync();
+        }
     }
 
-    public async Task RegistrarEventoAsync(Evento evento)
+    public async Task<int> RegistrarEventoAsync(Evento evento)
     {
-        await _eventoRepository.AddAsync(evento);
-        await _eventoRepository.SaveChangesAsync();
+        try
+        {
+            return await _eventoRepository.CrearEventoSpAsync(evento.NombreEvento, evento.FechaEvento, evento.Descripcion);
+        }
+        catch
+        {
+            await _eventoRepository.AddAsync(evento);
+            await _eventoRepository.SaveChangesAsync();
+            return evento.IdEvento;
+        }
     }
 
     public async Task EliminarEventoAsync(int idEvento)
     {
-        var evento = await _eventoRepository.GetByIdAsync(idEvento);
-        if (evento != null)
+        try
         {
-            _eventoRepository.Delete(evento);
-            await _eventoRepository.SaveChangesAsync();
+            await _eventoRepository.BajaLogicaEventoSpAsync(idEvento);
+        }
+        catch
+        {
+            var evento = await _eventoRepository.GetByIdAsync(idEvento);
+            if (evento != null)
+            {
+                _eventoRepository.Delete(evento);
+                await _eventoRepository.SaveChangesAsync();
+            }
         }
     }
 }
+

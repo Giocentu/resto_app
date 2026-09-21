@@ -22,6 +22,9 @@ public partial class InicioViewModel : ObservableObject
     private ObservableCollection<VisualMesaItemViewModel> _mesasFiltradas = new();
 
     [ObservableProperty]
+    private ObservableCollection<string> _sectores = new() { "Todos" };
+
+    [ObservableProperty]
     private VisualMesaItemViewModel? _selectedMesa;
 
     [ObservableProperty]
@@ -38,6 +41,12 @@ public partial class InicioViewModel : ObservableObject
 
     [ObservableProperty]
     private int _limpiezaCount;
+
+    [ObservableProperty]
+    private string _origenDatosTexto = "🟢 Base de datos";
+
+    [ObservableProperty]
+    private string _origenDatosColor = "#27AE60";
 
     public bool EsAdmin => SesionGlobal.RolActual == RolUsuario.Dueno || SesionGlobal.RolActual == RolUsuario.Gerente;
 
@@ -56,8 +65,7 @@ public partial class InicioViewModel : ObservableObject
         {
             try
             {
-                using var cts = new System.Threading.CancellationTokenSource(TimeSpan.FromMilliseconds(300));
-                var entidades = await _mesaService.ObtenerMesasAsync().WaitAsync(cts.Token);
+                var entidades = await _mesaService.ObtenerMesasAsync(soloActivas: true);
                 foreach (var m in entidades)
                 {
                     lista.Add(new VisualMesaItemViewModel
@@ -66,7 +74,7 @@ public partial class InicioViewModel : ObservableObject
                         NroMesa = m.NroMesa,
                         Capacidad = m.Capacidad,
                         UbicacionDescripcion = m.Ubicacion?.Ubicacion ?? "Salón Principal",
-                        Estado = "LIBRE"
+                        Estado = string.IsNullOrWhiteSpace(m.Estado) ? "LIBRE" : m.Estado
                     });
                 }
             }
@@ -76,9 +84,12 @@ public partial class InicioViewModel : ObservableObject
             }
         }
 
+
         // Si la base no devolvió datos o no hay servicio, poblamos con datos demostrativos interactivos como en el diseño
         if (!lista.Any())
         {
+            OrigenDatosTexto = "🟠 Mock";
+            OrigenDatosColor = "#E67E22";
             lista = new List<VisualMesaItemViewModel>
             {
                 new() { IdMesa = 1, NroMesa = 1, Capacidad = 2, UbicacionDescripcion = "Salón Principal", Estado = "LIBRE", ConsumoActual = 0.00m },
@@ -95,8 +106,18 @@ public partial class InicioViewModel : ObservableObject
                 new() { IdMesa = 12, NroMesa = 12, Capacidad = 4, UbicacionDescripcion = "Salón Principal", Estado = "LIBRE", ConsumoActual = 0.00m },
             };
         }
+        else
+        {
+            OrigenDatosTexto = "🟢 Base de datos";
+            OrigenDatosColor = "#27AE60";
+        }
 
         Mesas = new ObservableCollection<VisualMesaItemViewModel>(lista);
+
+        var listaSectores = new List<string> { "Todos" };
+        listaSectores.AddRange(Mesas.Select(m => m.UbicacionDescripcion).Where(u => !string.IsNullOrWhiteSpace(u)).Distinct());
+        Sectores = new ObservableCollection<string>(listaSectores.Distinct());
+
         ActualizarConteos();
         AplicarFiltroSector();
 

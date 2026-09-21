@@ -116,6 +116,37 @@ public partial class MainViewModel : ObservableObject
     private InicioViewModel? _inicioViewModelCache;
 
     // Comandos para cambiar de sección al hacer clic en los botones del menú
+    private MesaService CreateMesaService()
+
+    {
+        return App.Services?.GetService(typeof(MesaService)) as MesaService
+            ?? new MesaService(new MesaRepository(new RestoAppDbContext()));
+    }
+
+    private ReservaService CreateReservaService()
+    {
+        return App.Services?.GetService(typeof(ReservaService)) as ReservaService
+            ?? new ReservaService(new ReservaRepository(new RestoAppDbContext()));
+    }
+
+    private EmpleadoService CreateEmpleadoService()
+    {
+        return App.Services?.GetService(typeof(EmpleadoService)) as EmpleadoService
+            ?? new EmpleadoService(new EmpleadoRepository(new RestoAppDbContext()));
+    }
+
+    private EventoService CreateEventoService()
+    {
+        return App.Services?.GetService(typeof(EventoService)) as EventoService
+            ?? new EventoService(new EventoRepository(new RestoAppDbContext()));
+    }
+
+    private PagoService CreatePagoService()
+    {
+        return App.Services?.GetService(typeof(PagoService)) as PagoService
+            ?? new PagoService(new PagoRepository(new RestoAppDbContext()));
+    }
+
     [RelayCommand]
     private void IrAInicio()
     {
@@ -124,8 +155,7 @@ public partial class MainViewModel : ObservableObject
             MesaService? mesaService = null;
             try
             {
-                var mesaRepo = new MesaRepository(new RestoAppDbContext());
-                mesaService = new MesaService(mesaRepo);
+                mesaService = CreateMesaService();
             }
             catch { }
             _inicioViewModelCache = new InicioViewModel(mesaService, navigateAMesasAction: IrAMesas);
@@ -146,8 +176,7 @@ public partial class MainViewModel : ObservableObject
         EmpleadoService? service = null;
         try
         {
-            var empleadoRepo = new EmpleadoRepository(new RestoAppDbContext());
-            service = new EmpleadoService(empleadoRepo);
+            service = CreateEmpleadoService();
         }
         catch { }
         CurrentView = new EmpleadosViewModel(service);
@@ -159,8 +188,7 @@ public partial class MainViewModel : ObservableObject
         ReservaService? service = null;
         try
         {
-            var reservaRepo = new ReservaRepository(new RestoAppDbContext());
-            service = new ReservaService(reservaRepo);
+            service = CreateReservaService();
         }
         catch { }
         CurrentView = new ReservasViewModel(service);
@@ -172,8 +200,7 @@ public partial class MainViewModel : ObservableObject
         MesaService? service = null;
         try
         {
-            var mesaRepo = new MesaRepository(new RestoAppDbContext());
-            service = new MesaService(mesaRepo);
+            service = CreateMesaService();
         }
         catch { }
         CurrentView = new MesasViewModel(service, () => IrAInicio() );
@@ -185,8 +212,7 @@ public partial class MainViewModel : ObservableObject
         PagoService? pagoService = null;
         try
         {
-            var pagoRepo = new PagoRepository(new RestoAppDbContext());
-            pagoService = new PagoService(pagoRepo);
+            pagoService = CreatePagoService();
         }
         catch { }
         CurrentView = new CajaViewModel(pagoService);
@@ -198,11 +224,11 @@ public partial class MainViewModel : ObservableObject
         EventoService? eventoService = null;
         try
         {
-            var eventoRepo = new EventoRepository(new RestoAppDbContext());
-            eventoService = new EventoService(eventoRepo);
+            eventoService = CreateEventoService();
         }
         catch { }
         CurrentView = new EventosViewModel(eventoService);
     }
+
 
 }

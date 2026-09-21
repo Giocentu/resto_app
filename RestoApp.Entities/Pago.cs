@@ -23,7 +23,7 @@ public class Pago
     public MetodoPago? MetodoPago { get; set; }
 
     [Column("id_reserva")]
-    public int IdReserva { get; set; }
+    public int? IdReserva { get; set; }
 
     [ForeignKey("IdReserva")]
     public Reserva? Reserva { get; set; }
