@@ -19,6 +19,12 @@ public class Mesa
     [Column("id_ubicacion")]
     public int IdUbicacion { get; set; }
 
+    [Column("estado")]
+    public string Estado { get; set; } = "LIBRE";
+
+    [Column("es_activo")]
+    public bool EsActivo { get; set; } = true;
+
     [ForeignKey("IdUbicacion")]
     public UbicacionMesa? Ubicacion { get; set; }
 

@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using RestoApp.Entities;
 
 namespace RestoApp.Data;
@@ -21,11 +21,35 @@ public class RestoAppDbContext : DbContext
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         // Reemplaza "TU_SERVIDOR" por el nombre de tu instancia (ej. localhost\SQLEXPRESS)
-        optionsBuilder.UseSqlServer(@"Server=HERNAN\SQLEXPRESS;Database=proyect_Resto;Trusted_Connection=True;TrustServerCertificate=True;");
+        optionsBuilder.UseSqlServer(@"Server=localhost;Database=resto_DB;User Id=SA;Password=Gio1234.;TrustServerCertificate=True;");
     }
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        // Clave primaria compuesta para Empleado (dni_empleado, id_rol)
+        modelBuilder.Entity<Empleado>()
+            .HasKey(e => new { e.DniEmpleado, e.IdRol });
+
+        // Relación opcional entre Reserva y Empleado (usando la clave compuesta de Empleado)
+        modelBuilder.Entity<Reserva>()
+            .HasOne(r => r.Empleado)
+            .WithMany()
+            .HasForeignKey(r => new { r.DniEmpleado, r.IdRol })
+            .IsRequired(false);
+
+        // Relación opcional entre Reserva y Evento
+        modelBuilder.Entity<Reserva>()
+            .HasOne(r => r.Evento)
+            .WithMany()
+            .HasForeignKey(r => r.IdEvento)
+            .IsRequired(false);
+
+        // Relación opcional entre Pago y Reserva
+        modelBuilder.Entity<Pago>()
+            .HasOne(p => p.Reserva)
+            .WithMany()
+            .HasForeignKey(p => p.IdReserva)
+            .IsRequired(false);
+
         // Configuración fluida para la tabla intermedia muchos a muchos (reserva_mesa)
         modelBuilder.Entity<Reserva>()
             .HasMany(r => r.Mesas)

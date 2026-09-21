@@ -34,15 +34,3 @@ C:/Users/herna/Documents/Taller2/resto_app/RestoApp.Entities/obj/Debug/net10.0/r
 /home/shiox/git_Projects/resto_app/RestoApp.Entities/obj/Debug/net10.0/refint/RestoApp.Entities.dll
 /home/shiox/git_Projects/resto_app/RestoApp.Entities/obj/Debug/net10.0/RestoApp.Entities.pdb
 /home/shiox/git_Projects/resto_app/RestoApp.Entities/obj/Debug/net10.0/ref/RestoApp.Entities.dll
-C:\Users\herna\Documents\Taller2\resto_app\RestoApp.Entities\bin\Debug\net10.0\RestoApp.Entities.deps.json
-C:\Users\herna\Documents\Taller2\resto_app\RestoApp.Entities\bin\Debug\net10.0\RestoApp.Entities.dll
-C:\Users\herna\Documents\Taller2\resto_app\RestoApp.Entities\bin\Debug\net10.0\RestoApp.Entities.pdb
-C:\Users\herna\Documents\Taller2\resto_app\RestoApp.Entities\obj\Debug\net10.0\RestoApp.Entities.GeneratedMSBuildEditorConfig.editorconfig
-C:\Users\herna\Documents\Taller2\resto_app\RestoApp.Entities\obj\Debug\net10.0\RestoApp.Entities.AssemblyInfoInputs.cache
-C:\Users\herna\Documents\Taller2\resto_app\RestoApp.Entities\obj\Debug\net10.0\RestoApp.Entities.AssemblyInfo.cs
-C:\Users\herna\Documents\Taller2\resto_app\RestoApp.Entities\obj\Debug\net10.0\RestoApp.Entities.csproj.CoreCompileInputs.cache
-C:\Users\herna\Documents\Taller2\resto_app\RestoApp.Entities\obj\Debug\net10.0\RestoApp.Entities.sourcelink.json
-C:\Users\herna\Documents\Taller2\resto_app\RestoApp.Entities\obj\Debug\net10.0\RestoApp.Entities.dll
-C:\Users\herna\Documents\Taller2\resto_app\RestoApp.Entities\obj\Debug\net10.0\refint\RestoApp.Entities.dll
-C:\Users\herna\Documents\Taller2\resto_app\RestoApp.Entities\obj\Debug\net10.0\RestoApp.Entities.pdb
-C:\Users\herna\Documents\Taller2\resto_app\RestoApp.Entities\obj\Debug\net10.0\ref\RestoApp.Entities.dll

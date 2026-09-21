@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("RestoApp.Entities")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+7080c4eb991fec2e549ba3f39166c01135befb9a")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+0180ff1bbce5d0f24fa9ab42ffc0f5296119705c")]
 [assembly: System.Reflection.AssemblyProductAttribute("RestoApp.Entities")]
 [assembly: System.Reflection.AssemblyTitleAttribute("RestoApp.Entities")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

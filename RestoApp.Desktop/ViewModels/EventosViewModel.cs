@@ -27,6 +27,12 @@ public partial class EventosViewModel : ObservableObject
     [ObservableProperty]
     private string _nuevaDescripcion = string.Empty;
 
+    [ObservableProperty]
+    private string _origenDatosTexto = "🟢 Base de datos";
+
+    [ObservableProperty]
+    private string _origenDatosColor = "#27AE60";
+
     public EventosViewModel(EventoService? eventoService = null)
     {
         _eventoService = eventoService;
@@ -41,16 +47,15 @@ public partial class EventosViewModel : ObservableObject
         {
             try
             {
-                using var cts = new System.Threading.CancellationTokenSource(TimeSpan.FromMilliseconds(300));
-                var entidades = await _eventoService.ObtenerEventosAsync().WaitAsync(cts.Token);
+                var entidades = await _eventoService.ObtenerEventosAsync(soloActivos: true);
                 foreach (var e in entidades)
                 {
                     lista.Add(new EventoItemViewModel
                     {
                         IdEvento = e.IdEvento,
                         NombreEvento = e.NombreEvento,
-                        FechaEvento = e.FechaEvento,
-                        Descripcion = e.Descripcion,
+                        FechaEvento = e.FechaEvento ?? DateTime.Now,
+                        Descripcion = e.Descripcion ?? string.Empty,
                         EsActivo = e.EsActivo,
                         CantReservasVinculadas = e.CantReservasVinculadas
                     });
@@ -62,9 +67,12 @@ public partial class EventosViewModel : ObservableObject
             }
         }
 
+
         // Si la base no devolvió datos, cargar catálogo demostrativo interactivo como en la imagen
         if (!lista.Any())
         {
+            OrigenDatosTexto = "🟠 Mock";
+            OrigenDatosColor = "#E67E22";
             lista = new List<EventoItemViewModel>
             {
                 new()
@@ -104,6 +112,11 @@ public partial class EventosViewModel : ObservableObject
                     CantReservasVinculadas = 0
                 }
             };
+        }
+        else
+        {
+            OrigenDatosTexto = "🟢 Base de datos";
+            OrigenDatosColor = "#27AE60";
         }
 
         Eventos = new ObservableCollection<EventoItemViewModel>(lista);

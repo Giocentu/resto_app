@@ -97,6 +97,12 @@ public partial class CajaViewModel : ObservableObject
     [ObservableProperty]
     private string _mensajeCierre = string.Empty;
 
+    [ObservableProperty]
+    private string _origenDatosTexto = "🟢 Base de datos";
+
+    [ObservableProperty]
+    private string _origenDatosColor = "#27AE60";
+
     public CajaViewModel(PagoService? pagoService = null)
     {
         _pagoService = pagoService;
@@ -111,8 +117,7 @@ public partial class CajaViewModel : ObservableObject
         {
             try
             {
-                using var cts = new System.Threading.CancellationTokenSource(TimeSpan.FromMilliseconds(300));
-                var entidades = await _pagoService.ObtenerPagosAsync().WaitAsync(cts.Token);
+                var entidades = await _pagoService.ObtenerPagosAsync();
                 foreach (var p in entidades)
                 {
                     var desc = p.Reserva != null 
@@ -140,9 +145,12 @@ public partial class CajaViewModel : ObservableObject
             }
         }
 
+
         // Si no hay datos de BD, cargar datos de demostración del turno
         if (!listaPagos.Any())
         {
+            OrigenDatosTexto = "🟠 Mock";
+            OrigenDatosColor = "#E67E22";
             var hoy = DateTime.Now;
             listaPagos = new List<PagoItemViewModel>
             {
@@ -174,6 +182,11 @@ public partial class CajaViewModel : ObservableObject
                     Monto = 45000.00m
                 }
             };
+        }
+        else
+        {
+            OrigenDatosTexto = "🟢 Base de datos";
+            OrigenDatosColor = "#27AE60";
         }
 
         Pagos = new ObservableCollection<PagoItemViewModel>(listaPagos);

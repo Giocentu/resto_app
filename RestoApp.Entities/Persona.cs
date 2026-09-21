@@ -21,7 +21,7 @@ public class Persona
     public string Email {get; set;} = string.Empty;
 
     [Column("telefono")]
-    public string Telefono {get; set;} = string.Empty;
+    public long Telefono {get; set;}
 
     [Column("password")]
     public string Password {get; set;} = string.Empty;

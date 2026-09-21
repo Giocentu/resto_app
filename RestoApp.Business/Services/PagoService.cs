@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using RestoApp.Data.Repositories;
@@ -24,10 +25,18 @@ public class PagoService
         return await _pagoRepository.GetMetodosPagoAsync();
     }
 
-    public async Task RegistrarPagoAsync(Pago pago)
+    public async Task<int> RegistrarPagoAsync(Pago pago, int? idMesa = null)
     {
-        await _pagoRepository.AddAsync(pago);
-        await _pagoRepository.SaveChangesAsync();
+        try
+        {
+            return await _pagoRepository.CrearPagoSpAsync(pago.Monto, pago.FechaPago, pago.IdMetodo, pago.IdReserva, idMesa);
+        }
+        catch
+        {
+            await _pagoRepository.AddAsync(pago);
+            await _pagoRepository.SaveChangesAsync();
+            return pago.IdPago;
+        }
     }
 
     public async Task EliminarPagoAsync(int idPago)
@@ -40,3 +49,4 @@ public class PagoService
         }
     }
 }
+
