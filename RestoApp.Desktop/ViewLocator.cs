@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
+using CommunityToolkit.Mvvm.ComponentModel;
 using RestoApp.Desktop.ViewModels;
 
 namespace RestoApp.Desktop;
@@ -32,6 +33,6 @@ public class ViewLocator : IDataTemplate
 
     public bool Match(object? data)
     {
-        return data is ViewModelBase;
+        return data is ObservableObject || data is ViewModelBase;
     }
 }

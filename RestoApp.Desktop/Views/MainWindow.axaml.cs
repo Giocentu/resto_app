@@ -14,12 +14,13 @@ public partial class MainWindow : Window
 
     private void MenuButton_Click(object? sender, RoutedEventArgs e)
     {
-        // 1. Removemos la clase 'active' de todos los botones del menú
-        BtnInicio.Classes.Remove("active");
-        BtnReservas.Classes.Remove("active");
-        BtnPersonal.Classes.Remove("active");
-        BtnCaja.Classes.Remove("active");
-        BtnEventos.Classes.Remove("active");
+        // 1. Removemos la clase 'active' de todos los botones del menú de forma segura
+        BtnInicio?.Classes.Remove("active");
+        BtnReservas?.Classes.Remove("active");
+        BtnPersonal?.Classes.Remove("active");
+        BtnCaja?.Classes.Remove("active");
+        BtnEventos?.Classes.Remove("active");
+        BtnClientes?.Classes.Remove("active");
 
         // 2. Identificamos qué botón disparó el evento y le añadimos la clase active
         if (sender is Button clickedButton)
@@ -27,7 +28,8 @@ public partial class MainWindow : Window
             clickedButton.Classes.Add("active");
         }
     }
-    private void CerrarSesion(object? sender, RoutedEventArgs e )
+
+    private void CerrarSesion(object? sender, RoutedEventArgs e)
     {
         var loginWindow = new LoginWindow();
         loginWindow.Show();

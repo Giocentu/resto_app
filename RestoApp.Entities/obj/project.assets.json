@@ -1,5 +1,5 @@
 {
-  "version": 4,
+  "version": 3,
   "targets": {
     "net10.0": {}
   },
@@ -8,29 +8,29 @@
     "net10.0": []
   },
   "packageFolders": {
-    "C:\\Users\\herna\\.nuget\\packages\\": {}
+    "/home/shiox/.nuget/packages/": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\herna\\Documents\\Taller2\\resto_app\\RestoApp.Entities\\RestoApp.Entities.csproj",
+      "projectUniqueName": "/home/shiox/git_Projects/resto_app/RestoApp.Entities/RestoApp.Entities.csproj",
       "projectName": "RestoApp.Entities",
-      "projectPath": "C:\\Users\\herna\\Documents\\Taller2\\resto_app\\RestoApp.Entities\\RestoApp.Entities.csproj",
-      "packagesPath": "C:\\Users\\herna\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\herna\\Documents\\Taller2\\resto_app\\RestoApp.Entities\\obj\\",
+      "projectPath": "/home/shiox/git_Projects/resto_app/RestoApp.Entities/RestoApp.Entities.csproj",
+      "packagesPath": "/home/shiox/.nuget/packages/",
+      "outputPath": "/home/shiox/git_Projects/resto_app/RestoApp.Entities/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\herna\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        "/home/shiox/.nuget/NuGet/NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net10.0"
       ],
       "sources": {
+        "/usr/lib64/dotnet/library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
         "net10.0": {
-          "framework": "net10.0",
           "targetAlias": "net10.0",
           "projectReferences": {}
         }
@@ -45,11 +45,10 @@
         "auditLevel": "low",
         "auditMode": "all"
       },
-      "SdkAnalysisLevel": "10.0.400"
+      "SdkAnalysisLevel": "10.0.100"
     },
     "frameworks": {
       "net10.0": {
-        "framework": "net10.0",
         "targetAlias": "net10.0",
         "imports": [
           "net461",
@@ -67,7 +66,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.400/PortableRuntimeIdentifierGraph.json",
+        "runtimeIdentifierGraphPath": "/usr/lib64/dotnet/sdk/10.0.111/PortableRuntimeIdentifierGraph.json",
         "packagesToPrune": {
           "Microsoft.CSharp": "(,4.7.32767]",
           "Microsoft.VisualBasic": "(,10.4.32767]",
@@ -344,13 +343,5 @@
         }
       }
     }
-  },
-  "logs": [
-    {
-      "code": "Undefined",
-      "level": "Warning",
-      "warningLevel": 1,
-      "message": "Problem reading the cache file C:\\Users\\herna\\Documents\\Taller2\\resto_app\\RestoApp.Entities\\obj\\project.nuget.cache : '<' is an invalid start of a property name. Expected a '\"'. Path: $ | LineNumber: 2 | BytePositionInLine: 0."
-    }
-  ]
+  }
 }
