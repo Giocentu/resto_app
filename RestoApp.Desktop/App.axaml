@@ -1,12 +1,19 @@
 <Application xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="using:RestoApp.Desktop"
              xmlns:vm="using:RestoApp.Desktop.ViewModels"
              xmlns:v="using:RestoApp.Desktop.Views"
              x:Class="RestoApp.Desktop.App"
              RequestedThemeVariant="Light">
 
     <Application.DataTemplates>
-        <!-- Mapeo automático de ViewModel a Vista -->
+        <local:ViewLocator/>
+
+        <!-- Mapeos de ViewModel a Vista para todas las secciones -->
+        <DataTemplate DataType="{x:Type vm:InicioViewModel}">
+            <v:InicioView/>
+        </DataTemplate>
+
         <DataTemplate DataType="{x:Type vm:MesasViewModel}">
             <v:MesasView/>
         </DataTemplate>
@@ -18,7 +25,15 @@
         <DataTemplate DataType="{x:Type vm:EmpleadosViewModel}">
             <v:EmpleadosView/>
         </DataTemplate>
-        </Application.DataTemplates>
+
+        <DataTemplate DataType="{x:Type vm:CajaViewModel}">
+            <v:CajaView/>
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type vm:EventosViewModel}">
+            <v:EventosView/>
+        </DataTemplate>
+    </Application.DataTemplates>
 
     <Application.Styles>
         <FluentTheme/>
