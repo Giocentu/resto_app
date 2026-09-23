@@ -29,7 +29,7 @@ public class PagoService
     {
         try
         {
-            return await _pagoRepository.CrearPagoSpAsync(pago.Monto, pago.FechaPago, pago.IdMetodo, pago.IdReserva, idMesa);
+            return await _pagoRepository.CrearPagoSpAsync((decimal)pago.Monto, pago.FechaPago, pago.IdMetodo, pago.IdReserva, idMesa);
         }
         catch
         {

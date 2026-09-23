@@ -112,6 +112,7 @@ public partial class CajaViewModel : ObservableObject
     public async Task CargarDatosAsync()
     {
         var listaPagos = new List<PagoItemViewModel>();
+        bool cargoDesdeBD = false;
 
         if (_pagoService != null)
         {
@@ -135,19 +136,32 @@ public partial class CajaViewModel : ObservableObject
                         Descripcion = desc,
                         ClienteNombre = cliente,
                         MedioPago = p.MetodoPago?.FormaPago ?? "Efectivo",
-                        Monto = p.Monto
+                        Monto = (decimal)p.Monto
                     });
                 }
+                cargoDesdeBD = true;
             }
-            catch
+            catch (Exception ex)
             {
-                // Fallback a datos demostrativos
+                Console.WriteLine($"[CAJA DB ERROR] Error al cargar pagos de la BD: {ex.Message}");
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine($"[CAJA DB INNER ERROR] {ex.InnerException.Message}");
+                }
             }
         }
 
-
-        // Si no hay datos de BD, cargar datos de demostración del turno
-        if (!listaPagos.Any())
+        if (cargoDesdeBD && listaPagos.Any())
+        {
+            OrigenDatosTexto = "🟢 Base de datos";
+            OrigenDatosColor = "#27AE60";
+        }
+        else if (cargoDesdeBD && !listaPagos.Any())
+        {
+            OrigenDatosTexto = "🟢 Base de datos (Sin registros)";
+            OrigenDatosColor = "#27AE60";
+        }
+        else
         {
             OrigenDatosTexto = "🟠 Mock";
             OrigenDatosColor = "#E67E22";
@@ -182,11 +196,6 @@ public partial class CajaViewModel : ObservableObject
                     Monto = 45000.00m
                 }
             };
-        }
-        else
-        {
-            OrigenDatosTexto = "🟢 Base de datos";
-            OrigenDatosColor = "#27AE60";
         }
 
         Pagos = new ObservableCollection<PagoItemViewModel>(listaPagos);
@@ -318,7 +327,7 @@ public partial class CajaViewModel : ObservableObject
             {
                 var pagoEntity = new Pago
                 {
-                    Monto = MontoCobrar,
+                    Monto = (double)MontoCobrar,
                     FechaPago = DateTime.Now,
                     IdMetodo = 1, // Default EF metodo
                     IdReserva = 1

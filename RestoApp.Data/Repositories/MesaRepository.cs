@@ -22,8 +22,9 @@ public class MesaRepository : Repository<Mesa>, IMesaRepository
     public async Task<IEnumerable<Mesa>> GetMesasSpAsync(bool soloActivas = true)
     {
         return await _dbSet
-            .FromSqlRaw("EXEC sp_Mesa_ObtenerTodas @SoloActivas = {0}", soloActivas)
             .Include(m => m.Ubicacion)
+            .Where(m => !soloActivas || m.EsActivo)
+            .OrderBy(m => m.NroMesa)
             .ToListAsync();
     }
 

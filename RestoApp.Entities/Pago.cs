@@ -10,8 +10,8 @@ public class Pago
     [Column("id_pago")]
     public int IdPago { get; set; }
 
-    [Column("monto", TypeName = "decimal(18,2)")]
-    public decimal Monto { get; set; }
+    [Column("monto")]
+    public double Monto { get; set; }
 
     [Column("fecha_pago")]
     public DateTime FechaPago { get; set; }

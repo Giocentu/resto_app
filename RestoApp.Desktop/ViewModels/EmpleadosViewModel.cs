@@ -23,6 +23,9 @@ public partial class EmpleadosViewModel : ObservableObject
     private ObservableCollection<EmpleadoItemViewModel> _empleados = new();
 
     [ObservableProperty]
+    private ObservableCollection<EmpleadoItemViewModel> _empleadosFiltrados = new();
+
+    [ObservableProperty]
     private ObservableCollection<EmpleadoItemViewModel> _empleadosBajas = new();
 
     [ObservableProperty]
@@ -36,6 +39,27 @@ public partial class EmpleadosViewModel : ObservableObject
 
     [ObservableProperty]
     private string _origenDatosColor = "#27AE60";
+
+    [ObservableProperty]
+    private string _textoBusqueda = string.Empty;
+
+    [ObservableProperty]
+    private string _filtroRol = "Todos";
+
+    [ObservableProperty]
+    private int _totalEmpleadosCount;
+
+    [ObservableProperty]
+    private int _activosCount;
+
+    [ObservableProperty]
+    private int _mozosCount;
+
+    [ObservableProperty]
+    private int _inactivosCount;
+
+    partial void OnTextoBusquedaChanged(string value) => AplicarFiltro();
+    partial void OnFiltroRolChanged(string value) => AplicarFiltro();
 
     [RelayCommand]
     private void VerBajas()
@@ -57,8 +81,10 @@ public partial class EmpleadosViewModel : ObservableObject
     {
         if (empleado != null)
         {
+            empleado.Estado = "Activo";
             EmpleadosBajas.Remove(empleado);
             Empleados.Add(empleado);
+            AplicarFiltro();
         }
     }
 
@@ -71,6 +97,7 @@ public partial class EmpleadosViewModel : ObservableObject
                 new EmpleadoItemViewModel { DniEmpleado = 11223344, NombreCompleto = "Juan Perez (Retirado)", RolCargo = "Mozo", Telefono = "11-2233-4455", Estado = "Inactivo", PuedeEditar = PuedeEditar }
             };
         }
+        InactivosCount = EmpleadosBajas.Count;
     }
 
     [RelayCommand]
@@ -89,7 +116,64 @@ public partial class EmpleadosViewModel : ObservableObject
             Empleados.Remove(empleado);
             empleado.Estado = "Inactivo";
             EmpleadosBajas.Add(empleado);
+            AplicarFiltro();
         }
+    }
+
+    public void AgregarOActualizarEmpleado(EmpleadoItemViewModel emp)
+    {
+        emp.PuedeEditar = PuedeEditar;
+        var existente = Empleados.FirstOrDefault(e => e.DniEmpleado == emp.DniEmpleado);
+        if (existente != null)
+        {
+            existente.NombreCompleto = emp.NombreCompleto;
+            existente.RolCargo = emp.RolCargo;
+            existente.Telefono = emp.Telefono;
+            existente.Estado = emp.Estado;
+        }
+        else
+        {
+            Empleados.Add(emp);
+        }
+        AplicarFiltro();
+    }
+
+    [RelayCommand]
+    private void FiltrarPorRolCommand(string rol)
+    {
+        FiltroRol = rol ?? "Todos";
+    }
+
+    private void AplicarFiltro()
+    {
+        IEnumerable<EmpleadoItemViewModel> resultado = Empleados;
+
+        if (!string.IsNullOrWhiteSpace(FiltroRol) && FiltroRol != "Todos")
+        {
+            resultado = resultado.Where(e => e.RolCargo.Equals(FiltroRol, StringComparison.OrdinalIgnoreCase) || e.RolCargo.ToLower().Contains(FiltroRol.ToLower()));
+        }
+
+        if (!string.IsNullOrWhiteSpace(TextoBusqueda))
+        {
+            var q = TextoBusqueda.ToLower().Trim();
+            resultado = resultado.Where(e => 
+                e.NombreCompleto.ToLower().Contains(q) ||
+                e.DniEmpleado.ToString().Contains(q) ||
+                e.RolCargo.ToLower().Contains(q) ||
+                e.Telefono.ToLower().Contains(q)
+            );
+        }
+
+        EmpleadosFiltrados = new ObservableCollection<EmpleadoItemViewModel>(resultado);
+        ActualizarEstadisticas();
+    }
+
+    private void ActualizarEstadisticas()
+    {
+        TotalEmpleadosCount = Empleados.Count;
+        ActivosCount = Empleados.Count(e => e.Estado.Equals("Activo", StringComparison.OrdinalIgnoreCase));
+        MozosCount = Empleados.Count(e => e.RolCargo.ToLower().Contains("mozo"));
+        InactivosCount = EmpleadosBajas.Count;
     }
 
     public EmpleadosViewModel(EmpleadoService? empleadoService = null)
@@ -152,6 +236,7 @@ public partial class EmpleadosViewModel : ObservableObject
         }
 
         Empleados = new ObservableCollection<EmpleadoItemViewModel>(listaMapeada);
+        CargarEmpleadosBajas();
+        AplicarFiltro();
     }
-
 }

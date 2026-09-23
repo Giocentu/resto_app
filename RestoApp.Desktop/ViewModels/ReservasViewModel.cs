@@ -17,8 +17,12 @@ public partial class ReservasViewModel : ObservableObject
     public bool PuedeAgregarEditar => SesionGlobal.RolActual == RolUsuario.Dueno
                         || SesionGlobal.RolActual == RolUsuario.Gerente
                         || SesionGlobal.RolActual == RolUsuario.Recepcion;
+
     [ObservableProperty]
     private ObservableCollection<ReservaItemViewModel> _reservas = new();
+
+    [ObservableProperty]
+    private ObservableCollection<ReservaItemViewModel> _reservasFiltradas = new();
 
     [ObservableProperty]
     private ObservableCollection<ReservaItemViewModel> _reservasBajas = new();
@@ -34,6 +38,23 @@ public partial class ReservasViewModel : ObservableObject
 
     [ObservableProperty]
     private string _origenDatosColor = "#27AE60";
+
+    [ObservableProperty]
+    private string _textoBusqueda = string.Empty;
+
+    [ObservableProperty]
+    private int _totalReservasCount;
+
+    [ObservableProperty]
+    private int _totalPersonasCount;
+
+    [ObservableProperty]
+    private int _bajasCount;
+
+    partial void OnTextoBusquedaChanged(string value)
+    {
+        AplicarFiltro();
+    }
 
     [RelayCommand]
     private void VerBajas()
@@ -55,8 +76,10 @@ public partial class ReservasViewModel : ObservableObject
     {
         if (reserva != null)
         {
+            reserva.EstadoTexto = "Confirmada";
             ReservasBajas.Remove(reserva);
             Reservas.Add(reserva);
+            AplicarFiltro();
         }
     }
 
@@ -66,9 +89,10 @@ public partial class ReservasViewModel : ObservableObject
         {
             ReservasBajas = new ObservableCollection<ReservaItemViewModel>
             {
-                new ReservaItemViewModel { IdReserva = 999, FechaHora = DateTime.Now.ToString("dd/MM/yyyy HH:mm"), ClienteNombre = "Cliente Cancelado", NroMesa = "Ninguna", CantidadPersonas = 2 }
+                new ReservaItemViewModel { IdReserva = 999, FechaHora = DateTime.Now.ToString("dd/MM/yyyy HH:mm"), ClienteNombre = "Cliente Cancelado", NroMesa = "Ninguna", CantidadPersonas = 2, EstadoTexto = "Cancelada" }
             };
         }
+        BajasCount = ReservasBajas.Count;
     }
 
     [RelayCommand]
@@ -84,9 +108,60 @@ public partial class ReservasViewModel : ObservableObject
                 }
                 catch { }
             }
+            reserva.EstadoTexto = "Cancelada";
             Reservas.Remove(reserva);
             ReservasBajas.Add(reserva);
+            AplicarFiltro();
         }
+    }
+
+    public void AgregarOActualizarReserva(ReservaItemViewModel nuevaReserva)
+    {
+        var existente = Reservas.FirstOrDefault(r => r.IdReserva == nuevaReserva.IdReserva && nuevaReserva.IdReserva > 0);
+        if (existente != null)
+        {
+            existente.FechaHora = nuevaReserva.FechaHora;
+            existente.ClienteNombre = nuevaReserva.ClienteNombre;
+            existente.NroMesa = nuevaReserva.NroMesa;
+            existente.CantidadPersonas = nuevaReserva.CantidadPersonas;
+            existente.EstadoTexto = nuevaReserva.EstadoTexto;
+        }
+        else
+        {
+            if (nuevaReserva.IdReserva <= 0)
+            {
+                nuevaReserva.IdReserva = (Reservas.Max(r => (int?)r.IdReserva) ?? 100) + 1;
+            }
+            Reservas.Add(nuevaReserva);
+        }
+        AplicarFiltro();
+    }
+
+    private void AplicarFiltro()
+    {
+        if (string.IsNullOrWhiteSpace(TextoBusqueda))
+        {
+            ReservasFiltradas = new ObservableCollection<ReservaItemViewModel>(Reservas);
+        }
+        else
+        {
+            var q = TextoBusqueda.ToLower().Trim();
+            var filtrados = Reservas.Where(r => 
+                r.ClienteNombre.ToLower().Contains(q) ||
+                r.NroMesa.ToLower().Contains(q) ||
+                r.FechaHora.ToLower().Contains(q)
+            );
+            ReservasFiltradas = new ObservableCollection<ReservaItemViewModel>(filtrados);
+        }
+
+        ActualizarEstadisticas();
+    }
+
+    private void ActualizarEstadisticas()
+    {
+        TotalReservasCount = Reservas.Count;
+        TotalPersonasCount = Reservas.Sum(r => r.CantidadPersonas);
+        BajasCount = ReservasBajas.Count;
     }
 
     public ReservasViewModel(ReservaService? reservaService = null)
@@ -121,7 +196,8 @@ public partial class ReservasViewModel : ObservableObject
                         FechaHora = r.FechaReserva.ToString("dd/MM/yyyy HH:mm"), 
                         ClienteNombre = nombreCliente,
                         NroMesa = mesasAsignadas,
-                        CantidadPersonas = r.CantPersonas
+                        CantidadPersonas = r.CantPersonas,
+                        EstadoTexto = "Confirmada"
                     });
                 }
             }
@@ -136,9 +212,9 @@ public partial class ReservasViewModel : ObservableObject
             OrigenDatosColor = "#E67E22";
             listaMapeada = new List<ReservaItemViewModel>
             {
-                new ReservaItemViewModel { IdReserva = 101, FechaHora = DateTime.Now.AddHours(2).ToString("dd/MM/yyyy HH:mm"), ClienteNombre = "Roberto Gómez", NroMesa = "Mesa 7", CantidadPersonas = 4 },
-                new ReservaItemViewModel { IdReserva = 102, FechaHora = DateTime.Now.AddHours(4).ToString("dd/MM/yyyy HH:mm"), ClienteNombre = "Laura Fernández", NroMesa = "Mesa 10 (VIP)", CantidadPersonas = 2 },
-                new ReservaItemViewModel { IdReserva = 103, FechaHora = DateTime.Now.AddDays(1).ToString("dd/MM/yyyy HH:mm"), ClienteNombre = "Empresa ACME", NroMesa = "Mesa 11, 12", CantidadPersonas = 8 }
+                new ReservaItemViewModel { IdReserva = 101, FechaHora = DateTime.Now.AddHours(2).ToString("dd/MM/yyyy HH:mm"), ClienteNombre = "Roberto Gómez", NroMesa = "Mesa 7", CantidadPersonas = 4, EstadoTexto = "Confirmada" },
+                new ReservaItemViewModel { IdReserva = 102, FechaHora = DateTime.Now.AddHours(4).ToString("dd/MM/yyyy HH:mm"), ClienteNombre = "Laura Fernández", NroMesa = "Mesa 10 (VIP)", CantidadPersonas = 2, EstadoTexto = "Confirmada" },
+                new ReservaItemViewModel { IdReserva = 103, FechaHora = DateTime.Now.AddDays(1).ToString("dd/MM/yyyy HH:mm"), ClienteNombre = "Empresa ACME", NroMesa = "Mesa 11, 12", CantidadPersonas = 8, EstadoTexto = "Confirmada" }
             };
         }
         else
@@ -148,6 +224,7 @@ public partial class ReservasViewModel : ObservableObject
         }
 
         Reservas = new ObservableCollection<ReservaItemViewModel>(listaMapeada);
+        CargarReservasBajas();
+        AplicarFiltro();
     }
-
 }

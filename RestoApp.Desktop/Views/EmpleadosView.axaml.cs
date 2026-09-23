@@ -2,7 +2,9 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using RestoApp.Desktop.ViewModels;
 using System;
+
 namespace RestoApp.Desktop.Views;
+
 public partial class EmpleadosView : UserControl
 {
     public EmpleadosView()
@@ -15,9 +17,13 @@ public partial class EmpleadosView : UserControl
         var formWindow = new NuevoEmpleadoWindow();
         var mainWindow = TopLevel.GetTopLevel(this) as Window;
 
-        if(mainWindow != null)
+        if (mainWindow != null)
         {
             await formWindow.ShowDialog(mainWindow);
+            if (formWindow.EmpleadoResult != null && DataContext is EmpleadosViewModel viewModel)
+            {
+                viewModel.AgregarOActualizarEmpleado(formWindow.EmpleadoResult);
+            }
         }
     }
 
@@ -31,6 +37,10 @@ public partial class EmpleadosView : UserControl
             if (mainWindow != null)
             {
                 await formEditar.ShowDialog(mainWindow);
+                if (formEditar.EmpleadoResult != null && DataContext is EmpleadosViewModel viewModel)
+                {
+                    viewModel.AgregarOActualizarEmpleado(formEditar.EmpleadoResult);
+                }
             }
         }
     }
@@ -47,9 +57,9 @@ public partial class EmpleadosView : UserControl
                 try
                 {
                     bool? confirmados = await confirmacion.ShowDialog<bool?>(mainWindow);
-                    if (confirmados == true)
+                    if (confirmados == true && DataContext is EmpleadosViewModel viewModel)
                     {
-                        // if (DataContext is EmpleadosViewModel viewModel) await viewModel.CargarEmpleadosAsync();
+                        await viewModel.DarBajaEmpleadoCommand.ExecuteAsync(empleadoSeleccionado);
                     }
                 }
                 catch (Exception ex)
