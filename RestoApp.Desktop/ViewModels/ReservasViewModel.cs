@@ -132,11 +132,7 @@ public partial class ReservasViewModel : ObservableObject
                     dt = parsed;
                 }
 
-                int? nroMesa = null;
-                if (int.TryParse(resItem.NroMesa, out int parsedMesa))
-                {
-                    nroMesa = parsedMesa;
-                }
+                int? idMesa = resItem.IdMesa > 0 ? resItem.IdMesa : (int.TryParse(resItem.NroMesa, out int parsedMesa) ? parsedMesa : null);
 
                 if (resItem.IdReserva > 0)
                 {
@@ -144,18 +140,17 @@ public partial class ReservasViewModel : ObservableObject
                 }
                 else
                 {
-                    var listaExistente = await _reservaService.ObtenerReservasAsync();
-                    long dniCliente = listaExistente.FirstOrDefault(r => r.DniCliente > 0)?.DniCliente ?? 46452703;
+                    long dniCliente = await _reservaService.ObtenerOCrearClientePorNombreAsync(resItem.ClienteNombre);
 
                     await _reservaService.CrearReservaAsync(
                         fechaReserva: dt,
                         cantPersonas: resItem.CantidadPersonas,
                         idEstado: 1,
                         dniCliente: dniCliente,
-                        idEvento: null,
+                        idEvento: resItem.IdEvento,
                         dniEmpleado: null,
                         idRol: null,
-                        idMesa: nroMesa
+                        idMesa: idMesa
                     );
                 }
             }
@@ -227,14 +222,17 @@ public partial class ReservasViewModel : ObservableObject
                         ? string.Join(", ", r.Mesas.Select(m => m.NroMesa))
                         : "Sin asignar";
 
+                    int idMesaPrincipal = r.Mesas != null && r.Mesas.Any() ? r.Mesas.First().IdMesa : 0;
+
                     listaMapeada.Add(new ReservaItemViewModel
                     {
                         IdReserva = r.IdReserva,
                         FechaHora = r.FechaReserva.ToString("dd/MM/yyyy HH:mm"), 
                         ClienteNombre = nombreCliente,
+                        IdMesa = idMesaPrincipal,
                         NroMesa = mesasAsignadas,
                         CantidadPersonas = r.CantPersonas,
-                        EstadoTexto = "Confirmada"
+                        EstadoTexto = r.IdEstado == 2 ? "Cancelada" : "Confirmada"
                     });
                 }
             }
@@ -249,7 +247,11 @@ public partial class ReservasViewModel : ObservableObject
             _ = AlertaService.MostrarAlertaConexionAsync();
         }
 
-        Reservas = new ObservableCollection<ReservaItemViewModel>(listaMapeada);
+        var activas = listaMapeada.Where(r => r.EstadoTexto != "Cancelada").ToList();
+        var bajas = listaMapeada.Where(r => r.EstadoTexto == "Cancelada").ToList();
+
+        Reservas = new ObservableCollection<ReservaItemViewModel>(activas);
+        ReservasBajas = new ObservableCollection<ReservaItemViewModel>(bajas);
         CargarReservasBajas();
         AplicarFiltro();
     }

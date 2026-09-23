@@ -148,9 +148,17 @@ public partial class NuevaReservaWindow : Window
         }
 
         string nroMesaSeleccionada = "1";
+        int idMesaSeleccionada = 0;
         if (CboMesa.SelectedIndex >= 0 && CboMesa.SelectedIndex < _listaMesas.Count)
         {
             nroMesaSeleccionada = _listaMesas[CboMesa.SelectedIndex].NroMesa.ToString();
+            idMesaSeleccionada = _listaMesas[CboMesa.SelectedIndex].IdMesa;
+        }
+
+        int? idEventoSeleccionado = null;
+        if (CboEvento.SelectedIndex > 0 && (CboEvento.SelectedIndex - 1) < _listaEventos.Count)
+        {
+            idEventoSeleccionado = _listaEventos[CboEvento.SelectedIndex - 1].IdEvento;
         }
 
         ReservaResult = new ReservaItemViewModel
@@ -158,7 +166,9 @@ public partial class NuevaReservaWindow : Window
             IdReserva = _idReservaExistente,
             ClienteNombre = TxtCliente.Text.Trim(),
             FechaHora = fechaHoraCombinada.ToString("dd/MM/yyyy HH:mm"),
+            IdMesa = idMesaSeleccionada,
             NroMesa = nroMesaSeleccionada,
+            IdEvento = idEventoSeleccionado,
             CantidadPersonas = cantPersonas,
             EstadoTexto = "Confirmada"
         };
