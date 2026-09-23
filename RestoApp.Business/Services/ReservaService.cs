@@ -20,27 +20,21 @@ public class ReservaService
         return await _reservaRepository.GetReservasConDetallesAsync();
     }
 
+    public async Task<long> ObtenerOCrearClientePorNombreAsync(string nombreCliente)
+    {
+        return await _reservaRepository.ObtenerOCrearClientePorNombreAsync(nombreCliente);
+    }
+
     public async Task<int> CrearReservaAsync(DateTime fechaReserva, int cantPersonas, int idEstado, long dniCliente, int? idEvento = null, long? dniEmpleado = null, int? idRol = null, int? idMesa = null)
     {
         try
         {
             return await _reservaRepository.CrearReservaSpAsync(fechaReserva, cantPersonas, idEstado, dniCliente, idEvento, dniEmpleado, idRol, idMesa);
         }
-        catch
+        catch (Exception ex)
         {
-            var res = new Reserva
-            {
-                FechaReserva = fechaReserva,
-                CantPersonas = cantPersonas,
-                IdEstado = idEstado > 0 ? idEstado : 1,
-                DniCliente = dniCliente > 0 ? dniCliente : 46452703, // Fallback a un cliente registrado
-                IdEvento = idEvento,
-                DniEmpleado = dniEmpleado,
-                IdRol = idRol
-            };
-            await _reservaRepository.AddAsync(res);
-            await _reservaRepository.SaveChangesAsync();
-            return res.IdReserva;
+            Console.WriteLine($"[CREAR RESERVA SP ERROR, USANDO FALLBACK EF] {ex.Message}");
+            return await _reservaRepository.CrearReservaEfAsync(fechaReserva, cantPersonas, idEstado, dniCliente, idEvento, dniEmpleado, idRol, idMesa);
         }
     }
 
