@@ -13,6 +13,7 @@ public class EmpleadoRepository : Repository<Empleado>, IEmpleadoRepository
     public async Task<IEnumerable<Empleado>> GetEmpleadosConDetallesAsync()
     {
         return await _dbSet
+            .AsNoTracking()
             .Include(e => e.PersonaInfo) // Trae los datos de la Persona
             .Include(e => e.Rol)         // Trae los datos del RolEmpleado
             .ToListAsync();
@@ -21,6 +22,7 @@ public class EmpleadoRepository : Repository<Empleado>, IEmpleadoRepository
     public async Task<IEnumerable<Empleado>> GetEmpleadosSpAsync(bool soloActivos = true)
     {
         return await _dbSet
+            .AsNoTracking()
             .Include(e => e.PersonaInfo)
             .Include(e => e.Rol)
             .Include(e => e.Turno)
@@ -40,7 +42,14 @@ public class EmpleadoRepository : Repository<Empleado>, IEmpleadoRepository
     public async Task BajaLogicaEmpleadoSpAsync(long dniEmpleado, int idRol)
     {
         await _context.Database.ExecuteSqlRawAsync(
-            "EXEC sp_Empleado_BajaLogica @DniEmpleado = {0}, @IdRol = {1}",
+            "UPDATE empleado SET activo_en_rol = 0 WHERE dni_empleado = {0} AND ({1} = 0 OR id_rol = {1})",
+            dniEmpleado, idRol);
+    }
+
+    public async Task RestaurarEmpleadoSpAsync(long dniEmpleado, int idRol)
+    {
+        await _context.Database.ExecuteSqlRawAsync(
+            "UPDATE empleado SET activo_en_rol = 1 WHERE dni_empleado = {0} AND ({1} = 0 OR id_rol = {1})",
             dniEmpleado, idRol);
     }
 }
