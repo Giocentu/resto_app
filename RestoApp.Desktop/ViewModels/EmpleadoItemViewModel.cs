@@ -1,12 +1,25 @@
+using CommunityToolkit.Mvvm.ComponentModel;
+
 namespace RestoApp.Desktop.ViewModels;
 
-public class EmpleadoItemViewModel
+public partial class EmpleadoItemViewModel : ObservableObject
 {
     public long DniEmpleado { get; set; } 
+    public int IdRol { get; set; }
     public string NombreCompleto { get; set; } = string.Empty;
     public string RolCargo { get; set; } = string.Empty;
     public string Telefono { get; set; } = string.Empty;
-    public string Estado { get; set; } = string.Empty;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(EsActivo))]
+    [NotifyPropertyChangedFor(nameof(EstadoBadgeBackground))]
+    [NotifyPropertyChangedFor(nameof(EstadoBadgeForeground))]
+    [NotifyPropertyChangedFor(nameof(BotonEstadoTexto))]
+    [NotifyPropertyChangedFor(nameof(BotonEstadoBackground))]
+    [NotifyPropertyChangedFor(nameof(BotonEstadoForeground))]
+    [NotifyPropertyChangedFor(nameof(BotonEstadoBorder))]
+    private string _estado = string.Empty;
+
     public bool PuedeEditar { get; set; }
 
     public string AvatarIcon => RolCargo.ToLower() switch
@@ -37,6 +50,12 @@ public class EmpleadoItemViewModel
         _ => "#34495E"
     };
 
-    public string EstadoBadgeBackground => Estado == "Inactivo" ? "#FDEDEC" : "#E8F8F5";
-    public string EstadoBadgeForeground => Estado == "Inactivo" ? "#E74C3C" : "#27AE60";
+    public bool EsActivo => !Estado.Equals("Inactivo", System.StringComparison.OrdinalIgnoreCase);
+    public string EstadoBadgeBackground => !EsActivo ? "#FDEDEC" : "#E8F8F5";
+    public string EstadoBadgeForeground => !EsActivo ? "#E74C3C" : "#27AE60";
+
+    public string BotonEstadoTexto => EsActivo ? "🚫 Desactivar" : "✅ Activar";
+    public string BotonEstadoBackground => EsActivo ? "#FDEDEC" : "#E8F8F5";
+    public string BotonEstadoForeground => EsActivo ? "#E74C3C" : "#27AE60";
+    public string BotonEstadoBorder => EsActivo ? "#E74C3C" : "#27AE60";
 }

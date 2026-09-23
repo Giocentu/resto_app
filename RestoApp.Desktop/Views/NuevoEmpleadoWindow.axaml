@@ -31,8 +31,11 @@
 
                     <!-- Campo DNI -->
                     <StackPanel Spacing="6">
-                        <TextBlock Text="DNI / Número de Documento:" Foreground="#34495E" FontWeight="Bold" FontSize="13"/>
-                        <TextBox x:Name="TxtDni" PlaceholderText="Ej. 38450192" Height="38" VerticalContentAlignment="Center"/>
+                        <TextBlock Text="DNI / Número de Documento (Obligatorio):" Foreground="#34495E" FontWeight="Bold" FontSize="13"/>
+                        <Grid ColumnDefinitions="*, Auto">
+                            <TextBox x:Name="TxtDni" PlaceholderText="Ingrese DNI (ej. 38450192)..." Height="38" VerticalContentAlignment="Center" TextChanged="TxtDni_TextChanged"/>
+                            <Button Grid.Column="1" Content="🔍 Verificar DNI" Click="BtnBuscarDni_Click" Margin="6,0,0,0" Height="38" Background="#3498DB" Foreground="White" CornerRadius="6" FontWeight="SemiBold" Cursor="Hand"/>
+                        </Grid>
                     </StackPanel>
 
                     <!-- Campo Nombre Completo -->
@@ -60,13 +63,7 @@
                     <!-- Campo Turno Laboral (Sincronizado con BD) -->
                     <StackPanel Spacing="6">
                         <TextBlock Text="Turno Laboral Asignado:" Foreground="#34495E" FontWeight="Bold" FontSize="13"/>
-                        <ComboBox x:Name="CboTurno" HorizontalAlignment="Stretch" Height="38" SelectedIndex="0">
-                            <ComboBoxItem Content="Turno 1 (19:55 - 01:55)"/>
-                            <ComboBoxItem Content="Turno 2 (16:17 - 01:24)"/>
-                            <ComboBoxItem Content="Turno 3 (16:57 - 01:00)"/>
-                            <ComboBoxItem Content="Turno 4 (16:20 - 01:02)"/>
-                            <ComboBoxItem Content="Turno 5 (17:53 - 01:51)"/>
-                        </ComboBox>
+                        <ComboBox x:Name="CboTurno" HorizontalAlignment="Stretch" Height="38"/>
                     </StackPanel>
 
                     <!-- Campo Teléfono -->

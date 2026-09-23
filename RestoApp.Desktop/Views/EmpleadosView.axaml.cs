@@ -12,6 +12,26 @@ public partial class EmpleadosView : UserControl
         InitializeComponent();
     }
 
+    private async void BtnGestionClientes_Click(object? sender, RoutedEventArgs e)
+    {
+        var win = new GestionClientesWindow();
+        var mainWindow = TopLevel.GetTopLevel(this) as Window;
+        if (mainWindow != null)
+        {
+            await win.ShowDialog(mainWindow);
+        }
+    }
+
+    private async void BtnGestionTurnos_Click(object? sender, RoutedEventArgs e)
+    {
+        var win = new GestionTurnosWindow();
+        var mainWindow = TopLevel.GetTopLevel(this) as Window;
+        if (mainWindow != null)
+        {
+            await win.ShowDialog(mainWindow);
+        }
+    }
+
     private async void BtnNuevoEmpleado_Click(object? sender, RoutedEventArgs e)
     {
         var formWindow = new NuevoEmpleadoWindow();
@@ -40,31 +60,6 @@ public partial class EmpleadosView : UserControl
                 if (formEditar.EmpleadoResult != null && DataContext is EmpleadosViewModel viewModel)
                 {
                     await viewModel.GuardarEmpleadoAsync(formEditar.EmpleadoResult);
-                }
-            }
-        }
-    }
-
-    private async void BtnEliminar_Click(object? sender, RoutedEventArgs e)
-    {
-        if (sender is Button btn && btn.DataContext is EmpleadoItemViewModel empleadoSeleccionado)
-        {
-            var confirmacion = new ConfirmacionWindow($"¿Estás seguro de que deseas dar de baja al empleado {empleadoSeleccionado.NombreCompleto} (DNI: {empleadoSeleccionado.DniEmpleado})?");
-            var mainWindow = TopLevel.GetTopLevel(this) as Window;
-            
-            if (mainWindow != null)
-            {
-                try
-                {
-                    bool? confirmados = await confirmacion.ShowDialog<bool?>(mainWindow);
-                    if (confirmados == true && DataContext is EmpleadosViewModel viewModel)
-                    {
-                        await viewModel.DarBajaEmpleadoCommand.ExecuteAsync(empleadoSeleccionado);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Error al intentar eliminar el empleado: {ex.Message}");
                 }
             }
         }
