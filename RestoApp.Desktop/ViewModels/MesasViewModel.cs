@@ -29,6 +29,20 @@ public partial class MesasViewModel : ObservableObject
     private ObservableCollection<MesaItemViewModel> _mesasBajas = new();
 
     [ObservableProperty]
+    private ObservableCollection<MesaItemViewModel> _mesasFiltradas = new();
+
+    [ObservableProperty]
+    private ObservableCollection<string> _filtroUbicaciones = new() { "Todas" };
+
+    [ObservableProperty]
+    private string _filtroUbicacionSeleccionada = "Todas";
+
+    partial void OnFiltroUbicacionSeleccionadaChanged(string value)
+    {
+        AplicarFiltro();
+    }
+
+    [ObservableProperty]
     private ObservableCollection<UbicacionMesa> _ubicaciones = new();
 
     [ObservableProperty]
@@ -111,6 +125,11 @@ public partial class MesasViewModel : ObservableObject
                     _ = AlertaService.MostrarAlertaConexionAsync();
                 }
             }
+            var itemBaja = MesasBajas.FirstOrDefault(m => m.IdMesa == mesa.IdMesa);
+            if (itemBaja != null)
+            {
+                MesasBajas.Remove(itemBaja);
+            }
             await CargarMesasAsync();
             await CargarMesasBajasAsync();
         }
@@ -132,6 +151,11 @@ public partial class MesasViewModel : ObservableObject
                     Console.WriteLine($"[MESAS DB ERROR] {ex.Message}");
                     _ = AlertaService.MostrarAlertaConexionAsync();
                 }
+            }
+            var itemMesa = Mesas.FirstOrDefault(m => m.IdMesa == mesa.IdMesa);
+            if (itemMesa != null)
+            {
+                Mesas.Remove(itemMesa);
             }
             await CargarMesasAsync();
             await CargarMesasBajasAsync();
@@ -162,6 +186,53 @@ public partial class MesasViewModel : ObservableObject
                 _ = AlertaService.MostrarAlertaConexionAsync();
             }
         }
+    }
+
+    public void AplicarFiltro()
+    {
+        if (string.IsNullOrEmpty(FiltroUbicacionSeleccionada) || FiltroUbicacionSeleccionada == "Todas")
+        {
+            MesasFiltradas = new ObservableCollection<MesaItemViewModel>(Mesas);
+        }
+        else
+        {
+            MesasFiltradas = new ObservableCollection<MesaItemViewModel>(
+                Mesas.Where(m => string.Equals(m.UbicacionDescripcion, FiltroUbicacionSeleccionada, StringComparison.OrdinalIgnoreCase))
+            );
+        }
+    }
+
+    public async Task CargarFiltroUbicacionesAsync()
+    {
+        var lista = new List<string> { "Todas" };
+        if (_ubicacionService != null)
+        {
+            try
+            {
+                var uList = await _ubicacionService.ObtenerUbicacionesAsync(soloActivas: true);
+                foreach (var u in uList)
+                {
+                    if (!string.IsNullOrWhiteSpace(u.Ubicacion) && !lista.Contains(u.Ubicacion))
+                    {
+                        lista.Add(u.Ubicacion);
+                    }
+                }
+            }
+            catch { }
+        }
+        foreach (var m in Mesas)
+        {
+            if (!string.IsNullOrWhiteSpace(m.UbicacionDescripcion) && !lista.Contains(m.UbicacionDescripcion))
+            {
+                lista.Add(m.UbicacionDescripcion);
+            }
+        }
+        FiltroUbicaciones = new ObservableCollection<string>(lista);
+        if (!FiltroUbicaciones.Contains(FiltroUbicacionSeleccionada))
+        {
+            FiltroUbicacionSeleccionada = "Todas";
+        }
+        AplicarFiltro();
     }
 
     public async Task CargarMesasAsync()
@@ -197,6 +268,7 @@ public partial class MesasViewModel : ObservableObject
         }
 
         Mesas = new ObservableCollection<MesaItemViewModel>(listaMapeada);
+        await CargarFiltroUbicacionesAsync();
     }
 
     public async Task GuardarMesaAsync(MesaItemViewModel mesa, int? idUbicacionEspecifica = null)

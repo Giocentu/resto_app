@@ -25,7 +25,7 @@
                 
                 <!-- Campo Nombre de Ubicación -->
                 <StackPanel Spacing="6">
-                    <TextBlock Text="Nombre / Sector de Ubicación:" Foreground="#34495E" FontWeight="Bold" FontSize="13"/>
+                    <TextBlock Text="Ubicación:" Foreground="#34495E" FontWeight="Bold" FontSize="13"/>
                     <TextBox x:Name="TxtNombreUbicacion" PlaceholderText="Ej. Terraza, Salon VIP, Patio Central..." Height="38" VerticalContentAlignment="Center"/>
                 </StackPanel>
 
