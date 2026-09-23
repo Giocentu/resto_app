@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using RestoApp.Business.Services;
+using RestoApp.Desktop.Services;
 using RestoApp.Entities;
 
 namespace RestoApp.Desktop.ViewModels;
@@ -42,14 +43,6 @@ public partial class InicioViewModel : ObservableObject
     [ObservableProperty]
     private int _limpiezaCount;
 
-    [ObservableProperty]
-    private string _origenDatosTexto = "🟢 Base de datos";
-
-    [ObservableProperty]
-    private string _origenDatosColor = "#27AE60";
-
-    public bool EsAdmin => SesionGlobal.RolActual == RolUsuario.Dueno || SesionGlobal.RolActual == RolUsuario.Gerente;
-
     public InicioViewModel(MesaService? mesaService = null, Action? navigateAMesasAction = null)
     {
         _mesaService = mesaService;
@@ -78,38 +71,15 @@ public partial class InicioViewModel : ObservableObject
                     });
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                // Fallback a datos demostrativos para previsualización impecable
+                Console.WriteLine($"[INICIO DB ERROR] Error al cargar mesas: {ex.Message}");
+                _ = AlertaService.MostrarAlertaConexionAsync();
             }
-        }
-
-
-        // Si la base no devolvió datos o no hay servicio, poblamos con datos demostrativos interactivos como en el diseño
-        if (!lista.Any())
-        {
-            OrigenDatosTexto = "🟠 Mock";
-            OrigenDatosColor = "#E67E22";
-            lista = new List<VisualMesaItemViewModel>
-            {
-                new() { IdMesa = 1, NroMesa = 1, Capacidad = 2, UbicacionDescripcion = "Salón Principal", Estado = "LIBRE", ConsumoActual = 0.00m },
-                new() { IdMesa = 2, NroMesa = 2, Capacidad = 4, UbicacionDescripcion = "Salón Principal", Estado = "LIBRE", ConsumoActual = 0.00m },
-                new() { IdMesa = 3, NroMesa = 3, Capacidad = 4, UbicacionDescripcion = "Salón Principal", Estado = "LIBRE", ConsumoActual = 0.00m },
-                new() { IdMesa = 4, NroMesa = 4, Capacidad = 6, UbicacionDescripcion = "Salón Principal", Estado = "EN LIMPIEZA", ConsumoActual = 0.00m },
-                new() { IdMesa = 5, NroMesa = 5, Capacidad = 2, UbicacionDescripcion = "Terraza", Estado = "LIBRE", ConsumoActual = 0.00m },
-                new() { IdMesa = 6, NroMesa = 6, Capacidad = 4, UbicacionDescripcion = "Terraza", Estado = "OCUPADA", MozoNombre = "Carlos V.", ConsumoActual = 4250.00m },
-                new() { IdMesa = 7, NroMesa = 7, Capacidad = 4, UbicacionDescripcion = "Terraza", Estado = "RESERVADA", ClienteNombre = "Roberto M.", ConsumoActual = 0.00m },
-                new() { IdMesa = 8, NroMesa = 8, Capacidad = 2, UbicacionDescripcion = "Barra", Estado = "LIBRE", ConsumoActual = 0.00m },
-                new() { IdMesa = 9, NroMesa = 9, Capacidad = 2, UbicacionDescripcion = "Barra", Estado = "OCUPADA", MozoNombre = "Gonzalo T.", ConsumoActual = 1800.00m },
-                new() { IdMesa = 10, NroMesa = 10, Capacidad = 8, UbicacionDescripcion = "VIP", Estado = "RESERVADA", ClienteNombre = "Empresa ACME", ConsumoActual = 0.00m },
-                new() { IdMesa = 11, NroMesa = 11, Capacidad = 6, UbicacionDescripcion = "VIP", Estado = "LIBRE", ConsumoActual = 0.00m },
-                new() { IdMesa = 12, NroMesa = 12, Capacidad = 4, UbicacionDescripcion = "Salón Principal", Estado = "LIBRE", ConsumoActual = 0.00m },
-            };
         }
         else
         {
-            OrigenDatosTexto = "🟢 Base de datos";
-            OrigenDatosColor = "#27AE60";
+            _ = AlertaService.MostrarAlertaConexionAsync();
         }
 
         Mesas = new ObservableCollection<VisualMesaItemViewModel>(lista);

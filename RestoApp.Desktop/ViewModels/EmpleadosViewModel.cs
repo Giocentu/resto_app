@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using RestoApp.Business.Services;
+using RestoApp.Desktop.Services;
 using RestoApp.Entities;
 using System;
 using System.Collections.Generic;
@@ -35,12 +36,6 @@ public partial class EmpleadosViewModel : ObservableObject
     private bool _esVistaBajas = false;
 
     [ObservableProperty]
-    private string _origenDatosTexto = "🟢 Base de datos";
-
-    [ObservableProperty]
-    private string _origenDatosColor = "#27AE60";
-
-    [ObservableProperty]
     private string _textoBusqueda = string.Empty;
 
     [ObservableProperty]
@@ -66,7 +61,7 @@ public partial class EmpleadosViewModel : ObservableObject
     {
         EsVistaPrincipal = false;
         EsVistaBajas = true;
-        CargarEmpleadosBajas();
+        _ = CargarEmpleadosBajasAsync();
     }
 
     [RelayCommand]
@@ -88,14 +83,38 @@ public partial class EmpleadosViewModel : ObservableObject
         }
     }
 
-    private void CargarEmpleadosBajas()
+    private async Task CargarEmpleadosBajasAsync()
     {
-        if (!EmpleadosBajas.Any())
+        if (_empleadoService != null)
         {
-            EmpleadosBajas = new ObservableCollection<EmpleadoItemViewModel>
+            try
             {
-                new EmpleadoItemViewModel { DniEmpleado = 11223344, NombreCompleto = "Juan Perez (Retirado)", RolCargo = "Mozo", Telefono = "11-2233-4455", Estado = "Inactivo", PuedeEditar = PuedeEditar }
-            };
+                var inactivos = await _empleadoService.ObtenerEmpleadosAsync(soloActivos: false);
+                var listaBajas = new List<EmpleadoItemViewModel>();
+                foreach (var emp in inactivos.Where(e => !e.ActivoEnRol))
+                {
+                    string nombre = emp.PersonaInfo?.Nombre ?? "Empleado";
+                    string apellido = emp.PersonaInfo?.Apellido ?? "";
+                    string cargo = emp.Rol?.Descripcion ?? $"Rol ID: {emp.IdRol}";
+                    string telefono = emp.PersonaInfo?.Telefono.ToString() ?? "No registrado";
+
+                    listaBajas.Add(new EmpleadoItemViewModel
+                    {
+                        DniEmpleado = emp.DniEmpleado,
+                        NombreCompleto = $"{nombre} {apellido}".Trim(),
+                        RolCargo = cargo,
+                        Telefono = telefono,
+                        Estado = "Inactivo",
+                        PuedeEditar = PuedeEditar
+                    });
+                }
+                EmpleadosBajas = new ObservableCollection<EmpleadoItemViewModel>(listaBajas);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[EMPLEADOS BAJAS DB ERROR] {ex.Message}");
+                _ = AlertaService.MostrarAlertaConexionAsync();
+            }
         }
         InactivosCount = EmpleadosBajas.Count;
     }
@@ -111,7 +130,11 @@ public partial class EmpleadosViewModel : ObservableObject
                 {
                     await _empleadoService.BajaLogicaEmpleadoAsync(empleado.DniEmpleado, 1);
                 }
-                catch { }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[EMPLEADOS DB ERROR] {ex.Message}");
+                    _ = AlertaService.MostrarAlertaConexionAsync();
+                }
             }
             Empleados.Remove(empleado);
             empleado.Estado = "Inactivo";
@@ -213,30 +236,15 @@ public partial class EmpleadosViewModel : ObservableObject
             catch (Exception ex)
             {
                 Console.WriteLine($"[EMPLEADOS DB ERROR] Error al cargar empleados de la BD: {ex.Message}");
+                _ = AlertaService.MostrarAlertaConexionAsync();
             }
-        }
-
-        // Si no hay datos en BD o falló la conexión, mostramos datos de demostración
-        if (!listaMapeada.Any())
-        {
-            OrigenDatosTexto = "🟠 Mock";
-            OrigenDatosColor = "#E67E22";
-            listaMapeada = new List<EmpleadoItemViewModel>
-            {
-                new EmpleadoItemViewModel { DniEmpleado = 38450192, NombreCompleto = "Hernán Céspedes", RolCargo = "Dueño", Telefono = "11-4455-6677", Estado = "Activo", PuedeEditar = PuedeEditar },
-                new EmpleadoItemViewModel { DniEmpleado = 40192834, NombreCompleto = "Giovanni Centurión", RolCargo = "Gerente", Telefono = "11-5566-7788", Estado = "Activo", PuedeEditar = PuedeEditar },
-                new EmpleadoItemViewModel { DniEmpleado = 41982345, NombreCompleto = "Carlos Valenzuela", RolCargo = "Mozo", Telefono = "11-6677-8899", Estado = "Activo", PuedeEditar = PuedeEditar },
-                new EmpleadoItemViewModel { DniEmpleado = 42834912, NombreCompleto = "Mariana López", RolCargo = "Cajero", Telefono = "11-7788-9900", Estado = "Activo", PuedeEditar = PuedeEditar }
-            };
         }
         else
         {
-            OrigenDatosTexto = "🟢 Base de datos";
-            OrigenDatosColor = "#27AE60";
+            _ = AlertaService.MostrarAlertaConexionAsync();
         }
 
         Empleados = new ObservableCollection<EmpleadoItemViewModel>(listaMapeada);
-        CargarEmpleadosBajas();
         AplicarFiltro();
     }
 }

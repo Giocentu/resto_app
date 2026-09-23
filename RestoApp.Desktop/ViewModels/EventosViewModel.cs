@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using RestoApp.Business.Services;
+using RestoApp.Desktop.Services;
 using RestoApp.Entities;
 
 namespace RestoApp.Desktop.ViewModels;
@@ -26,12 +27,6 @@ public partial class EventosViewModel : ObservableObject
 
     [ObservableProperty]
     private string _nuevaDescripcion = string.Empty;
-
-    [ObservableProperty]
-    private string _origenDatosTexto = "🟢 Base de datos";
-
-    [ObservableProperty]
-    private string _origenDatosColor = "#27AE60";
 
     public EventosViewModel(EventoService? eventoService = null)
     {
@@ -61,62 +56,15 @@ public partial class EventosViewModel : ObservableObject
                     });
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                // Fallback a datos demostrativos
+                Console.WriteLine($"[EVENTOS DB ERROR] Error al cargar eventos: {ex.Message}");
+                _ = AlertaService.MostrarAlertaConexionAsync();
             }
-        }
-
-
-        // Si la base no devolvió datos, cargar catálogo demostrativo interactivo como en la imagen
-        if (!lista.Any())
-        {
-            OrigenDatosTexto = "🟠 Mock";
-            OrigenDatosColor = "#E67E22";
-            lista = new List<EventoItemViewModel>
-            {
-                new()
-                {
-                    IdEvento = 1,
-                    NombreEvento = "Día del Amigo",
-                    FechaEvento = new DateTime(2026, 10, 5),
-                    Descripcion = "Menú festivo con copa de bienvenida para grupos de amigos.",
-                    EsActivo = true,
-                    CantReservasVinculadas = 12
-                },
-                new()
-                {
-                    IdEvento = 2,
-                    NombreEvento = "Cena Show Jazz",
-                    FechaEvento = new DateTime(2026, 9, 23),
-                    Descripcion = "Presentación en vivo del quinteto de Jazz 'Blue Note'.",
-                    EsActivo = true,
-                    CantReservasVinculadas = 8
-                },
-                new()
-                {
-                    IdEvento = 3,
-                    NombreEvento = "Año Nuevo RestoApp",
-                    FechaEvento = new DateTime(2026, 12, 31),
-                    Descripcion = "Gran cena de fin de año con brindis y DJ.",
-                    EsActivo = true,
-                    CantReservasVinculadas = 25
-                },
-                new()
-                {
-                    IdEvento = 4,
-                    NombreEvento = "San Valentín",
-                    FechaEvento = new DateTime(2026, 2, 14),
-                    Descripcion = "Cena romántica de 3 pasos con maridaje de vinos.",
-                    EsActivo = false,
-                    CantReservasVinculadas = 0
-                }
-            };
         }
         else
         {
-            OrigenDatosTexto = "🟢 Base de datos";
-            OrigenDatosColor = "#27AE60";
+            _ = AlertaService.MostrarAlertaConexionAsync();
         }
 
         Eventos = new ObservableCollection<EventoItemViewModel>(lista);
@@ -151,8 +99,10 @@ public partial class EventosViewModel : ObservableObject
                 };
                 await _eventoService.RegistrarEventoAsync(entity);
             }
-            catch
+            catch (Exception ex)
             {
+                Console.WriteLine($"[EVENTOS REGISTRAR DB ERROR] {ex.Message}");
+                _ = AlertaService.MostrarAlertaConexionAsync();
             }
         }
 
@@ -175,8 +125,10 @@ public partial class EventosViewModel : ObservableObject
             {
                 await _eventoService.EliminarEventoAsync(item.IdEvento);
             }
-            catch
+            catch (Exception ex)
             {
+                Console.WriteLine($"[EVENTOS ELIMINAR DB ERROR] {ex.Message}");
+                _ = AlertaService.MostrarAlertaConexionAsync();
             }
         }
 

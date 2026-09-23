@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using RestoApp.Business.Services;
+using RestoApp.Desktop.Services;
 using RestoApp.Entities;
 using System;
 using System.Collections.Generic;
@@ -32,18 +33,12 @@ public partial class MesasViewModel : ObservableObject
     [ObservableProperty]
     private bool _esVistaBajas = false;
 
-    [ObservableProperty]
-    private string _origenDatosTexto = "🟢 Base de datos";
-
-    [ObservableProperty]
-    private string _origenDatosColor = "#27AE60";
-
     [RelayCommand]
     private void VerBajas()
     {
         EsVistaPrincipal = false;
         EsVistaBajas = true;
-        CargarMesasBajas();
+        _ = CargarMesasBajasAsync();
     }
 
     [RelayCommand]
@@ -64,7 +59,11 @@ public partial class MesasViewModel : ObservableObject
                 {
                     await _mesaService.RestaurarMesaAsync(mesa.IdMesa);
                 }
-                catch { }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[MESAS DB ERROR] {ex.Message}");
+                    _ = AlertaService.MostrarAlertaConexionAsync();
+                }
             }
             MesasBajas.Remove(mesa);
             Mesas.Add(mesa);
@@ -82,21 +81,39 @@ public partial class MesasViewModel : ObservableObject
                 {
                     await _mesaService.BajaLogicaMesaAsync(mesa.IdMesa);
                 }
-                catch { }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[MESAS DB ERROR] {ex.Message}");
+                    _ = AlertaService.MostrarAlertaConexionAsync();
+                }
             }
             Mesas.Remove(mesa);
             MesasBajas.Add(mesa);
         }
     }
 
-    private void CargarMesasBajas()
+    private async Task CargarMesasBajasAsync()
     {
-        if (!MesasBajas.Any())
+        if (_mesaService != null)
         {
-            MesasBajas = new ObservableCollection<MesaItemViewModel>
+            try
             {
-                new MesaItemViewModel { IdMesa = 99, NroMesa = 99, Capacidad = 4, UbicacionDescripcion = "Depósito" }
-            };
+                var inactivas = await _mesaService.ObtenerMesasAsync(soloActivas: false);
+                var listaBajas = inactivas.Where(m => string.Equals(m.Estado, "INACTIVA", StringComparison.OrdinalIgnoreCase) || string.Equals(m.Estado, "BAJA", StringComparison.OrdinalIgnoreCase))
+                    .Select(m => new MesaItemViewModel
+                    {
+                        IdMesa = m.IdMesa,
+                        NroMesa = m.NroMesa,
+                        Capacidad = m.Capacidad,
+                        UbicacionDescripcion = m.Ubicacion?.Ubicacion ?? "Sin ubicación"
+                    });
+                MesasBajas = new ObservableCollection<MesaItemViewModel>(listaBajas);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[MESAS BAJAS DB ERROR] {ex.Message}");
+                _ = AlertaService.MostrarAlertaConexionAsync();
+            }
         }
     }
 
@@ -131,32 +148,12 @@ public partial class MesasViewModel : ObservableObject
             catch (Exception ex)
             {
                 Console.WriteLine($"[MESAS DB ERROR] Error al cargar mesas de la BD: {ex.Message}");
+                _ = AlertaService.MostrarAlertaConexionAsync();
             }
-        }
-
-        if (!listaMapeada.Any())
-        {
-            OrigenDatosTexto = "🟠 Mock";
-            OrigenDatosColor = "#E67E22";
-            listaMapeada = new List<MesaItemViewModel>
-            {
-                new MesaItemViewModel { IdMesa = 1, NroMesa = 1, Capacidad = 2, UbicacionDescripcion = "Salón Principal" },
-                new MesaItemViewModel { IdMesa = 2, NroMesa = 2, Capacidad = 4, UbicacionDescripcion = "Salón Principal" },
-                new MesaItemViewModel { IdMesa = 3, NroMesa = 3, Capacidad = 4, UbicacionDescripcion = "Salón Principal" },
-                new MesaItemViewModel { IdMesa = 4, NroMesa = 4, Capacidad = 6, UbicacionDescripcion = "Salón Principal" },
-                new MesaItemViewModel { IdMesa = 5, NroMesa = 5, Capacidad = 2, UbicacionDescripcion = "Terraza" },
-                new MesaItemViewModel { IdMesa = 6, NroMesa = 6, Capacidad = 4, UbicacionDescripcion = "Terraza" },
-                new MesaItemViewModel { IdMesa = 7, NroMesa = 7, Capacidad = 4, UbicacionDescripcion = "Terraza" },
-                new MesaItemViewModel { IdMesa = 8, NroMesa = 8, Capacidad = 2, UbicacionDescripcion = "Barra" },
-                new MesaItemViewModel { IdMesa = 9, NroMesa = 9, Capacidad = 2, UbicacionDescripcion = "Barra" },
-                new MesaItemViewModel { IdMesa = 10, NroMesa = 10, Capacidad = 8, UbicacionDescripcion = "VIP" },
-                new MesaItemViewModel { IdMesa = 11, NroMesa = 11, Capacidad = 6, UbicacionDescripcion = "VIP" }
-            };
         }
         else
         {
-            OrigenDatosTexto = "🟢 Base de datos";
-            OrigenDatosColor = "#27AE60";
+            _ = AlertaService.MostrarAlertaConexionAsync();
         }
 
         Mesas = new ObservableCollection<MesaItemViewModel>(listaMapeada);

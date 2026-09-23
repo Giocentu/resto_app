@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using RestoApp.Business.Services;
+using RestoApp.Desktop.Services;
 using RestoApp.Entities;
 
 namespace RestoApp.Desktop.ViewModels;
@@ -97,12 +98,6 @@ public partial class CajaViewModel : ObservableObject
     [ObservableProperty]
     private string _mensajeCierre = string.Empty;
 
-    [ObservableProperty]
-    private string _origenDatosTexto = "🟢 Base de datos";
-
-    [ObservableProperty]
-    private string _origenDatosColor = "#27AE60";
-
     public CajaViewModel(PagoService? pagoService = null)
     {
         _pagoService = pagoService;
@@ -112,7 +107,6 @@ public partial class CajaViewModel : ObservableObject
     public async Task CargarDatosAsync()
     {
         var listaPagos = new List<PagoItemViewModel>();
-        bool cargoDesdeBD = false;
 
         if (_pagoService != null)
         {
@@ -139,7 +133,6 @@ public partial class CajaViewModel : ObservableObject
                         Monto = (decimal)p.Monto
                     });
                 }
-                cargoDesdeBD = true;
             }
             catch (Exception ex)
             {
@@ -148,72 +141,20 @@ public partial class CajaViewModel : ObservableObject
                 {
                     Console.WriteLine($"[CAJA DB INNER ERROR] {ex.InnerException.Message}");
                 }
+                _ = AlertaService.MostrarAlertaConexionAsync();
             }
-        }
-
-        if (cargoDesdeBD && listaPagos.Any())
-        {
-            OrigenDatosTexto = "🟢 Base de datos";
-            OrigenDatosColor = "#27AE60";
-        }
-        else if (cargoDesdeBD && !listaPagos.Any())
-        {
-            OrigenDatosTexto = "🟢 Base de datos (Sin registros)";
-            OrigenDatosColor = "#27AE60";
         }
         else
         {
-            OrigenDatosTexto = "🟠 Mock";
-            OrigenDatosColor = "#E67E22";
-            var hoy = DateTime.Now;
-            listaPagos = new List<PagoItemViewModel>
-            {
-                new()
-                {
-                    IdPago = 1,
-                    FechaPago = hoy.AddHours(-3),
-                    Descripcion = "Cobro Mesa #1 - Reserva #12",
-                    ClienteNombre = "Juan Pérez",
-                    MedioPago = "Efectivo",
-                    Monto = 18500.00m
-                },
-                new()
-                {
-                    IdPago = 2,
-                    FechaPago = hoy.AddHours(-2),
-                    Descripcion = "Cobro Mesa #5 - Cliente Gómez",
-                    ClienteNombre = "Carlos Gómez",
-                    MedioPago = "Tarjeta",
-                    Monto = 31200.00m
-                },
-                new()
-                {
-                    IdPago = 3,
-                    FechaPago = hoy.AddHours(-1),
-                    Descripcion = "Cobro Mesa #10 - Evento Jazz",
-                    ClienteNombre = "Empresa ACME",
-                    MedioPago = "Transferencia/QR",
-                    Monto = 45000.00m
-                }
-            };
+            _ = AlertaService.MostrarAlertaConexionAsync();
         }
 
         Pagos = new ObservableCollection<PagoItemViewModel>(listaPagos);
         AplicarFiltro();
         RecalcularTotalesTurno();
 
-        // Cargar cuentas pendientes demostrativas para cobro
-        CuentasPendientes = new ObservableCollection<CuentaPendienteViewModel>
-        {
-            new() { IdMesa = 2, NroMesa = 2, Sector = "Salón Principal", ClienteNombre = "Juan Pérez", MontoConsumo = 24500.00m },
-            new() { IdMesa = 6, NroMesa = 6, Sector = "Terraza", ClienteNombre = "Carlos V.", MontoConsumo = 4250.00m },
-            new() { IdMesa = 9, NroMesa = 9, Sector = "Barra", ClienteNombre = "Gonzalo T.", MontoConsumo = 1800.00m },
-        };
-
-        if (CuentasPendientes.Any())
-        {
-            CuentaSeleccionada = CuentasPendientes.First();
-        }
+        CuentasPendientes = new ObservableCollection<CuentaPendienteViewModel>();
+        CuentaSeleccionada = null;
     }
 
     private void RecalcularTotalesTurno()
@@ -334,8 +275,10 @@ public partial class CajaViewModel : ObservableObject
                 };
                 await _pagoService.RegistrarPagoAsync(pagoEntity);
             }
-            catch
+            catch (Exception ex)
             {
+                Console.WriteLine($"[CAJA REGISTRAR PAGO DB ERROR] {ex.Message}");
+                _ = AlertaService.MostrarAlertaConexionAsync();
             }
         }
 
@@ -368,8 +311,10 @@ public partial class CajaViewModel : ObservableObject
             {
                 await _pagoService.EliminarPagoAsync(item.IdPago);
             }
-            catch
+            catch (Exception ex)
             {
+                Console.WriteLine($"[CAJA ELIMINAR PAGO DB ERROR] {ex.Message}");
+                _ = AlertaService.MostrarAlertaConexionAsync();
             }
         }
 
