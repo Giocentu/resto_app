@@ -24,6 +24,11 @@
             <!-- FORMULARIO DE CAMPOS -->
             <StackPanel Grid.Row="1" Spacing="14">
                 
+                <!-- Mensaje de Error / Alerta en Texto Rojo (Al inicio del formulario) -->
+                <Border Background="#FDEDEC" BorderBrush="#E74C3C" BorderThickness="1" CornerRadius="6" Padding="10" Margin="0,0,0,5" IsVisible="{Binding #TxtError.IsVisible}">
+                    <TextBlock x:Name="TxtError" Foreground="#E74C3C" FontSize="12" FontWeight="Bold" IsVisible="False" TextWrapping="Wrap"/>
+                </Border>
+
                 <!-- Campo Número de Mesa -->
                 <StackPanel Spacing="6">
                     <TextBlock Text="Número de Mesa:" Foreground="#34495E" FontWeight="Bold" FontSize="13"/>
@@ -47,9 +52,6 @@
                         </ComboBox.ItemTemplate>
                     </ComboBox>
                 </StackPanel>
-
-                <!-- Mensaje de Error / Validación en Rojo -->
-                <TextBlock x:Name="TxtError" Foreground="#E74C3C" FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Center" IsVisible="False" TextWrapping="Wrap"/>
             </StackPanel>
 
             <!-- PIE CON BOTONES DE ACCIÓN -->

@@ -127,7 +127,7 @@ public partial class ReservasViewModel : ObservableObject
             try
             {
                 DateTime dt = DateTime.Now.AddHours(2);
-                if (DateTime.TryParse(resItem.FechaHora, out DateTime parsed))
+                if (TryParseFechaHora(resItem.FechaHora, out DateTime parsed))
                 {
                     dt = parsed;
                 }
@@ -140,7 +140,9 @@ public partial class ReservasViewModel : ObservableObject
                 }
                 else
                 {
-                    long dniCliente = await _reservaService.ObtenerOCrearClientePorNombreAsync(resItem.ClienteNombre);
+                    long dniCliente = resItem.DniCliente > 0
+                        ? await _reservaService.ObtenerOCrearClientePorDniYNombreAsync(resItem.DniCliente, resItem.ClienteNombre)
+                        : await _reservaService.ObtenerOCrearClientePorNombreAsync(resItem.ClienteNombre);
 
                     await _reservaService.CrearReservaAsync(
                         fechaReserva: dt,
@@ -157,11 +159,41 @@ public partial class ReservasViewModel : ObservableObject
             catch (Exception ex)
             {
                 Console.WriteLine($"[RESERVAS GUARDAR DB ERROR] {ex.Message}");
-                _ = AlertaService.MostrarAlertaConexionAsync();
+                string errorDetail = ex.InnerException?.Message ?? ex.Message;
+                string mensaje = errorDetail.Contains("chk_reserva_fecha_futura")
+                    ? "⚠️ No se pudo guardar la reserva: La fecha y hora de la reserva debe ser en el futuro."
+                    : $"⚠️ Error al guardar reserva: {errorDetail}";
+                _ = AlertaService.MostrarAlertaConexionAsync(mensaje);
             }
         }
 
         await CargarReservasAsync();
+    }
+
+    private static bool TryParseFechaHora(string? texto, out DateTime dt)
+    {
+        dt = DateTime.MinValue;
+        if (string.IsNullOrWhiteSpace(texto)) return false;
+
+        string[] formats = new[]
+        {
+            "dd/MM/yyyy HH:mm",
+            "dd/MM/yyyy HH:mm:ss",
+            "d/M/yyyy HH:mm",
+            "yyyy-MM-dd HH:mm",
+            "yyyy-MM-dd HH:mm:ss",
+            "MM/dd/yyyy HH:mm",
+            "g",
+            "G"
+        };
+
+        if (DateTime.TryParseExact(texto, formats, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out dt))
+            return true;
+
+        if (DateTime.TryParse(texto, System.Globalization.CultureInfo.GetCultureInfo("es-AR"), System.Globalization.DateTimeStyles.None, out dt))
+            return true;
+
+        return DateTime.TryParse(texto, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out dt);
     }
 
     public void AgregarOActualizarReserva(ReservaItemViewModel nuevaReserva)
@@ -229,6 +261,7 @@ public partial class ReservasViewModel : ObservableObject
                         IdReserva = r.IdReserva,
                         FechaHora = r.FechaReserva.ToString("dd/MM/yyyy HH:mm"), 
                         ClienteNombre = nombreCliente,
+                        DniCliente = r.DniCliente,
                         IdMesa = idMesaPrincipal,
                         NroMesa = mesasAsignadas,
                         CantidadPersonas = r.CantPersonas,

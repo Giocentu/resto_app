@@ -20,6 +20,11 @@ public class ReservaService
         return await _reservaRepository.GetReservasConDetallesAsync();
     }
 
+    public async Task<long> ObtenerOCrearClientePorDniYNombreAsync(long dni, string nombreCliente)
+    {
+        return await _reservaRepository.ObtenerOCrearClientePorDniYNombreAsync(dni, nombreCliente);
+    }
+
     public async Task<long> ObtenerOCrearClientePorNombreAsync(string nombreCliente)
     {
         return await _reservaRepository.ObtenerOCrearClientePorNombreAsync(nombreCliente);
@@ -27,6 +32,11 @@ public class ReservaService
 
     public async Task<int> CrearReservaAsync(DateTime fechaReserva, int cantPersonas, int idEstado, long dniCliente, int? idEvento = null, long? dniEmpleado = null, int? idRol = null, int? idMesa = null)
     {
+        if (dniCliente > 0)
+        {
+            await _reservaRepository.ObtenerOCrearClientePorDniYNombreAsync(dniCliente, "Cliente General");
+        }
+
         try
         {
             return await _reservaRepository.CrearReservaSpAsync(fechaReserva, cantPersonas, idEstado, dniCliente, idEvento, dniEmpleado, idRol, idMesa);

@@ -17,8 +17,10 @@ public partial class NuevaReservaWindow : Window
     private readonly int _idReservaExistente = 0;
     private readonly MesaService? _mesaService;
     private readonly EventoService? _eventoService;
+    private readonly ClienteService? _clienteService;
     private List<Mesa> _listaMesas = new();
     private List<Evento> _listaEventos = new();
+    private long _dniClienteVerificado = 0;
 
     public ReservaItemViewModel? ReservaResult { get; private set; }
 
@@ -29,6 +31,8 @@ public partial class NuevaReservaWindow : Window
             ?? new MesaService(new MesaRepository(new RestoAppDbContext()));
         _eventoService = App.Services?.GetService(typeof(EventoService)) as EventoService
             ?? new EventoService(new EventoRepository(new RestoAppDbContext()));
+        _clienteService = App.Services?.GetService(typeof(ClienteService)) as ClienteService
+            ?? new ClienteService(new ClienteRepository(new RestoAppDbContext()));
 
         DateTime dtInicial = DateTime.Now.AddHours(2);
         DpFecha.SelectedDate = dtInicial;
@@ -41,10 +45,12 @@ public partial class NuevaReservaWindow : Window
     {
         _idReservaExistente = reserva.IdReserva;
         TxtTituloModal.Text = "Editar Reserva";
+        TxtDni.Text = reserva.DniCliente > 0 ? reserva.DniCliente.ToString() : "";
+        _dniClienteVerificado = reserva.DniCliente;
         TxtCliente.Text = reserva.ClienteNombre;
         TxtPersonas.Text = reserva.CantidadPersonas.ToString();
 
-        if (DateTime.TryParse(reserva.FechaHora, out DateTime dtParsed))
+        if (TryParseFechaHora(reserva.FechaHora, out DateTime dtParsed))
         {
             DpFecha.SelectedDate = dtParsed;
             TpHora.SelectedTime = dtParsed.TimeOfDay;
@@ -103,13 +109,74 @@ public partial class NuevaReservaWindow : Window
         }
     }
 
-    private void BtnGuardar_Click(object? sender, RoutedEventArgs e)
+    private async void TxtDni_TextChanged(object? sender, TextChangedEventArgs e)
+    {
+        string text = TxtDni.Text?.Trim() ?? "";
+        if (text.Length >= 7 && long.TryParse(text, out long dni))
+        {
+            await VerificarDniAsync(dni);
+        }
+        else
+        {
+            _dniClienteVerificado = 0;
+            TxtCliente.Text = "";
+        }
+    }
+
+    private async void BtnBuscarDni_Click(object? sender, RoutedEventArgs e)
+    {
+        TxtError.IsVisible = false;
+        string text = TxtDni.Text?.Trim() ?? "";
+        if (!long.TryParse(text, out long dni) || dni <= 0)
+        {
+            MostrarError("⚠️ Por favor ingrese un número de DNI válido.");
+            return;
+        }
+
+        await VerificarDniAsync(dni);
+    }
+
+    private async Task VerificarDniAsync(long dni)
+    {
+        if (_clienteService == null) return;
+
+        var persona = await _clienteService.BuscarPersonaPorDniAsync(dni);
+        if (persona != null)
+        {
+            TxtCliente.Text = $"{persona.Nombre} {persona.Apellido}".Trim();
+            _dniClienteVerificado = persona.Dni;
+            TxtError.IsVisible = false;
+        }
+        else
+        {
+            TxtCliente.Text = "";
+            _dniClienteVerificado = 0;
+            MostrarError("⚠️ Este DNI no existe en el sistema. Por favor registre al cliente primero desde la gestión de Clientes.");
+        }
+    }
+
+    private async void BtnGuardar_Click(object? sender, RoutedEventArgs e)
     {
         TxtError.IsVisible = false;
 
+        if (!long.TryParse(TxtDni.Text, out long dni) || dni <= 0)
+        {
+            MostrarError("⚠️ Por favor ingrese el número de DNI del cliente.");
+            return;
+        }
+
+        if (_dniClienteVerificado != dni)
+        {
+            await VerificarDniAsync(dni);
+            if (_dniClienteVerificado <= 0)
+            {
+                return;
+            }
+        }
+
         if (string.IsNullOrWhiteSpace(TxtCliente.Text))
         {
-            MostrarError("⚠️ Por favor ingrese el nombre del cliente o empresa.");
+            MostrarError("⚠️ El cliente correspondiente a este DNI no fue encontrado.");
             return;
         }
 
@@ -165,6 +232,7 @@ public partial class NuevaReservaWindow : Window
         {
             IdReserva = _idReservaExistente,
             ClienteNombre = TxtCliente.Text.Trim(),
+            DniCliente = _dniClienteVerificado,
             FechaHora = fechaHoraCombinada.ToString("dd/MM/yyyy HH:mm"),
             IdMesa = idMesaSeleccionada,
             NroMesa = nroMesaSeleccionada,
@@ -185,6 +253,32 @@ public partial class NuevaReservaWindow : Window
     private void BtnCancelar_Click(object? sender, RoutedEventArgs e)
     {
         Close(false);
+    }
+
+    private static bool TryParseFechaHora(string? texto, out DateTime dt)
+    {
+        dt = DateTime.MinValue;
+        if (string.IsNullOrWhiteSpace(texto)) return false;
+
+        string[] formats = new[]
+        {
+            "dd/MM/yyyy HH:mm",
+            "dd/MM/yyyy HH:mm:ss",
+            "d/M/yyyy HH:mm",
+            "yyyy-MM-dd HH:mm",
+            "yyyy-MM-dd HH:mm:ss",
+            "MM/dd/yyyy HH:mm",
+            "g",
+            "G"
+        };
+
+        if (DateTime.TryParseExact(texto, formats, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out dt))
+            return true;
+
+        if (DateTime.TryParse(texto, System.Globalization.CultureInfo.GetCultureInfo("es-AR"), System.Globalization.DateTimeStyles.None, out dt))
+            return true;
+
+        return DateTime.TryParse(texto, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out dt);
     }
 }
 

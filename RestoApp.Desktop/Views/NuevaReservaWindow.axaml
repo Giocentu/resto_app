@@ -24,10 +24,24 @@
             <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
                 <StackPanel Spacing="14">
                     
-                    <!-- Campo Cliente -->
+                    <!-- Mensaje de Error / Alerta en Texto Rojo (Al inicio del formulario) -->
+                    <Border Background="#FDEDEC" BorderBrush="#E74C3C" BorderThickness="1" CornerRadius="6" Padding="10" Margin="0,0,0,5" IsVisible="{Binding #TxtError.IsVisible}">
+                        <TextBlock x:Name="TxtError" Foreground="#E74C3C" FontSize="12" FontWeight="Bold" IsVisible="False" TextWrapping="Wrap"/>
+                    </Border>
+
+                    <!-- Campo DNI Cliente (Primer Campo) -->
+                    <StackPanel Spacing="6">
+                        <TextBlock Text="DNI del Cliente (Obligatorio):" Foreground="#34495E" FontWeight="Bold" FontSize="13"/>
+                        <Grid ColumnDefinitions="*, Auto">
+                            <TextBox x:Name="TxtDni" PlaceholderText="Ingrese DNI (ej. 46452703)..." Height="38" VerticalContentAlignment="Center" TextChanged="TxtDni_TextChanged"/>
+                            <Button Grid.Column="1" Content="🔍 Verificar DNI" Click="BtnBuscarDni_Click" Margin="6,0,0,0" Height="38" Background="#3498DB" Foreground="White" CornerRadius="6" FontWeight="SemiBold" Cursor="Hand"/>
+                        </Grid>
+                    </StackPanel>
+
+                    <!-- Campo Cliente (Autocompletado) -->
                     <StackPanel Spacing="6">
                         <TextBlock Text="Nombre del Cliente / Empresa:" Foreground="#34495E" FontWeight="Bold" FontSize="13"/>
-                        <TextBox x:Name="TxtCliente" PlaceholderText="Ej. Roberto Gómez..." Height="38" VerticalContentAlignment="Center"/>
+                        <TextBox x:Name="TxtCliente" PlaceholderText="Se autocompleta con el DNI ingresado..." IsReadOnly="True" Background="#F8F9F9" Height="38" VerticalContentAlignment="Center"/>
                     </StackPanel>
 
                     <!-- Selector de Fecha -->
@@ -59,9 +73,6 @@
                         <TextBlock Text="Cantidad de Personas:" Foreground="#34495E" FontWeight="Bold" FontSize="13"/>
                         <TextBox x:Name="TxtPersonas" PlaceholderText="Ej. 4" Height="38" VerticalContentAlignment="Center"/>
                     </StackPanel>
-
-                    <!-- Mensaje de Error / Validación en Texto Rojo -->
-                    <TextBlock x:Name="TxtError" Foreground="#E74C3C" FontSize="12" FontWeight="Bold" HorizontalAlignment="Center" IsVisible="False" TextWrapping="Wrap" Margin="0,5,0,0"/>
                 </StackPanel>
             </ScrollViewer>
 
