@@ -202,4 +202,25 @@ public class ReservaRepository : Repository<Reserva>, IReservaRepository
             "EXEC sp_Reserva_CambiarEstado @IdReserva = {0}, @NuevoEstadoId = {1}",
             idReserva, nuevoEstadoId);
     }
+
+    public async Task ActualizarMesaReservaAsync(int idReserva, int? idMesa)
+    {
+        var reserva = await _context.Reservas
+            .Include(r => r.Mesas)
+            .FirstOrDefaultAsync(r => r.IdReserva == idReserva);
+
+        if (reserva == null)
+            throw new InvalidOperationException($"No se encontró la reserva {idReserva}.");
+
+        reserva.Mesas.Clear();
+
+        if (idMesa.HasValue && idMesa.Value > 0)
+        {
+            var mesa = await _context.Mesas.FindAsync(idMesa.Value);
+            if (mesa == null)
+                throw new InvalidOperationException($"No se encontró la mesa {idMesa.Value}.");
+
+            reserva.Mesas.Add(mesa);
+        }
+    }
 }

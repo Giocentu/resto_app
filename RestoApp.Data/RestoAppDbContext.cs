@@ -21,8 +21,7 @@ public class RestoAppDbContext : DbContext
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         // Reemplaza "TU_SERVIDOR" por el nombre de tu instancia (ej. localhost\SQLEXPRESS)
-        optionsBuilder.UseSqlServer(@"Server=localhost;Database=resto_DB;User Id=SA;Password=Gio1234.;TrustServerCertificate=True;");
-    }
+optionsBuilder.UseSqlServer(@"Server=HERNAN\SQLEXPRESS;Database=resto_DB;Integrated Security=True;TrustServerCertificate=True;");    }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         // Clave primaria compuesta para Empleado (dni_empleado, id_rol)
