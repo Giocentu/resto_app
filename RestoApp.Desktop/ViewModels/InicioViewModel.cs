@@ -14,6 +14,7 @@ namespace RestoApp.Desktop.ViewModels;
 public partial class InicioViewModel : ObservableObject
 {
     private readonly MesaService? _mesaService;
+    private readonly UbicacionService? _ubicacionService;
     private readonly Action? _navigateAMesasAction;
 
     [ObservableProperty]
@@ -23,13 +24,19 @@ public partial class InicioViewModel : ObservableObject
     private ObservableCollection<VisualMesaItemViewModel> _mesasFiltradas = new();
 
     [ObservableProperty]
-    private ObservableCollection<string> _sectores = new() { "Todos" };
+    private ObservableCollection<string> _ubicaciones = new() { "Todas" };
+
+    [ObservableProperty]
+    private ObservableCollection<string> _sectores = new() { "Todas" };
 
     [ObservableProperty]
     private VisualMesaItemViewModel? _selectedMesa;
 
     [ObservableProperty]
-    private string _sectorSeleccionado = "Todos";
+    private string _ubicacionSeleccionada = "Todas";
+
+    [ObservableProperty]
+    private string _sectorSeleccionado = "Todas";
 
     [ObservableProperty]
     private int _libresCount;
@@ -43,10 +50,11 @@ public partial class InicioViewModel : ObservableObject
     [ObservableProperty]
     private int _limpiezaCount;
 
-    public InicioViewModel(MesaService? mesaService = null, Action? navigateAMesasAction = null)
+    public InicioViewModel(MesaService? mesaService = null, Action? navigateAMesasAction = null, UbicacionService? ubicacionService = null)
     {
         _mesaService = mesaService;
         _navigateAMesasAction = navigateAMesasAction;
+        _ubicacionService = ubicacionService ?? App.Services?.GetService(typeof(UbicacionService)) as UbicacionService;
         _ = CargarMesasAsync();
     }
 
@@ -66,6 +74,7 @@ public partial class InicioViewModel : ObservableObject
                         IdMesa = m.IdMesa,
                         NroMesa = m.NroMesa,
                         Capacidad = m.Capacidad,
+                        IdUbicacion = m.IdUbicacion,
                         UbicacionDescripcion = m.Ubicacion?.Ubicacion ?? "Salón Principal",
                         Estado = string.IsNullOrWhiteSpace(m.Estado) ? "LIBRE" : m.Estado
                     });
@@ -84,16 +93,46 @@ public partial class InicioViewModel : ObservableObject
 
         Mesas = new ObservableCollection<VisualMesaItemViewModel>(lista);
 
-        var listaSectores = new List<string> { "Todos" };
-        listaSectores.AddRange(Mesas.Select(m => m.UbicacionDescripcion).Where(u => !string.IsNullOrWhiteSpace(u)).Distinct());
-        Sectores = new ObservableCollection<string>(listaSectores.Distinct());
+        var listaUbicaciones = new List<string> { "Todas" };
+        if (_ubicacionService != null)
+        {
+            try
+            {
+                var uList = await _ubicacionService.ObtenerUbicacionesAsync(soloActivas: true);
+                foreach (var u in uList)
+                {
+                    if (!string.IsNullOrWhiteSpace(u.Ubicacion) && !listaUbicaciones.Contains(u.Ubicacion))
+                    {
+                        listaUbicaciones.Add(u.Ubicacion);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[INICIO UBICACIONES DB ERROR] {ex.Message}");
+            }
+        }
+        foreach (var m in Mesas)
+        {
+            if (!string.IsNullOrWhiteSpace(m.UbicacionDescripcion) && !listaUbicaciones.Contains(m.UbicacionDescripcion))
+            {
+                listaUbicaciones.Add(m.UbicacionDescripcion);
+            }
+        }
+
+        Ubicaciones = new ObservableCollection<string>(listaUbicaciones.Distinct());
+        Sectores = Ubicaciones;
 
         ActualizarConteos();
-        AplicarFiltroSector();
+        AplicarFiltroUbicacion();
 
         if (MesasFiltradas.Any())
         {
             SeleccionarMesa(MesasFiltradas.First());
+        }
+        else
+        {
+            SelectedMesa = null;
         }
     }
 
@@ -106,21 +145,25 @@ public partial class InicioViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void FiltrarPorSector(string sector)
+    private void FiltrarPorUbicacion(string ubicacion)
     {
-        SectorSeleccionado = sector;
-        AplicarFiltroSector();
+        UbicacionSeleccionada = ubicacion;
+        SectorSeleccionado = ubicacion;
+        AplicarFiltroUbicacion();
     }
 
-    private void AplicarFiltroSector()
+    [RelayCommand]
+    private void FiltrarPorSector(string sector) => FiltrarPorUbicacion(sector);
+
+    private void AplicarFiltroUbicacion()
     {
-        if (SectorSeleccionado == "Todos")
+        if (string.IsNullOrEmpty(UbicacionSeleccionada) || UbicacionSeleccionada == "Todas" || UbicacionSeleccionada == "Todos")
         {
             MesasFiltradas = new ObservableCollection<VisualMesaItemViewModel>(Mesas);
         }
         else
         {
-            var filtradas = Mesas.Where(m => string.Equals(m.UbicacionDescripcion, SectorSeleccionado, StringComparison.OrdinalIgnoreCase));
+            var filtradas = Mesas.Where(m => string.Equals(m.UbicacionDescripcion, UbicacionSeleccionada, StringComparison.OrdinalIgnoreCase));
             MesasFiltradas = new ObservableCollection<VisualMesaItemViewModel>(filtradas);
         }
     }
@@ -138,11 +181,34 @@ public partial class InicioViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void CambiarEstado(string nuevoEstado)
+    private async Task CambiarEstadoAsync(string nuevoEstado)
     {
         if (SelectedMesa != null)
         {
+            var estadoAnterior = SelectedMesa.Estado;
             SelectedMesa.Estado = nuevoEstado;
+
+            if (_mesaService != null && SelectedMesa.IdMesa > 0)
+            {
+                try
+                {
+                    int idUbicacion = SelectedMesa.IdUbicacion > 0 ? SelectedMesa.IdUbicacion : 1;
+                    await _mesaService.EditarMesaAsync(
+                        SelectedMesa.IdMesa,
+                        SelectedMesa.NroMesa,
+                        SelectedMesa.Capacidad,
+                        idUbicacion,
+                        nuevoEstado
+                    );
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[CAMBIAR ESTADO DB ERROR] {ex.Message}");
+                    SelectedMesa.Estado = estadoAnterior;
+                    _ = AlertaService.MostrarAlertaConexionAsync();
+                }
+            }
+
             ActualizarConteos();
             OnPropertyChanged(nameof(SelectedMesa));
         }

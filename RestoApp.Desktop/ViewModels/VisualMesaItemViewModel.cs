@@ -8,6 +8,7 @@ public partial class VisualMesaItemViewModel : ObservableObject
     public int IdMesa { get; set; }
     public int NroMesa { get; set; }
     public int Capacidad { get; set; }
+    public int IdUbicacion { get; set; }
     public string UbicacionDescripcion { get; set; } = string.Empty;
 
     [ObservableProperty]
