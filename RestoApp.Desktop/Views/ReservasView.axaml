@@ -4,98 +4,267 @@
              x:Class="RestoApp.Desktop.Views.ReservasView"
              x:DataType="vm:ReservasViewModel">
 
-    <Border Background="White" BorderBrush="#BDC3C7" BorderThickness="1" CornerRadius="10" Padding="18" Margin="10">
-        <Panel>
-            <!-- VISTA PRINCIPAL -->
-            <Grid RowDefinitions="Auto, *" IsVisible="{Binding EsVistaPrincipal}">
-                <!-- Encabezado -->
-                <Grid Grid.Row="0" ColumnDefinitions="*, Auto, Auto" Margin="0,0,0,15">
-                    <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
-                        <TextBlock Text="Listado de Reservas" FontSize="22" FontWeight="Bold" Foreground="#2C3E50" VerticalAlignment="Center"/>
-                        <Border Background="{Binding OrigenDatosColor}" CornerRadius="12" Padding="10,4" VerticalAlignment="Center">
-                            <TextBlock Text="{Binding OrigenDatosTexto}" Foreground="White" FontSize="11" FontWeight="Bold"/>
-                        </Border>
+    <Grid RowDefinitions="Auto, *">
+        
+        <!-- ========================================== -->
+        <!-- ENCABEZADO DE SECCIÓN Y ACCIONES PRINCIPALES -->
+        <!-- ========================================== -->
+        <Grid Grid.Row="0" ColumnDefinitions="*, Auto" Margin="0,0,0,18">
+            <StackPanel Grid.Column="0">
+                <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                    <TextBlock Text="📅 Módulo de Reservas y Agenda" FontSize="22" FontWeight="Bold" Foreground="#2C3E50"/>
+                    <Border Background="{Binding OrigenDatosColor}" CornerRadius="12" Padding="10,4" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding OrigenDatosTexto}" Foreground="White" FontSize="11" FontWeight="Bold"/>
+                    </Border>
+                </StackPanel>
+                <TextBlock Text="Control de disponibilidad, comensales y seguimiento de reservas por mesa" FontSize="12" Foreground="#7F8C8D" Margin="0,2,0,0"/>
+            </StackPanel>
+
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                <Button Command="{Binding VerBajasCommand}" 
+                        Background="#34495E" Foreground="White" 
+                        Padding="14,9" CornerRadius="6" Cursor="Hand" FontWeight="SemiBold">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <TextBlock Text="📁" FontSize="13"/>
+                        <TextBlock Text="Archivo / Canceladas"/>
                     </StackPanel>
-                    <Button Grid.Column="1" Content="Reservas Canceladas" Command="{Binding VerBajasCommand}" Background="#3498DB" Foreground="White" Padding="15,8" CornerRadius="5" Cursor="Hand" Margin="0,0,10,0"/>
-                    <Button Grid.Column="2" Content="+ Nueva Reserva" IsVisible="{Binding $parent[UserControl].((vm:ReservasViewModel)DataContext).PuedeAgregarEditar}" Background="#27AE60" Foreground="White" Padding="15,8" CornerRadius="5" Cursor="Hand" Click="BtnNuevaReserva_Click"/>
+                </Button>
+
+                <Button IsVisible="{Binding PuedeAgregarEditar}" 
+                        Click="BtnNuevaReserva_Click" 
+                        Background="#27AE60" Foreground="White" 
+                        Padding="16,9" CornerRadius="6" Cursor="Hand" FontWeight="Bold">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <TextBlock Text="➕" FontSize="13"/>
+                        <TextBlock Text="Nueva Reserva"/>
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+        </Grid>
+
+        <!-- ========================================== -->
+        <!-- CONTENIDO DINÁMICO (VISTA PRINCIPAL / BAJAS) -->
+        <!-- ========================================== -->
+        <Panel Grid.Row="1">
+            
+            <!-- VISTA PRINCIPAL -->
+            <Grid RowDefinitions="Auto, Auto, *" IsVisible="{Binding EsVistaPrincipal}">
+                
+                <!-- 1. TARJETAS KPI RESUMIDAS -->
+                <Grid Grid.Row="0" ColumnDefinitions="*, *, *, *" Margin="0,0,0,15">
+                    
+                    <!-- KPI 1: Total Reservas -->
+                    <Border Grid.Column="0" Background="White" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="10" Padding="14" Margin="0,0,10,0">
+                        <Grid ColumnDefinitions="Auto, *">
+                            <Border Grid.Column="0" Background="#EBF5FB" CornerRadius="8" Width="42" Height="42" VerticalAlignment="Center" Margin="0,0,12,0">
+                                <TextBlock Text="📅" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <TextBlock Text="Reservas Totales" FontSize="11" Foreground="#7F8C8D" FontWeight="SemiBold"/>
+                                <TextBlock Text="{Binding TotalReservasCount}" FontSize="20" FontWeight="Bold" Foreground="#2C3E50"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <!-- KPI 2: Total Comensales -->
+                    <Border Grid.Column="1" Background="White" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="10" Padding="14" Margin="0,0,10,0">
+                        <Grid ColumnDefinitions="Auto, *">
+                            <Border Grid.Column="0" Background="#E8F8F5" CornerRadius="8" Width="42" Height="42" VerticalAlignment="Center" Margin="0,0,12,0">
+                                <TextBlock Text="👥" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <TextBlock Text="Comensales Totales" FontSize="11" Foreground="#7F8C8D" FontWeight="SemiBold"/>
+                                <TextBlock Text="{Binding TotalPersonasCount}" FontSize="20" FontWeight="Bold" Foreground="#27AE60"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <!-- KPI 3: Estado Activas -->
+                    <Border Grid.Column="2" Background="White" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="10" Padding="14" Margin="0,0,10,0">
+                        <Grid ColumnDefinitions="Auto, *">
+                            <Border Grid.Column="0" Background="#FEF9E7" CornerRadius="8" Width="42" Height="42" VerticalAlignment="Center" Margin="0,0,12,0">
+                                <TextBlock Text="🟢" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <TextBlock Text="Estado Reservas" FontSize="11" Foreground="#7F8C8D" FontWeight="SemiBold"/>
+                                <TextBlock Text="Confirmadas" FontSize="16" FontWeight="Bold" Foreground="#D68910"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <!-- KPI 4: Canceladas -->
+                    <Border Grid.Column="3" Background="White" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="10" Padding="14">
+                        <Grid ColumnDefinitions="Auto, *">
+                            <Border Grid.Column="0" Background="#FDEDEC" CornerRadius="8" Width="42" Height="42" VerticalAlignment="Center" Margin="0,0,12,0">
+                                <TextBlock Text="❌" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <TextBlock Text="Canceladas (Archivo)" FontSize="11" Foreground="#7F8C8D" FontWeight="SemiBold"/>
+                                <TextBlock Text="{Binding BajasCount}" FontSize="20" FontWeight="Bold" Foreground="#E74C3C"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
                 </Grid>
 
-        <!-- Tabla -->
-        <DataGrid Grid.Row="1" ItemsSource="{Binding Reservas}" 
-                  AutoGenerateColumns="False" IsReadOnly="True" 
-                  GridLinesVisibility="Horizontal" HeadersVisibility="Column" 
-                  BorderThickness="1" BorderBrush="#E0E6ED" CornerRadius="6">
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="Fecha y Hora" Binding="{Binding FechaHora}" Width="1.5*"/>
-                <DataGridTextColumn Header="Cliente" Binding="{Binding ClienteNombre}" Width="2*"/>
-                <DataGridTextColumn Header="Mesa" Binding="{Binding NroMesa}" Width="*"/>
-                <DataGridTextColumn Header="Personas" Binding="{Binding CantidadPersonas}" Width="*"/>
-                
-                <DataGridTemplateColumn Header="Editar" Width="Auto"
-                                        IsVisible="{Binding $parent[UserControl].((vm:ReservasViewModel)DataContext).PuedeAgregarEditar}">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate x:DataType="vm:ReservaItemViewModel">
-                            <Button Content="Editar" 
-                                    Click="BtnEditar_Click" 
-                                    Background="Transparent" 
-                                    Foreground="#F39C12" 
-                                    Cursor="Hand"
-                                    HorizontalAlignment="Center"/>
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-            
-                <!-- Columna de Baja Lógica -->
-                <DataGridTemplateColumn Header="Baja" Width="Auto"
-                                        IsVisible="{Binding $parent[UserControl].((vm:ReservasViewModel)DataContext).PuedeAgregarEditar}">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate x:DataType="vm:ReservaItemViewModel">
-                            <Button Content="Eliminar" 
-                                    Click="BtnEliminar_Click"
-                                    Background="Transparent" 
-                                    Foreground="#E74C3C" 
-                                    Cursor="Hand"
-                                    HorizontalAlignment="Center"/>
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-            </DataGrid.Columns>
-            </DataGrid>
+                <!-- 2. BARRA DE BÚSQUEDA Y FILTRO -->
+                <Border Grid.Row="1" Background="White" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="8" Padding="12,8" Margin="0,0,0,15">
+                    <Grid ColumnDefinitions="Auto, *, Auto">
+                        <TextBlock Grid.Column="0" Text="🔍" FontSize="16" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                        <TextBox Grid.Column="1" Text="{Binding TextoBusqueda, Mode=TwoWay}" 
+                                 PlaceholderText="Buscar por cliente, mesa o fecha y hora..." 
+                                 BorderThickness="0" Background="Transparent" 
+                                 VerticalContentAlignment="Center" FontSize="13"/>
+                    </Grid>
+                </Border>
+
+                <!-- 3. TABLA DE DATOS PRINCIPAL -->
+                <Border Grid.Row="2" Background="White" BorderBrush="#BDC3C7" BorderThickness="1" CornerRadius="10" Padding="15">
+                    <DataGrid ItemsSource="{Binding ReservasFiltradas}" 
+                              AutoGenerateColumns="False" IsReadOnly="True" 
+                              GridLinesVisibility="Horizontal" HeadersVisibility="Column" 
+                              BorderThickness="1" BorderBrush="#E0E6ED" CornerRadius="6">
+                        <DataGrid.Columns>
+                            
+                            <!-- Fecha y Hora -->
+                            <DataGridTemplateColumn Header="Fecha y Hora" Width="1.5*">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate x:DataType="vm:ReservaItemViewModel">
+                                        <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center" Margin="10,0">
+                                            <TextBlock Text="📅" FontSize="13" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{Binding FechaHora}" FontWeight="Bold" Foreground="#2C3E50" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+
+                            <!-- Cliente -->
+                            <DataGridTemplateColumn Header="Cliente / Empresa" Width="2*">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate x:DataType="vm:ReservaItemViewModel">
+                                        <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center" Margin="10,0">
+                                            <Border Background="#EBF5FB" CornerRadius="12" Width="26" Height="26" VerticalAlignment="Center">
+                                                <TextBlock Text="👤" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <TextBlock Text="{Binding ClienteNombre}" FontWeight="SemiBold" Foreground="#34495E" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+
+                            <!-- Mesa -->
+                            <DataGridTemplateColumn Header="Mesa Asignada" Width="1.3*">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate x:DataType="vm:ReservaItemViewModel">
+                                        <Border Background="#F2F4F4" CornerRadius="6" Padding="8,4" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,0">
+                                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                                <TextBlock Text="🪑" FontSize="12"/>
+                                                <TextBlock Text="{Binding MesaBadge}" FontWeight="Bold" Foreground="#34495E" FontSize="12"/>
+                                            </StackPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+
+                            <!-- Personas -->
+                            <DataGridTemplateColumn Header="Comensales" Width="1.2*">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate x:DataType="vm:ReservaItemViewModel">
+                                        <Border Background="#E8F8F5" CornerRadius="6" Padding="8,4" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,0">
+                                            <TextBlock Text="{Binding PersonasBadge}" FontWeight="Bold" Foreground="#27AE60" FontSize="12"/>
+                                        </Border>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+
+                            <!-- Estado Badge -->
+                            <DataGridTemplateColumn Header="Estado" Width="*">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate x:DataType="vm:ReservaItemViewModel">
+                                        <Border Background="{Binding EstadoBadgeBackground}" CornerRadius="12" Padding="10,4" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,0">
+                                            <TextBlock Text="{Binding EstadoTexto}" Foreground="{Binding EstadoBadgeForeground}" FontWeight="Bold" FontSize="11"/>
+                                        </Border>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            
+                            <!-- Acciones (Editar / Eliminar) -->
+                            <DataGridTemplateColumn Header="Acciones" Width="Auto"
+                                                    IsVisible="{Binding $parent[UserControl].((vm:ReservasViewModel)DataContext).PuedeAgregarEditar}">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate x:DataType="vm:ReservaItemViewModel">
+                                        <StackPanel Orientation="Horizontal" Spacing="6" HorizontalAlignment="Center" Margin="10,0">
+                                            <Button Click="BtnEditar_Click" 
+                                                    Background="#FEF9E7" Foreground="#F39C12" 
+                                                    BorderBrush="#F39C12" BorderThickness="1" 
+                                                    CornerRadius="5" Padding="8,4" Cursor="Hand" ToolTip.Tip="Editar Reserva">
+                                                <StackPanel Orientation="Horizontal" Spacing="4">
+                                                    <TextBlock Text="✏️" FontSize="11"/>
+                                                    <TextBlock Text="Editar" FontSize="11" FontWeight="SemiBold"/>
+                                                </StackPanel>
+                                            </Button>
+
+                                            <Button Click="BtnEliminar_Click" 
+                                                    Background="#FDEDEC" Foreground="#E74C3C" 
+                                                    BorderBrush="#E74C3C" BorderThickness="1" 
+                                                    CornerRadius="5" Padding="8,4" Cursor="Hand" ToolTip.Tip="Cancelar Reserva">
+                                                <StackPanel Orientation="Horizontal" Spacing="4">
+                                                    <TextBlock Text="❌" FontSize="11"/>
+                                                    <TextBlock Text="Cancelar" FontSize="11" FontWeight="SemiBold"/>
+                                                </StackPanel>
+                                            </Button>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Border>
             </Grid>
 
-            <!-- VISTA BAJAS / ARCHIVO -->
+            <!-- VISTA BAJAS / ARCHIVO DE CANCELACIONES -->
             <Grid RowDefinitions="Auto, *" IsVisible="{Binding EsVistaBajas}">
                 <Grid Grid.Row="0" ColumnDefinitions="*, Auto" Margin="0,0,0,15">
-                    <TextBlock Grid.Column="0" Text="Reservas Canceladas (Archivo)" FontSize="22" FontWeight="Bold" Foreground="#2C3E50" VerticalAlignment="Center"/>
-                    <Button Grid.Column="1" Content="Atrás" Command="{Binding VolverPrincipalCommand}" Background="#DE0A2D" Foreground="White" Padding="15,8" CornerRadius="5" Cursor="Hand"/>
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="📁 Histórico de Reservas Canceladas" FontSize="20" FontWeight="Bold" Foreground="#2C3E50"/>
+                        <TextBlock Text="Registro de reservas dadas de baja con opción de restauración" FontSize="12" Foreground="#7F8C8D"/>
+                    </StackPanel>
+                    <Button Grid.Column="1" Content="⬅️ Volver a Reservas" Command="{Binding VolverPrincipalCommand}" Background="#34495E" Foreground="White" Padding="14,8" CornerRadius="6" Cursor="Hand" FontWeight="Bold"/>
                 </Grid>
 
-                <DataGrid Grid.Row="1" ItemsSource="{Binding ReservasBajas}" 
-                          AutoGenerateColumns="False" IsReadOnly="True" 
-                          GridLinesVisibility="Horizontal" HeadersVisibility="Column" 
-                          BorderThickness="1" BorderBrush="#E0E6ED" CornerRadius="6">
-                    <DataGrid.Columns>
-                        <DataGridTextColumn Header="Fecha y Hora" Binding="{Binding FechaHora}" Width="1.5*"/>
-                        <DataGridTextColumn Header="Cliente" Binding="{Binding ClienteNombre}" Width="2*"/>
-                        <DataGridTextColumn Header="Mesa" Binding="{Binding NroMesa}" Width="*"/>
-                        <DataGridTextColumn Header="Personas" Binding="{Binding CantidadPersonas}" Width="*"/>
-                        
-                        <DataGridTemplateColumn Header="Acción" Width="Auto" IsVisible="{Binding $parent[UserControl].((vm:ReservasViewModel)DataContext).PuedeAgregarEditar}">
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate x:DataType="vm:ReservaItemViewModel">
-                                    <Button Content="Restaurar (Alta)" 
-                                            Command="{Binding $parent[UserControl].((vm:ReservasViewModel)DataContext).RestaurarReservaCommand}"
-                                            CommandParameter="{Binding}"
-                                            Background="Transparent" 
-                                            Foreground="#27AE60" 
-                                            Cursor="Hand"
-                                            HorizontalAlignment="Center"/>
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
-                    </DataGrid.Columns>
-                </DataGrid>
+                <Border Grid.Row="1" Background="White" BorderBrush="#BDC3C7" BorderThickness="1" CornerRadius="10" Padding="15">
+                    <DataGrid ItemsSource="{Binding ReservasBajas}" 
+                              AutoGenerateColumns="False" IsReadOnly="True" 
+                              GridLinesVisibility="Horizontal" HeadersVisibility="Column" 
+                              BorderThickness="1" BorderBrush="#E0E6ED" CornerRadius="6">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Fecha y Hora" Binding="{Binding FechaHora}" Width="1.5*"/>
+                            <DataGridTextColumn Header="Cliente" Binding="{Binding ClienteNombre}" Width="2*"/>
+                            <DataGridTextColumn Header="Mesa" Binding="{Binding NroMesa}" Width="*"/>
+                            <DataGridTextColumn Header="Personas" Binding="{Binding CantidadPersonas}" Width="*"/>
+                            
+                            <DataGridTemplateColumn Header="Acciones" Width="Auto" IsVisible="{Binding $parent[UserControl].((vm:ReservasViewModel)DataContext).PuedeAgregarEditar}">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate x:DataType="vm:ReservaItemViewModel">
+                                        <Button Command="{Binding $parent[UserControl].((vm:ReservasViewModel)DataContext).RestaurarReservaCommand}"
+                                                CommandParameter="{Binding}"
+                                                Background="#E8F8F5" Foreground="#27AE60" 
+                                                BorderBrush="#27AE60" BorderThickness="1" 
+                                                CornerRadius="5" Padding="10,5" Cursor="Hand" HorizontalAlignment="Center">
+                                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                                <TextBlock Text="🔄" FontSize="11"/>
+                                                <TextBlock Text="Restaurar (Re-activar)" FontSize="11" FontWeight="Bold"/>
+                                            </StackPanel>
+                                        </Button>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Border>
             </Grid>
+
         </Panel>
-    </Border>
+    </Grid>
 </UserControl>

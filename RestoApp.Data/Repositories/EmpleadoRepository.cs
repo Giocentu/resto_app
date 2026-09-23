@@ -21,10 +21,12 @@ public class EmpleadoRepository : Repository<Empleado>, IEmpleadoRepository
     public async Task<IEnumerable<Empleado>> GetEmpleadosSpAsync(bool soloActivos = true)
     {
         return await _dbSet
-            .FromSqlRaw("EXEC sp_Empleado_ObtenerTodos @SoloActivos = {0}", soloActivos)
             .Include(e => e.PersonaInfo)
             .Include(e => e.Rol)
             .Include(e => e.Turno)
+            .Where(e => !soloActivos || e.ActivoEnRol)
+            .OrderBy(e => e.PersonaInfo!.Apellido)
+            .ThenBy(e => e.PersonaInfo!.Nombre)
             .ToListAsync();
     }
 

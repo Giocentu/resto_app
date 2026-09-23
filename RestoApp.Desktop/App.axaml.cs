@@ -62,22 +62,22 @@ public partial class App : Application
 
     private void ConfigureServices(IServiceCollection services)
     {
-        // 1. Registrar Base de Datos
-        services.AddDbContext<RestoAppDbContext>();
+        // 1. Registrar Base de Datos como Transient para evitar colisiones de hilos (DbContext concurrencia)
+        services.AddDbContext<RestoAppDbContext>(ServiceLifetime.Transient);
 
-        // 2. Registrar Repositorios (Genérico y Específicos)
-        services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-        services.AddScoped<IReservaRepository, ReservaRepository>();
-        services.AddScoped<IEmpleadoRepository, EmpleadoRepository>();
-        services.AddScoped<IMesaRepository, MesaRepository>();
-        services.AddScoped<IEventoRepository, EventoRepository>();
-        services.AddScoped<IPagoRepository, PagoRepository>();
+        // 2. Registrar Repositorios como Transient
+        services.AddTransient(typeof(IRepository<>), typeof(Repository<>));
+        services.AddTransient<IReservaRepository, ReservaRepository>();
+        services.AddTransient<IEmpleadoRepository, EmpleadoRepository>();
+        services.AddTransient<IMesaRepository, MesaRepository>();
+        services.AddTransient<IEventoRepository, EventoRepository>();
+        services.AddTransient<IPagoRepository, PagoRepository>();
 
-        // 3. Registrar Servicios de Negocio
-        services.AddScoped<ReservaService>();
-        services.AddScoped<EmpleadoService>();
-        services.AddScoped<MesaService>();
-        services.AddScoped<EventoService>();
-        services.AddScoped<PagoService>();
+        // 3. Registrar Servicios de Negocio como Transient
+        services.AddTransient<ReservaService>();
+        services.AddTransient<EmpleadoService>();
+        services.AddTransient<MesaService>();
+        services.AddTransient<EventoService>();
+        services.AddTransient<PagoService>();
     }
 }

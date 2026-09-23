@@ -16,22 +16,18 @@ public class ReservaRepository : Repository<Reserva>, IReservaRepository
     public async Task<IEnumerable<Reserva>> GetReservasConDetallesAsync()
     {
         return await _dbSet
-            .Include(r => r.Cliente)         // Trae el Cliente
-                .ThenInclude(c => c.PersonaInfo) // Trae los datos de la Persona (Nombre, DNI)
-            .Include(r => r.Mesas)           // Trae la lista de Mesas asignadas
-            .ToListAsync();
-    }
-
-    public async Task<IEnumerable<Reserva>> GetReservasSpAsync()
-    {
-        return await _dbSet
-            .FromSqlRaw("EXEC sp_Reserva_ObtenerTodas")
             .Include(r => r.Cliente)
                 .ThenInclude(c => c!.PersonaInfo)
             .Include(r => r.Mesas)
             .Include(r => r.Evento)
             .Include(r => r.Estado)
+            .OrderByDescending(r => r.FechaReserva)
             .ToListAsync();
+    }
+
+    public async Task<IEnumerable<Reserva>> GetReservasSpAsync()
+    {
+        return await GetReservasConDetallesAsync();
     }
 
 

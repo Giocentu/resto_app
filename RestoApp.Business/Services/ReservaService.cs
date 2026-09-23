@@ -17,14 +17,7 @@ public class ReservaService
 
     public async Task<IEnumerable<Reserva>> ObtenerReservasAsync()
     {
-        try
-        {
-            return await _reservaRepository.GetReservasSpAsync();
-        }
-        catch
-        {
-            return await _reservaRepository.GetReservasConDetallesAsync();
-        }
+        return await _reservaRepository.GetReservasConDetallesAsync();
     }
 
     public async Task<int> CrearReservaAsync(DateTime fechaReserva, int cantPersonas, int idEstado, long dniCliente, int? idEvento = null, long? dniEmpleado = null, int? idRol = null, int? idMesa = null)

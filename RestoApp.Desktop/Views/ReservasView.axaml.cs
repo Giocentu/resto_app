@@ -2,6 +2,7 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using RestoApp.Desktop.ViewModels;
 using System;
+
 namespace RestoApp.Desktop.Views;
 
 public partial class ReservasView : UserControl
@@ -16,9 +17,13 @@ public partial class ReservasView : UserControl
         var formWindow = new NuevaReservaWindow();
         var mainWindow = TopLevel.GetTopLevel(this) as Window;
 
-        if(mainWindow != null)
+        if (mainWindow != null)
         {
             await formWindow.ShowDialog(mainWindow);
+            if (formWindow.ReservaResult != null && DataContext is ReservasViewModel viewModel)
+            {
+                viewModel.AgregarOActualizarReserva(formWindow.ReservaResult);
+            }
         }
     }
 
@@ -32,6 +37,10 @@ public partial class ReservasView : UserControl
             if (mainWindow != null)
             {
                 await formEditar.ShowDialog(mainWindow);
+                if (formEditar.ReservaResult != null && DataContext is ReservasViewModel viewModel)
+                {
+                    viewModel.AgregarOActualizarReserva(formEditar.ReservaResult);
+                }
             }
         }
     }
@@ -48,9 +57,9 @@ public partial class ReservasView : UserControl
                 try
                 {
                     bool? confirmados = await confirmacion.ShowDialog<bool?>(mainWindow);
-                    if (confirmados == true)
+                    if (confirmados == true && DataContext is ReservasViewModel viewModel)
                     {
-                        // Lógica para dar de baja o cancelar reserva
+                        await viewModel.CancelarReservaCommand.ExecuteAsync(reservaSeleccionada);
                     }
                 }
                 catch (Exception ex)

@@ -23,7 +23,8 @@ public class EventoRepository : Repository<Evento>, IEventoRepository
     public async Task<IEnumerable<Evento>> GetEventosSpAsync(bool soloActivos = true)
     {
         return await _dbSet
-            .FromSqlRaw("EXEC sp_Evento_ObtenerTodos @SoloActivos = {0}", soloActivos)
+            .Where(e => !soloActivos || e.EsActivo)
+            .OrderByDescending(e => e.FechaEvento)
             .ToListAsync();
     }
 
