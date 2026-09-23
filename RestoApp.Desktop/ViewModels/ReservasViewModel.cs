@@ -127,7 +127,8 @@ public partial class ReservasViewModel : ObservableObject
                     nroMesa = parsedMesa;
                 }
 
-                long dniCliente = 46452703;
+                var listaExistente = await _reservaService.ObtenerReservasAsync();
+                long dniCliente = listaExistente.FirstOrDefault(r => r.DniCliente > 0)?.DniCliente ?? 46452703;
 
                 await _reservaService.CrearReservaAsync(
                     fechaReserva: dt,

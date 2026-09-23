@@ -14,6 +14,7 @@ namespace RestoApp.Desktop.ViewModels;
 public partial class MesasViewModel : ObservableObject
 {
     private readonly MesaService? _mesaService;
+    private readonly UbicacionService? _ubicacionService;
 
     public bool PuedeAgregar => SesionGlobal.RolActual == RolUsuario.Dueno;
     public bool PuedeEditar => SesionGlobal.RolActual == RolUsuario.Dueno
@@ -28,16 +29,39 @@ public partial class MesasViewModel : ObservableObject
     private ObservableCollection<MesaItemViewModel> _mesasBajas = new();
 
     [ObservableProperty]
+    private ObservableCollection<UbicacionMesa> _ubicaciones = new();
+
+    [ObservableProperty]
+    private ObservableCollection<UbicacionMesa> _ubicacionesBajas = new();
+
+    [ObservableProperty]
     private bool _esVistaPrincipal = true;
 
     [ObservableProperty]
     private bool _esVistaBajas = false;
+
+    [ObservableProperty]
+    private bool _esVistaUbicaciones = false;
+
+    [ObservableProperty]
+    private bool _esVistaUbicacionesBajas = false;
+
+    public MesasViewModel(MesaService? mesaService, Action volverInicio, UbicacionService? ubicacionService = null)
+    {
+        _volverInicio = volverInicio;
+        _mesaService = mesaService;
+        _ubicacionService = ubicacionService ?? App.Services?.GetService(typeof(UbicacionService)) as UbicacionService;
+        _ = CargarMesasAsync();
+        _ = CargarUbicacionesAsync();
+    }
 
     [RelayCommand]
     private void VerBajas()
     {
         EsVistaPrincipal = false;
         EsVistaBajas = true;
+        EsVistaUbicaciones = false;
+        EsVistaUbicacionesBajas = false;
         _ = CargarMesasBajasAsync();
     }
 
@@ -46,6 +70,28 @@ public partial class MesasViewModel : ObservableObject
     {
         EsVistaPrincipal = true;
         EsVistaBajas = false;
+        EsVistaUbicaciones = false;
+        EsVistaUbicacionesBajas = false;
+    }
+
+    [RelayCommand]
+    private void VerUbicacionesSection()
+    {
+        EsVistaPrincipal = false;
+        EsVistaBajas = false;
+        EsVistaUbicaciones = true;
+        EsVistaUbicacionesBajas = false;
+        _ = CargarUbicacionesAsync();
+    }
+
+    [RelayCommand]
+    private void VerUbicacionesBajasSection()
+    {
+        EsVistaPrincipal = false;
+        EsVistaBajas = false;
+        EsVistaUbicaciones = false;
+        EsVistaUbicacionesBajas = true;
+        _ = CargarUbicacionesBajasAsync();
     }
 
     [RelayCommand]
@@ -65,8 +111,8 @@ public partial class MesasViewModel : ObservableObject
                     _ = AlertaService.MostrarAlertaConexionAsync();
                 }
             }
-            MesasBajas.Remove(mesa);
-            Mesas.Add(mesa);
+            await CargarMesasAsync();
+            await CargarMesasBajasAsync();
         }
     }
 
@@ -87,19 +133,20 @@ public partial class MesasViewModel : ObservableObject
                     _ = AlertaService.MostrarAlertaConexionAsync();
                 }
             }
-            Mesas.Remove(mesa);
-            MesasBajas.Add(mesa);
+            await CargarMesasAsync();
+            await CargarMesasBajasAsync();
         }
     }
 
-    private async Task CargarMesasBajasAsync()
+    public async Task CargarMesasBajasAsync()
     {
         if (_mesaService != null)
         {
             try
             {
                 var inactivas = await _mesaService.ObtenerMesasAsync(soloActivas: false);
-                var listaBajas = inactivas.Where(m => string.Equals(m.Estado, "INACTIVA", StringComparison.OrdinalIgnoreCase) || string.Equals(m.Estado, "BAJA", StringComparison.OrdinalIgnoreCase))
+                var listaBajas = inactivas
+                    .Where(m => !m.EsActivo || string.Equals(m.Estado, "INACTIVA", StringComparison.OrdinalIgnoreCase) || string.Equals(m.Estado, "BAJA", StringComparison.OrdinalIgnoreCase))
                     .Select(m => new MesaItemViewModel
                     {
                         IdMesa = m.IdMesa,
@@ -115,13 +162,6 @@ public partial class MesasViewModel : ObservableObject
                 _ = AlertaService.MostrarAlertaConexionAsync();
             }
         }
-    }
-
-    public MesasViewModel(MesaService? mesaService, Action volverInicio)
-    {
-        _volverInicio = volverInicio;
-        _mesaService = mesaService;
-        _ = CargarMesasAsync();
     }
 
     public async Task CargarMesasAsync()
@@ -159,18 +199,18 @@ public partial class MesasViewModel : ObservableObject
         Mesas = new ObservableCollection<MesaItemViewModel>(listaMapeada);
     }
 
-    public async Task GuardarMesaAsync(MesaItemViewModel mesa)
+    public async Task GuardarMesaAsync(MesaItemViewModel mesa, int? idUbicacionEspecifica = null)
     {
         if (mesa == null) return;
 
-        int idUbicacion = mesa.UbicacionDescripcion?.ToLower() switch
+        int idUbicacion = idUbicacionEspecifica ?? (mesa.UbicacionDescripcion?.ToLower() switch
         {
             "terraza" => 1,
             "2dopiso" or "segundo piso" or "2do piso" => 2,
             "plantabaja" or "planta baja" => 3,
             "patio" => 4,
             _ => 1
-        };
+        });
 
         if (_mesaService != null)
         {
@@ -195,9 +235,108 @@ public partial class MesasViewModel : ObservableObject
         await CargarMesasAsync();
     }
 
+    // Ubicaciones Logic
+    public async Task CargarUbicacionesAsync()
+    {
+        if (_ubicacionService != null)
+        {
+            try
+            {
+                var uList = await _ubicacionService.ObtenerUbicacionesAsync(soloActivas: true);
+                Ubicaciones = new ObservableCollection<UbicacionMesa>(uList);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[UBICACIONES DB ERROR] {ex.Message}");
+            }
+        }
+    }
+
+    public async Task CargarUbicacionesBajasAsync()
+    {
+        if (_ubicacionService != null)
+        {
+            try
+            {
+                var uList = await _ubicacionService.ObtenerUbicacionesAsync(soloActivas: false);
+                UbicacionesBajas = new ObservableCollection<UbicacionMesa>(uList.Where(u => !u.EsActivo));
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[UBICACIONES BAJAS DB ERROR] {ex.Message}");
+            }
+        }
+    }
+
+    public async Task GuardarUbicacionAsync(UbicacionMesa u)
+    {
+        if (u == null || string.IsNullOrWhiteSpace(u.Ubicacion)) return;
+
+        if (_ubicacionService != null)
+        {
+            try
+            {
+                if (u.IdUbicacion > 0)
+                {
+                    await _ubicacionService.EditarUbicacionAsync(u.IdUbicacion, u.Ubicacion);
+                }
+                else
+                {
+                    await _ubicacionService.CrearUbicacionAsync(u.Ubicacion);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[UBICACION GUARDAR DB ERROR] {ex.Message}");
+                _ = AlertaService.MostrarAlertaConexionAsync();
+            }
+        }
+
+        await CargarUbicacionesAsync();
+        await CargarMesasAsync();
+    }
+
+    [RelayCommand]
+    private async Task DarBajaUbicacionAsync(UbicacionMesa u)
+    {
+        if (u == null) return;
+        if (_ubicacionService != null)
+        {
+            try
+            {
+                await _ubicacionService.BajaLogicaUbicacionAsync(u.IdUbicacion);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[UBICACION BAJA DB ERROR] {ex.Message}");
+                _ = AlertaService.MostrarAlertaConexionAsync();
+            }
+        }
+        await CargarUbicacionesAsync();
+        await CargarUbicacionesBajasAsync();
+    }
+
+    [RelayCommand]
+    private async Task RestaurarUbicacionAsync(UbicacionMesa u)
+    {
+        if (u == null) return;
+        if (_ubicacionService != null)
+        {
+            try
+            {
+                await _ubicacionService.RestaurarUbicacionAsync(u.IdUbicacion);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[UBICACION RESTAURAR DB ERROR] {ex.Message}");
+                _ = AlertaService.MostrarAlertaConexionAsync();
+            }
+        }
+        await CargarUbicacionesAsync();
+        await CargarUbicacionesBajasAsync();
+    }
+
     private readonly Action _volverInicio;
-
-
 
     [RelayCommand]
     private void VolverInicio()
