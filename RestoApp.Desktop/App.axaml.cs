@@ -74,6 +74,7 @@ public partial class App : Application
         services.AddTransient<IMesaRepository, MesaRepository>();
         services.AddTransient<IEventoRepository, EventoRepository>();
         services.AddTransient<IPagoRepository, PagoRepository>();
+        services.AddTransient<IUbicacionRepository, UbicacionRepository>();
 
         // 3. Registrar Servicios de Negocio como Transient
         services.AddTransient<ReservaService>();
@@ -81,5 +82,6 @@ public partial class App : Application
         services.AddTransient<MesaService>();
         services.AddTransient<EventoService>();
         services.AddTransient<PagoService>();
+        services.AddTransient<UbicacionService>();
     }
 }

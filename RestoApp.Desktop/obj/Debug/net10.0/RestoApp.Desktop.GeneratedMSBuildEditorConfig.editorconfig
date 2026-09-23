@@ -9,7 +9,7 @@ build_property.AvaloniaNameGeneratorAttachDevTools = true
 build_property.AvaloniaUseCompiledBindingsByDefault = true
 build_property.AvaloniaMainPackageVersion = 12.1.2
 build_property.AvaloniaPreviewerNetCoreToolPath = /home/shiox/.nuget/packages/avalonia/12.1.2/buildTransitive//../tools/net8.0/designer/Avalonia.Designer.HostApp.dll
-build_property.AvaloniaResourcePaths = /home/shiox/git_Projects/resto_app/RestoApp.Desktop/Assets/avalonia-logo.ico,/home/shiox/git_Projects/resto_app/RestoApp.Desktop/App.axaml,/home/shiox/git_Projects/resto_app/RestoApp.Desktop/Views/AlertaWindow.axaml,/home/shiox/git_Projects/resto_app/RestoApp.Desktop/Views/CajaView.axaml,/home/shiox/git_Projects/resto_app/RestoApp.Desktop/Views/ConfirmacionWindow.axaml,/home/shiox/git_Projects/resto_app/RestoApp.Desktop/Views/EmpleadosView.axaml,/home/shiox/git_Projects/resto_app/RestoApp.Desktop/Views/EventosView.axaml,/home/shiox/git_Projects/resto_app/RestoApp.Desktop/Views/InicioView.axaml,/home/shiox/git_Projects/resto_app/RestoApp.Desktop/Views/LoginWindow.axaml,/home/shiox/git_Projects/resto_app/RestoApp.Desktop/Views/MainWindow.axaml,/home/shiox/git_Projects/resto_app/RestoApp.Desktop/Views/MesasView.axaml,/home/shiox/git_Projects/resto_app/RestoApp.Desktop/Views/NuevaMesa.axaml,/home/shiox/git_Projects/resto_app/RestoApp.Desktop/Views/NuevaReservaWindow.axaml,/home/shiox/git_Projects/resto_app/RestoApp.Desktop/Views/NuevoEmpleadoWindow.axaml,/home/shiox/git_Projects/resto_app/RestoApp.Desktop/Views/ReservasView.axaml
+build_property.AvaloniaResourcePaths = /home/shiox/git_Projects/resto_app/RestoApp.Desktop/Assets/avalonia-logo.ico,/home/shiox/git_Projects/resto_app/RestoApp.Desktop/App.axaml,/home/shiox/git_Projects/resto_app/RestoApp.Desktop/Views/AlertaWindow.axaml,/home/shiox/git_Projects/resto_app/RestoApp.Desktop/Views/CajaView.axaml,/home/shiox/git_Projects/resto_app/RestoApp.Desktop/Views/ConfirmacionWindow.axaml,/home/shiox/git_Projects/resto_app/RestoApp.Desktop/Views/EmpleadosView.axaml,/home/shiox/git_Projects/resto_app/RestoApp.Desktop/Views/EventosView.axaml,/home/shiox/git_Projects/resto_app/RestoApp.Desktop/Views/InicioView.axaml,/home/shiox/git_Projects/resto_app/RestoApp.Desktop/Views/LoginWindow.axaml,/home/shiox/git_Projects/resto_app/RestoApp.Desktop/Views/MainWindow.axaml,/home/shiox/git_Projects/resto_app/RestoApp.Desktop/Views/MesasView.axaml,/home/shiox/git_Projects/resto_app/RestoApp.Desktop/Views/NuevaMesa.axaml,/home/shiox/git_Projects/resto_app/RestoApp.Desktop/Views/NuevaReservaWindow.axaml,/home/shiox/git_Projects/resto_app/RestoApp.Desktop/Views/NuevaUbicacionWindow.axaml,/home/shiox/git_Projects/resto_app/RestoApp.Desktop/Views/NuevoEmpleadoWindow.axaml,/home/shiox/git_Projects/resto_app/RestoApp.Desktop/Views/ReservasView.axaml
 build_property.TargetFramework = net10.0
 build_property.TargetFramework = net10.0
 build_property.TargetPlatformMinVersion = 
@@ -74,6 +74,9 @@ build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 
 [/home/shiox/git_Projects/resto_app/RestoApp.Desktop/Views/NuevaReservaWindow.axaml]
+build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
+
+[/home/shiox/git_Projects/resto_app/RestoApp.Desktop/Views/NuevaUbicacionWindow.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 
 [/home/shiox/git_Projects/resto_app/RestoApp.Desktop/Views/NuevoEmpleadoWindow.axaml]

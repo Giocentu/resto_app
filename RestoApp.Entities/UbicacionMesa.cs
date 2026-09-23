@@ -12,4 +12,7 @@ public class UbicacionMesa
 
     [Column("ubicacion")]
     public string Ubicacion { get; set; } = string.Empty;
+
+    [NotMapped]
+    public bool EsActivo { get; set; } = true;
 }

@@ -1,21 +1,68 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ent="using:RestoApp.Entities"
         x:Class="RestoApp.Desktop.Views.NuevaMesaWindow"
-        Title="Registrar Nueva Mesa" Height="350" Width="400"
-        WindowStartupLocation="CenterOwner">
+        Title="RestoApp - Registro de Mesa" 
+        Height="480" Width="450"
+        WindowStartupLocation="CenterOwner"
+        CanResize="False"
+        Background="#2C3E50">
 
-    <StackPanel Spacing="15" Margin="20">
-        <TextBlock Text="Datos de la Mesa" FontSize="18" FontWeight="Bold" Margin="0,0,0,10"/>
-        
-        <TextBox x:Name="TxtNroMesa" PlaceholderText="Número de Mesa (Ej: 1)"/>
-        <TextBox x:Name="TxtCapacidad" PlaceholderText="Capacidad (Ej: 4 personas)"/>
-        
-        <!-- Aquí luego pondremos un ComboBox para seleccionar la ubicación real -->
-        <TextBox x:Name="TxtUbicacion" PlaceholderText="ID Ubicación"/>
+    <Border Background="White" CornerRadius="12" Margin="20" Padding="25">
+        <Grid RowDefinitions="Auto, *, Auto">
+            
+            <!-- ENCABEZADO MODAL -->
+            <StackPanel Grid.Row="0" Margin="0,0,0,20">
+                <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                    <TextBlock Text="🪑" FontSize="24" VerticalAlignment="Center"/>
+                    <TextBlock x:Name="TxtTituloModal" Text="Datos de la Mesa" FontSize="20" FontWeight="Bold" Foreground="#2C3E50" VerticalAlignment="Center"/>
+                </StackPanel>
+                <TextBlock Text="Complete los datos técnicos y la ubicación de la mesa" FontSize="12" Foreground="#7F8C8D" Margin="34,2,0,0"/>
+                <Separator Background="#BDC3C7" Margin="0,15,0,0"/>
+            </StackPanel>
 
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10" Margin="0,20,0,0">
-            <Button Content="Cancelar" Click="BtnCancelar_Click" Background="Transparent"/>
-            <Button Content="Guardar" Click="BtnGuardar_Click" Background="#3498DB" Foreground="White"/>
-        </StackPanel>
-    </StackPanel>
+            <!-- FORMULARIO DE CAMPOS -->
+            <StackPanel Grid.Row="1" Spacing="14">
+                
+                <!-- Campo Número de Mesa -->
+                <StackPanel Spacing="6">
+                    <TextBlock Text="Número de Mesa:" Foreground="#34495E" FontWeight="Bold" FontSize="13"/>
+                    <TextBox x:Name="TxtNroMesa" PlaceholderText="Ej. 1, 2, 15..." Height="38" VerticalContentAlignment="Center"/>
+                </StackPanel>
+
+                <!-- Campo Capacidad -->
+                <StackPanel Spacing="6">
+                    <TextBlock Text="Capacidad (Personas):" Foreground="#34495E" FontWeight="Bold" FontSize="13"/>
+                    <TextBox x:Name="TxtCapacidad" PlaceholderText="Ej. 2, 4, 8..." Height="38" VerticalContentAlignment="Center"/>
+                </StackPanel>
+
+                <!-- Campo Ubicación / Sector -->
+                <StackPanel Spacing="6">
+                    <TextBlock Text="Ubicación / Sector:" Foreground="#34495E" FontWeight="Bold" FontSize="13"/>
+                    <ComboBox x:Name="CboUbicacion" HorizontalAlignment="Stretch" Height="38">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate x:DataType="ent:UbicacionMesa">
+                                <TextBlock Text="{Binding Ubicacion}"/>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                </StackPanel>
+
+                <!-- Mensaje de Error / Validación en Rojo -->
+                <TextBlock x:Name="TxtError" Foreground="#E74C3C" FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Center" IsVisible="False" TextWrapping="Wrap"/>
+            </StackPanel>
+
+            <!-- PIE CON BOTONES DE ACCIÓN -->
+            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="12" Margin="0,20,0,0">
+                <Button Content="Cancelar" Click="BtnCancelar_Click" 
+                        Background="#95A5A6" Foreground="White" 
+                        Padding="18,10" CornerRadius="6" Cursor="Hand" FontWeight="SemiBold"/>
+                
+                <Button Content="💾 Guardar Mesa" Click="BtnGuardar_Click" 
+                        Background="#27AE60" Foreground="White" 
+                        Padding="20,10" CornerRadius="6" Cursor="Hand" FontWeight="Bold"/>
+            </StackPanel>
+
+        </Grid>
+    </Border>
 </Window>
