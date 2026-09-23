@@ -66,14 +66,21 @@ public class ReservaService
         }
     }
 
-    public async Task EditarReservaAsync(int idReserva, DateTime fechaReserva, int cantPersonas, int idEstado)
+    public async Task EditarReservaAsync(int idReserva, DateTime fechaReserva, int cantPersonas, int idEstado, long dniCliente, int? idMesa)
     {
+        if (dniCliente <= 0)
+            throw new ArgumentException("El DNI del cliente debe ser válido.", nameof(dniCliente));
+
+        await _reservaRepository.ObtenerOCrearClientePorDniYNombreAsync(dniCliente, "Cliente General");
+
         var res = await _reservaRepository.GetByIdAsync(idReserva);
         if (res != null)
         {
             res.FechaReserva = fechaReserva;
             res.CantPersonas = cantPersonas;
             res.IdEstado = idEstado;
+            res.DniCliente = dniCliente;
+            await _reservaRepository.ActualizarMesaReservaAsync(idReserva, idMesa);
             _reservaRepository.Update(res);
             await _reservaRepository.SaveChangesAsync();
         }

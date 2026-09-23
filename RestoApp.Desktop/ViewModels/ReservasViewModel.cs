@@ -136,7 +136,13 @@ public partial class ReservasViewModel : ObservableObject
 
                 if (resItem.IdReserva > 0)
                 {
-                    await _reservaService.EditarReservaAsync(resItem.IdReserva, dt, resItem.CantidadPersonas, 1);
+                    await _reservaService.EditarReservaAsync(
+                        resItem.IdReserva,
+                        dt,
+                        resItem.CantidadPersonas,
+                        1,
+                        resItem.DniCliente,
+                        resItem.IdMesa > 0 ? resItem.IdMesa : null);
                 }
                 else
                 {

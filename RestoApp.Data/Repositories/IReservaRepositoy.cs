@@ -15,4 +15,5 @@ public interface IReservaRepository : IRepository<Reserva>
     Task<int> CrearReservaEfAsync(DateTime fechaReserva, int cantPersonas, int idEstado, long dniCliente, int? idEvento = null, long? dniEmpleado = null, int? idRol = null, int? idMesa = null);
     Task<int> CrearReservaSpAsync(DateTime fechaReserva, int cantPersonas, int idEstado, long dniCliente, int? idEvento = null, long? dniEmpleado = null, int? idRol = null, int? idMesa = null);
     Task CambiarEstadoReservaSpAsync(int idReserva, int nuevoEstadoId);
+    Task ActualizarMesaReservaAsync(int idReserva, int? idMesa);
 }
