@@ -10,6 +10,7 @@ public interface IReservaRepository : IRepository<Reserva>
 {
     Task<IEnumerable<Reserva>> GetReservasConDetallesAsync();
     Task<IEnumerable<Reserva>> GetReservasSpAsync();
+    Task<long> ObtenerOCrearClientePorDniYNombreAsync(long dni, string nombreCliente);
     Task<long> ObtenerOCrearClientePorNombreAsync(string nombreCliente);
     Task<int> CrearReservaEfAsync(DateTime fechaReserva, int cantPersonas, int idEstado, long dniCliente, int? idEvento = null, long? dniEmpleado = null, int? idRol = null, int? idMesa = null);
     Task<int> CrearReservaSpAsync(DateTime fechaReserva, int cantPersonas, int idEstado, long dniCliente, int? idEvento = null, long? dniEmpleado = null, int? idRol = null, int? idMesa = null);

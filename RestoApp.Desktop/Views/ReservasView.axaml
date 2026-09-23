@@ -14,7 +14,6 @@
                 <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
                     <TextBlock Text="📅 Módulo de Reservas y Agenda" FontSize="22" FontWeight="Bold" Foreground="#2C3E50"/>
                 </StackPanel>
-                <TextBlock Text="Control de disponibilidad, comensales y seguimiento de reservas por mesa" FontSize="12" Foreground="#7F8C8D" Margin="0,2,0,0"/>
             </StackPanel>
 
             <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
@@ -23,7 +22,16 @@
                         Padding="14,9" CornerRadius="6" Cursor="Hand" FontWeight="SemiBold">
                     <StackPanel Orientation="Horizontal" Spacing="6">
                         <TextBlock Text="📁" FontSize="13"/>
-                        <TextBlock Text="Archivo / Canceladas"/>
+                        <TextBlock Text="Canceladas"/>
+                    </StackPanel>
+                </Button>
+
+                <Button Click="BtnGestionClientes_Click" 
+                        Background="#2980B9" Foreground="White" 
+                        Padding="14,9" CornerRadius="6" Cursor="Hand" FontWeight="Bold">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <TextBlock Text="👥" FontSize="13"/>
+                        <TextBlock Text="Clientes"/>
                     </StackPanel>
                 </Button>
 

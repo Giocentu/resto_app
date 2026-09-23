@@ -1,0 +1,77 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="RestoApp.Desktop.Views.NuevoClienteWindow"
+        Title="RestoApp - Registro de Cliente"
+        Height="540" Width="480"
+        WindowStartupLocation="CenterOwner"
+        CanResize="False"
+        Background="#2C3E50">
+
+    <Border Background="White" CornerRadius="12" Margin="20" Padding="25">
+        <Grid RowDefinitions="Auto, *, Auto">
+            
+            <!-- ENCABEZADO -->
+            <StackPanel Grid.Row="0" Margin="0,0,0,20">
+                <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                    <TextBlock Text="👤" FontSize="24" VerticalAlignment="Center"/>
+                    <TextBlock x:Name="TxtTituloModal" Text="Nuevo Cliente" FontSize="20" FontWeight="Bold" Foreground="#2C3E50" VerticalAlignment="Center"/>
+                </StackPanel>
+                <TextBlock Text="Complete los datos personales del cliente para agendar reservas" FontSize="12" Foreground="#7F8C8D" Margin="34,2,0,0"/>
+                <Separator Background="#BDC3C7" Margin="0,15,0,0"/>
+            </StackPanel>
+
+            <!-- FORMULARIO DE CAMPOS -->
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                <StackPanel Spacing="14">
+                    
+                    <!-- Mensaje de Error / Alerta en Texto Rojo (Al inicio del formulario) -->
+                    <Border Background="#FDEDEC" BorderBrush="#E74C3C" BorderThickness="1" CornerRadius="6" Padding="10" Margin="0,0,0,5" IsVisible="{Binding #TxtError.IsVisible}">
+                        <TextBlock x:Name="TxtError" Foreground="#E74C3C" FontSize="12" FontWeight="Bold" IsVisible="False" TextWrapping="Wrap"/>
+                    </Border>
+
+                    <!-- DNI -->
+                    <StackPanel Spacing="6">
+                        <TextBlock Text="DNI (Número de Documento):" Foreground="#34495E" FontWeight="Bold" FontSize="13"/>
+                        <TextBox x:Name="TxtDni" PlaceholderText="Ej. 46452703" Height="38" VerticalContentAlignment="Center"/>
+                    </StackPanel>
+
+                    <!-- Nombre -->
+                    <StackPanel Spacing="6">
+                        <TextBlock Text="Nombre:" Foreground="#34495E" FontWeight="Bold" FontSize="13"/>
+                        <TextBox x:Name="TxtNombre" PlaceholderText="Ej. Juan" Height="38" VerticalContentAlignment="Center"/>
+                    </StackPanel>
+
+                    <!-- Apellido -->
+                    <StackPanel Spacing="6">
+                        <TextBlock Text="Apellido:" Foreground="#34495E" FontWeight="Bold" FontSize="13"/>
+                        <TextBox x:Name="TxtApellido" PlaceholderText="Ej. Perez" Height="38" VerticalContentAlignment="Center"/>
+                    </StackPanel>
+
+                    <!-- Email -->
+                    <StackPanel Spacing="6">
+                        <TextBlock Text="Correo Electrónico (Email):" Foreground="#34495E" FontWeight="Bold" FontSize="13"/>
+                        <TextBox x:Name="TxtEmail" PlaceholderText="Ej. juan.perez@email.com" Height="38" VerticalContentAlignment="Center"/>
+                    </StackPanel>
+
+                    <!-- Teléfono -->
+                    <StackPanel Spacing="6">
+                        <TextBlock Text="Teléfono de Contacto:" Foreground="#34495E" FontWeight="Bold" FontSize="13"/>
+                        <TextBox x:Name="TxtTelefono" PlaceholderText="Ej. 3794556677" Height="38" VerticalContentAlignment="Center"/>
+                    </StackPanel>
+                </StackPanel>
+            </ScrollViewer>
+
+            <!-- PIE CON BOTONES -->
+            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="12" Margin="0,20,0,0">
+                <Button Content="Cancelar" Click="BtnCancelar_Click" 
+                        Background="#95A5A6" Foreground="White" 
+                        Padding="18,10" CornerRadius="6" Cursor="Hand" FontWeight="SemiBold"/>
+                
+                <Button Content="💾 Guardar Cliente" Click="BtnGuardar_Click" 
+                        Background="#27AE60" Foreground="White" 
+                        Padding="20,10" CornerRadius="6" Cursor="Hand" FontWeight="Bold"/>
+            </StackPanel>
+
+        </Grid>
+    </Border>
+</Window>

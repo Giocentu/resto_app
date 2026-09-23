@@ -12,6 +12,16 @@ public partial class ReservasView : UserControl
         InitializeComponent();
     }
 
+    private async void BtnGestionClientes_Click(object? sender, RoutedEventArgs e)
+    {
+        var win = new GestionClientesWindow();
+        var mainWindow = TopLevel.GetTopLevel(this) as Window;
+        if (mainWindow != null)
+        {
+            await win.ShowDialog(mainWindow);
+        }
+    }
+
     private async void BtnNuevaReserva_Click(object? sender, RoutedEventArgs e)
     {
         var formWindow = new NuevaReservaWindow();

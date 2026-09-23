@@ -70,6 +70,7 @@ public partial class App : Application
         // 2. Registrar Repositorios como Transient
         services.AddTransient(typeof(IRepository<>), typeof(Repository<>));
         services.AddTransient<IReservaRepository, ReservaRepository>();
+        services.AddTransient<IClienteRepository, ClienteRepository>();
         services.AddTransient<IEmpleadoRepository, EmpleadoRepository>();
         services.AddTransient<IMesaRepository, MesaRepository>();
         services.AddTransient<IEventoRepository, EventoRepository>();
@@ -78,6 +79,7 @@ public partial class App : Application
 
         // 3. Registrar Servicios de Negocio como Transient
         services.AddTransient<ReservaService>();
+        services.AddTransient<ClienteService>();
         services.AddTransient<EmpleadoService>();
         services.AddTransient<MesaService>();
         services.AddTransient<EventoService>();
