@@ -41,6 +41,17 @@ public class EventoService
         }
     }
 
+    public async Task CambiarEstadoEventoAsync(int idEvento, bool esActivo)
+    {
+        var evento = await _eventoRepository.GetByIdAsync(idEvento);
+        if (evento == null)
+            throw new InvalidOperationException($"No se encontró el evento {idEvento}.");
+
+        evento.EsActivo = esActivo;
+        _eventoRepository.Update(evento);
+        await _eventoRepository.SaveChangesAsync();
+    }
+
     public async Task EliminarEventoAsync(int idEvento)
     {
         try
@@ -58,4 +69,3 @@ public class EventoService
         }
     }
 }
-

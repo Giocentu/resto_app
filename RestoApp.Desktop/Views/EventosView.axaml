@@ -2,6 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:RestoApp.Desktop.ViewModels"
              x:Class="RestoApp.Desktop.Views.EventosView"
+             x:Name="Root"
              x:DataType="vm:EventosViewModel">
 
     <Grid RowDefinitions="Auto, *">
@@ -107,7 +108,8 @@
 
                                     <!-- Fila 4: Botón Cambiar Estado Activo/Inactivo -->
                                     <Button Grid.Row="4" Content="Cambiar Estado Activo/Inactivo" 
-                                            Command="{Binding ToggleEstadoCommand}"
+                                            Command="{Binding #Root.DataContext.CambiarEstadoCommand}"
+                                            CommandParameter="{Binding}"
                                             Background="#34495E" Foreground="White" 
                                             Height="38" CornerRadius="6" FontSize="12" FontWeight="SemiBold" 
                                             HorizontalAlignment="Stretch" 

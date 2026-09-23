@@ -108,6 +108,24 @@ public partial class EventosViewModel : ObservableObject
     }
 
     [RelayCommand]
+    private async Task CambiarEstadoAsync(EventoItemViewModel? item)
+    {
+        if (item == null || _eventoService == null) return;
+
+        bool nuevoEstado = !item.EsActivo;
+        try
+        {
+            await _eventoService.CambiarEstadoEventoAsync(item.IdEvento, nuevoEstado);
+            item.EsActivo = nuevoEstado;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[EVENTOS CAMBIAR ESTADO DB ERROR] {ex.Message}");
+            _ = AlertaService.MostrarAlertaConexionAsync();
+        }
+    }
+
+    [RelayCommand]
     private async Task EliminarEventoAsync(EventoItemViewModel? item)
     {
         if (item == null) return;
