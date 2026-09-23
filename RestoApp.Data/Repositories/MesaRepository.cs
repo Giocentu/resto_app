@@ -15,6 +15,7 @@ public class MesaRepository : Repository<Mesa>, IMesaRepository
     public async Task<IEnumerable<Mesa>> GetMesasConUbicacionAsync()
     {
         return await _dbSet
+            .AsNoTracking()
             .Include(m => m.Ubicacion)
             .ToListAsync();
     }
@@ -22,6 +23,7 @@ public class MesaRepository : Repository<Mesa>, IMesaRepository
     public async Task<IEnumerable<Mesa>> GetMesasSpAsync(bool soloActivas = true)
     {
         return await _dbSet
+            .AsNoTracking()
             .Include(m => m.Ubicacion)
             .Where(m => !soloActivas || m.EsActivo)
             .OrderBy(m => m.NroMesa)

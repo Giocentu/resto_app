@@ -36,9 +36,9 @@
                     <TextBox x:Name="TxtCapacidad" PlaceholderText="Ej. 2, 4, 8..." Height="38" VerticalContentAlignment="Center"/>
                 </StackPanel>
 
-                <!-- Campo Ubicación / Sector -->
+                <!-- Campo Ubicación -->
                 <StackPanel Spacing="6">
-                    <TextBlock Text="Ubicación / Sector:" Foreground="#34495E" FontWeight="Bold" FontSize="13"/>
+                    <TextBlock Text="Ubicación:" Foreground="#34495E" FontWeight="Bold" FontSize="13"/>
                     <ComboBox x:Name="CboUbicacion" HorizontalAlignment="Stretch" Height="38">
                         <ComboBox.ItemTemplate>
                             <DataTemplate x:DataType="ent:UbicacionMesa">

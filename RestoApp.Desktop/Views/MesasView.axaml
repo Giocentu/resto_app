@@ -8,27 +8,38 @@
     <Border Background="White" BorderBrush="#BDC3C7" BorderThickness="1" CornerRadius="10" Padding="18" Margin="10">
         <Panel>
             <!-- VISTA PRINCIPAL DE MESAS -->
-            <Grid RowDefinitions="Auto, *" IsVisible="{Binding EsVistaPrincipal}">
+            <Grid RowDefinitions="Auto, Auto, *" IsVisible="{Binding EsVistaPrincipal}">
                 <!-- Encabezado: Título y Botones de Acción -->
-                <Grid Grid.Row="0" ColumnDefinitions="*, Auto, Auto, Auto, Auto" Margin="0,0,0,15">
-                    <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
-                        <TextBlock Text="Listado de Mesas" FontSize="22" FontWeight="Bold" Foreground="#2C3E50" VerticalAlignment="Center"/>
+                <Grid Grid.Row="0" ColumnDefinitions="*, Auto" Margin="0,0,0,15">
+                    <TextBlock Grid.Column="0" Text="Listado de Mesas" FontSize="22" FontWeight="Bold" Foreground="#2C3E50" VerticalAlignment="Center"/>
+                    
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                        <Button Content="Volver" Background="#DE0A2D" Foreground="White" Padding="15,8" CornerRadius="5" Cursor="Hand" Command="{Binding VolverInicioCommand}" />
+                        <Button Content="📍 Ubicaciones" Command="{Binding VerUbicacionesSectionCommand}" Background="#8E44AD" Foreground="White" Padding="15,8" CornerRadius="5" Cursor="Hand"/>
+                        <Button Content="Mesas Retiradas" Command="{Binding VerBajasCommand}" Background="#3498DB" Foreground="White" Padding="15,8" CornerRadius="5" Cursor="Hand"/>
+                        <Button Content="+ Nueva Mesa" IsVisible="{Binding $parent[UserControl].((vm:MesasViewModel)DataContext).PuedeAgregar}" Background="#27AE60" Foreground="White" Padding="15,8" CornerRadius="5" Cursor="Hand" Click="BtnNuevaMesa_Click"/>
                     </StackPanel>
-                    <Button Grid.Column="1" Content="Volver" Background="#DE0A2D" Foreground="White" Padding="15,8" CornerRadius="5" Cursor="Hand" Margin="0,0,10,0" Command="{Binding VolverInicioCommand }" />
-                    <Button Grid.Column="2" Content="📍 Ubicaciones" Command="{Binding VerUbicacionesSectionCommand}" Background="#8E44AD" Foreground="White" Padding="15,8" CornerRadius="5" Cursor="Hand" Margin="0,0,10,0"/>
-                    <Button Grid.Column="3" Content="Mesas Retiradas" Command="{Binding VerBajasCommand}" Background="#3498DB" Foreground="White" Padding="15,8" CornerRadius="5" Cursor="Hand" Margin="0,0,10,0"/>
-                    <Button Grid.Column="4" Content="+ Nueva Mesa" IsVisible="{Binding $parent[UserControl].((vm:MesasViewModel)DataContext).PuedeAgregar}" Background="#27AE60" Foreground="White" Padding="15,8" CornerRadius="5" Cursor="Hand" Click="BtnNuevaMesa_Click"/>
                 </Grid>
 
+                <!-- Barra de Filtro por Ubicación -->
+                <Border Grid.Row="1" Background="#F8F9FA" BorderBrush="#E0E6ED" BorderThickness="1" CornerRadius="6" Padding="12,8" Margin="0,0,0,12">
+                    <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                        <TextBlock Text="Filtrar por Ubicación:" FontSize="13" FontWeight="SemiBold" Foreground="#2C3E50" VerticalAlignment="Center"/>
+                        <ComboBox ItemsSource="{Binding FiltroUbicaciones}" 
+                                  SelectedItem="{Binding FiltroUbicacionSeleccionada}" 
+                                  Width="200" Height="34" VerticalContentAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+
                 <!-- Tabla de Mesas -->
-                <DataGrid Grid.Row="1" ItemsSource="{Binding Mesas}" 
+                <DataGrid Grid.Row="2" ItemsSource="{Binding MesasFiltradas}" 
                           AutoGenerateColumns="False" IsReadOnly="True" 
                           GridLinesVisibility="Horizontal" HeadersVisibility="Column" 
                           BorderThickness="1" BorderBrush="#E0E6ED" CornerRadius="6">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Nro Mesa" Binding="{Binding NroMesa}" Width="*"/>
                         <DataGridTextColumn Header="Capacidad" Binding="{Binding Capacidad}" Width="*"/>
-                        <DataGridTextColumn Header="Ubicación / Sector" Binding="{Binding UbicacionDescripcion}" Width="2*"/>
+                        <DataGridTextColumn Header="Ubicación" Binding="{Binding UbicacionDescripcion}" Width="2*"/>
 
                         <!-- Columna de Edición -->
                         <DataGridTemplateColumn Header="Editar" Width="Auto"
@@ -82,7 +93,7 @@
                         <DataGridTemplateColumn Header="Acción" Width="Auto" IsVisible="{Binding $parent[UserControl].((vm:MesasViewModel)DataContext).PuedeEditar}">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate x:DataType="vm:MesaItemViewModel">
-                                    <Button Content="Restaurar (Alta)" 
+                                    <Button Content="Restaurar" 
                                             Command="{Binding $parent[UserControl].((vm:MesasViewModel)DataContext).RestaurarMesaCommand}"
                                             CommandParameter="{Binding}"
                                             Background="Transparent" 
@@ -96,10 +107,10 @@
                 </DataGrid>
             </Grid>
 
-            <!-- VISTA GESTIÓN DE UBICACIONES / SECTORES -->
+            <!-- VISTA GESTIÓN DE UBICACIONES -->
             <Grid RowDefinitions="Auto, *" IsVisible="{Binding EsVistaUbicaciones}">
                 <Grid Grid.Row="0" ColumnDefinitions="*, Auto, Auto, Auto" Margin="0,0,0,15">
-                    <TextBlock Grid.Column="0" Text="Gestión de Ubicaciones / Sectores" FontSize="22" FontWeight="Bold" Foreground="#2C3E50" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Column="0" Text="Gestión de Ubicaciones" FontSize="22" FontWeight="Bold" Foreground="#2C3E50" VerticalAlignment="Center"/>
                     <Button Grid.Column="1" Content="Atrás" Command="{Binding VolverPrincipalCommand}" Background="#95A5A6" Foreground="White" Padding="15,8" CornerRadius="5" Cursor="Hand" Margin="0,0,10,0"/>
                     <Button Grid.Column="2" Content="Ubicaciones Archivadas" Command="{Binding VerUbicacionesBajasSectionCommand}" Background="#3498DB" Foreground="White" Padding="15,8" CornerRadius="5" Cursor="Hand" Margin="0,0,10,0"/>
                     <Button Grid.Column="3" Content="+ Nueva Ubicación" IsVisible="{Binding $parent[UserControl].((vm:MesasViewModel)DataContext).PuedeAgregar}" Background="#27AE60" Foreground="White" Padding="15,8" CornerRadius="5" Cursor="Hand" Click="BtnNuevaUbicacion_Click"/>
@@ -111,7 +122,7 @@
                           BorderThickness="1" BorderBrush="#E0E6ED" CornerRadius="6">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="ID" Binding="{Binding IdUbicacion}" Width="Auto"/>
-                        <DataGridTextColumn Header="Ubicación / Sector" Binding="{Binding Ubicacion}" Width="*"/>
+                        <DataGridTextColumn Header="Ubicación" Binding="{Binding Ubicacion}" Width="*"/>
 
                         <DataGridTemplateColumn Header="Editar" Width="Auto" IsVisible="{Binding $parent[UserControl].((vm:MesasViewModel)DataContext).PuedeEditar}">
                             <DataGridTemplateColumn.CellTemplate>
@@ -142,10 +153,10 @@
                 </DataGrid>
             </Grid>
 
-            <!-- VISTA UBICACIONES ARCHIVADAS / BAJAS -->
+            <!-- VISTA UBICACIONES ARCHIVADAS -->
             <Grid RowDefinitions="Auto, *" IsVisible="{Binding EsVistaUbicacionesBajas}">
                 <Grid Grid.Row="0" ColumnDefinitions="*, Auto" Margin="0,0,0,15">
-                    <TextBlock Grid.Column="0" Text="Ubicaciones Archivadas (Bajas)" FontSize="22" FontWeight="Bold" Foreground="#2C3E50" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Column="0" Text="Ubicaciones Archivadas" FontSize="22" FontWeight="Bold" Foreground="#2C3E50" VerticalAlignment="Center"/>
                     <Button Grid.Column="1" Content="Atrás" Command="{Binding VerUbicacionesSectionCommand}" Background="#95A5A6" Foreground="White" Padding="15,8" CornerRadius="5" Cursor="Hand"/>
                 </Grid>
 
@@ -155,12 +166,12 @@
                           BorderThickness="1" BorderBrush="#E0E6ED" CornerRadius="6">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="ID" Binding="{Binding IdUbicacion}" Width="Auto"/>
-                        <DataGridTextColumn Header="Ubicación / Sector" Binding="{Binding Ubicacion}" Width="*"/>
+                        <DataGridTextColumn Header="Ubicación" Binding="{Binding Ubicacion}" Width="*"/>
                         
                         <DataGridTemplateColumn Header="Acción" Width="Auto" IsVisible="{Binding $parent[UserControl].((vm:MesasViewModel)DataContext).PuedeEditar}">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate x:DataType="ent:UbicacionMesa">
-                                    <Button Content="Restaurar (Alta)" 
+                                    <Button Content="Restaurar" 
                                             Command="{Binding $parent[UserControl].((vm:MesasViewModel)DataContext).RestaurarUbicacionCommand}"
                                             CommandParameter="{Binding}"
                                             Background="Transparent" 
