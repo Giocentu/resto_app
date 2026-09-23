@@ -54,15 +54,27 @@ public partial class NuevoEmpleadoWindow : Window
     {
         TxtError.IsVisible = false;
 
-        if (!long.TryParse(TxtDni.Text, out long dni) || dni <= 0)
+        if (string.IsNullOrWhiteSpace(TxtDni.Text) || !long.TryParse(TxtDni.Text.Trim(), out long dni) || dni <= 0)
         {
-            MostrarError("Por favor ingrese un número de DNI válido.");
+            MostrarError("⚠️ Por favor ingrese un número de DNI válido (números positivos sin puntos).");
             return;
         }
 
         if (string.IsNullOrWhiteSpace(TxtNombre.Text))
         {
-            MostrarError("Por favor ingrese el nombre completo del empleado.");
+            MostrarError("⚠️ Por favor ingrese el nombre y apellido completo del empleado.");
+            return;
+        }
+
+        if (CboRol.SelectedItem == null)
+        {
+            MostrarError("⚠️ Por favor seleccione un cargo/rol asignado para el empleado.");
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(TxtTelefono.Text))
+        {
+            MostrarError("⚠️ Por favor ingrese el teléfono de contacto del empleado.");
             return;
         }
 
@@ -74,7 +86,7 @@ public partial class NuevoEmpleadoWindow : Window
             DniEmpleado = dni,
             NombreCompleto = TxtNombre.Text.Trim(),
             RolCargo = rolSeleccionado,
-            Telefono = string.IsNullOrWhiteSpace(TxtTelefono.Text) ? "No registrado" : TxtTelefono.Text.Trim(),
+            Telefono = TxtTelefono.Text.Trim(),
             Estado = estadoSeleccionado
         };
 

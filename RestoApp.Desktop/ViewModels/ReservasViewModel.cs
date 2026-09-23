@@ -67,14 +67,25 @@ public partial class ReservasViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void RestaurarReserva(ReservaItemViewModel reserva)
+    private async Task RestaurarReservaAsync(ReservaItemViewModel reserva)
     {
         if (reserva != null)
         {
+            if (_reservaService != null)
+            {
+                try
+                {
+                    await _reservaService.CambiarEstadoReservaAsync(reserva.IdReserva, 1); // 1 = Confirmado
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[RESERVAS RESTAURAR DB ERROR] {ex.Message}");
+                    _ = AlertaService.MostrarAlertaConexionAsync();
+                }
+            }
             reserva.EstadoTexto = "Confirmada";
             ReservasBajas.Remove(reserva);
-            Reservas.Add(reserva);
-            AplicarFiltro();
+            await CargarReservasAsync();
         }
     }
 
@@ -127,19 +138,26 @@ public partial class ReservasViewModel : ObservableObject
                     nroMesa = parsedMesa;
                 }
 
-                var listaExistente = await _reservaService.ObtenerReservasAsync();
-                long dniCliente = listaExistente.FirstOrDefault(r => r.DniCliente > 0)?.DniCliente ?? 46452703;
+                if (resItem.IdReserva > 0)
+                {
+                    await _reservaService.EditarReservaAsync(resItem.IdReserva, dt, resItem.CantidadPersonas, 1);
+                }
+                else
+                {
+                    var listaExistente = await _reservaService.ObtenerReservasAsync();
+                    long dniCliente = listaExistente.FirstOrDefault(r => r.DniCliente > 0)?.DniCliente ?? 46452703;
 
-                await _reservaService.CrearReservaAsync(
-                    fechaReserva: dt,
-                    cantPersonas: resItem.CantidadPersonas,
-                    idEstado: 1,
-                    dniCliente: dniCliente,
-                    idEvento: null,
-                    dniEmpleado: null,
-                    idRol: null,
-                    idMesa: nroMesa
-                );
+                    await _reservaService.CrearReservaAsync(
+                        fechaReserva: dt,
+                        cantPersonas: resItem.CantidadPersonas,
+                        idEstado: 1,
+                        dniCliente: dniCliente,
+                        idEvento: null,
+                        dniEmpleado: null,
+                        idRol: null,
+                        idMesa: nroMesa
+                    );
+                }
             }
             catch (Exception ex)
             {
