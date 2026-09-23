@@ -9,6 +9,7 @@ using RestoApp.Data;
 using RestoApp.Data.Repositories;
 using Microsoft.EntityFrameworkCore;
 using System;
+using RestoApp.Desktop.Services;
 
 namespace RestoApp.Desktop;
 
@@ -51,6 +52,7 @@ public partial class App : Application
                     Console.WriteLine($"[DB INNER ERROR] {ex.InnerException.Message}");
                 }
                 Console.WriteLine("==================================================");
+                _ = AlertaService.MostrarAlertaConexionAsync();
             }
 
             // Aquí luego inyectaremos el ViewModel principal

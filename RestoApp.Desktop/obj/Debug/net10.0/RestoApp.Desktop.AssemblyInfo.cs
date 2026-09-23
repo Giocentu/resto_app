@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("RestoApp.Desktop")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+74ce425fc50c32a9da955151cb071da97ae88b0a")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b0251316b09a0ec76c3f183076be6178daaa3d6f")]
 [assembly: System.Reflection.AssemblyProductAttribute("RestoApp.Desktop")]
 [assembly: System.Reflection.AssemblyTitleAttribute("RestoApp.Desktop")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

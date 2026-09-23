@@ -117,7 +117,6 @@ public partial class MainViewModel : ObservableObject
 
     // Comandos para cambiar de sección al hacer clic en los botones del menú
     private MesaService CreateMesaService()
-
     {
         return App.Services?.GetService(typeof(MesaService)) as MesaService
             ?? new MesaService(new MesaRepository(new RestoAppDbContext()));
@@ -162,12 +161,6 @@ public partial class MainViewModel : ObservableObject
         }
         
         CurrentView = _inicioViewModelCache;
-    }
-
-    [RelayCommand]
-    private void IrAClientes()
-    {
-        // CRUD Clientes
     }
 
     [RelayCommand]

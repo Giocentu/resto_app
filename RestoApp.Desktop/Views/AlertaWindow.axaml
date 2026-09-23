@@ -1,0 +1,44 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="RestoApp.Desktop.Views.AlertaWindow"
+        Title="Error de Conexión" Height="220" Width="440"
+        WindowStartupLocation="CenterOwner"
+        CanResize="False">
+
+    <Border Background="White" Padding="25">
+        <StackPanel Spacing="16" VerticalAlignment="Center">
+            <!-- Header con icono y título -->
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="10">
+                <TextBlock Text="⚠️" FontSize="26" VerticalAlignment="Center"/>
+                <TextBlock Text="Base de Datos no Conectada" 
+                           FontSize="18" 
+                           FontWeight="Bold" 
+                           Foreground="#C0392B" 
+                           VerticalAlignment="Center"/>
+            </StackPanel>
+
+            <!-- Mensaje principal -->
+            <TextBlock x:Name="TxtMensaje" 
+                       Text="No se pudo conectar a la base de datos. Por favor, verifique la conexión con el servidor." 
+                       FontSize="13" 
+                       Foreground="#34495E"
+                       TextWrapping="Wrap" 
+                       HorizontalAlignment="Center" 
+                       TextAlignment="Center"
+                       Margin="10,0,10,0"/>
+
+            <!-- Botón de Aceptar -->
+            <Button Content="Aceptar" 
+                    Click="BtnAceptar_Click" 
+                    Width="120" 
+                    Padding="0,8"
+                    HorizontalContentAlignment="Center" 
+                    Background="#C0392B" 
+                    Foreground="White" 
+                    FontWeight="Bold" 
+                    CornerRadius="6"
+                    HorizontalAlignment="Center"
+                    Cursor="Hand"/>
+        </StackPanel>
+    </Border>
+</Window>

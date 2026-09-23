@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using RestoApp.Business.Services;
+using RestoApp.Desktop.Services;
 using RestoApp.Entities;
 using System;
 using System.Collections.Generic;
@@ -32,12 +33,6 @@ public partial class ReservasViewModel : ObservableObject
 
     [ObservableProperty]
     private bool _esVistaBajas = false;
-
-    [ObservableProperty]
-    private string _origenDatosTexto = "🟢 Base de datos";
-
-    [ObservableProperty]
-    private string _origenDatosColor = "#27AE60";
 
     [ObservableProperty]
     private string _textoBusqueda = string.Empty;
@@ -85,13 +80,6 @@ public partial class ReservasViewModel : ObservableObject
 
     private void CargarReservasBajas()
     {
-        if (!ReservasBajas.Any())
-        {
-            ReservasBajas = new ObservableCollection<ReservaItemViewModel>
-            {
-                new ReservaItemViewModel { IdReserva = 999, FechaHora = DateTime.Now.ToString("dd/MM/yyyy HH:mm"), ClienteNombre = "Cliente Cancelado", NroMesa = "Ninguna", CantidadPersonas = 2, EstadoTexto = "Cancelada" }
-            };
-        }
         BajasCount = ReservasBajas.Count;
     }
 
@@ -106,7 +94,11 @@ public partial class ReservasViewModel : ObservableObject
                 {
                     await _reservaService.CambiarEstadoReservaAsync(reserva.IdReserva, 2); // 2 = Cancelado
                 }
-                catch { }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[RESERVAS DB ERROR] {ex.Message}");
+                    _ = AlertaService.MostrarAlertaConexionAsync();
+                }
             }
             reserva.EstadoTexto = "Cancelada";
             Reservas.Remove(reserva);
@@ -201,26 +193,15 @@ public partial class ReservasViewModel : ObservableObject
                     });
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                Console.WriteLine($"[RESERVAS DB ERROR] Error al cargar reservas: {ex.Message}");
+                _ = AlertaService.MostrarAlertaConexionAsync();
             }
-        }
-
-        if (!listaMapeada.Any())
-        {
-            OrigenDatosTexto = "🟠 Mock";
-            OrigenDatosColor = "#E67E22";
-            listaMapeada = new List<ReservaItemViewModel>
-            {
-                new ReservaItemViewModel { IdReserva = 101, FechaHora = DateTime.Now.AddHours(2).ToString("dd/MM/yyyy HH:mm"), ClienteNombre = "Roberto Gómez", NroMesa = "Mesa 7", CantidadPersonas = 4, EstadoTexto = "Confirmada" },
-                new ReservaItemViewModel { IdReserva = 102, FechaHora = DateTime.Now.AddHours(4).ToString("dd/MM/yyyy HH:mm"), ClienteNombre = "Laura Fernández", NroMesa = "Mesa 10 (VIP)", CantidadPersonas = 2, EstadoTexto = "Confirmada" },
-                new ReservaItemViewModel { IdReserva = 103, FechaHora = DateTime.Now.AddDays(1).ToString("dd/MM/yyyy HH:mm"), ClienteNombre = "Empresa ACME", NroMesa = "Mesa 11, 12", CantidadPersonas = 8, EstadoTexto = "Confirmada" }
-            };
         }
         else
         {
-            OrigenDatosTexto = "🟢 Base de datos";
-            OrigenDatosColor = "#27AE60";
+            _ = AlertaService.MostrarAlertaConexionAsync();
         }
 
         Reservas = new ObservableCollection<ReservaItemViewModel>(listaMapeada);
