@@ -143,22 +143,58 @@ public partial class EmpleadosViewModel : ObservableObject
         }
     }
 
+    public async Task GuardarEmpleadoAsync(EmpleadoItemViewModel emp)
+    {
+        if (emp == null) return;
+
+        emp.PuedeEditar = PuedeEditar;
+
+        int idRol = emp.RolCargo?.ToLower() switch
+        {
+            "dueño" or "dueno" => 1,
+            "gerente" => 2,
+            "cm" => 3,
+            "cajero" => 4,
+            "mozo" => 5,
+            "recepcion" => 6,
+            _ => 5
+        };
+
+        if (_empleadoService != null)
+        {
+            try
+            {
+                var partesNombre = emp.NombreCompleto.Trim().Split(' ', 2);
+                string nombre = partesNombre.Length > 0 ? partesNombre[0] : emp.NombreCompleto;
+                string apellido = partesNombre.Length > 1 ? partesNombre[1] : "";
+                string email = $"{nombre.ToLower()}@restoapp.com";
+                long.TryParse(emp.Telefono.Replace("-", "").Replace(" ", ""), out long tel);
+
+                var listaActual = await _empleadoService.ObtenerEmpleadosAsync(soloActivos: false);
+                var existente = listaActual.FirstOrDefault(e => e.DniEmpleado == emp.DniEmpleado);
+
+                if (existente != null)
+                {
+                    await _empleadoService.EditarEmpleadoAsync(emp.DniEmpleado, nombre, apellido, email, tel, idRol);
+                }
+                else
+                {
+                    await _empleadoService.CrearEmpleadoAsync(emp.DniEmpleado, nombre, apellido, email, tel, "123456", idRol, 1);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[EMPLEADOS GUARDAR DB ERROR] {ex.Message}");
+                _ = AlertaService.MostrarAlertaConexionAsync();
+            }
+        }
+
+        await CargarEmpleadosAsync();
+    }
+
     public void AgregarOActualizarEmpleado(EmpleadoItemViewModel emp)
     {
-        emp.PuedeEditar = PuedeEditar;
-        var existente = Empleados.FirstOrDefault(e => e.DniEmpleado == emp.DniEmpleado);
-        if (existente != null)
-        {
-            existente.NombreCompleto = emp.NombreCompleto;
-            existente.RolCargo = emp.RolCargo;
-            existente.Telefono = emp.Telefono;
-            existente.Estado = emp.Estado;
-        }
-        else
-        {
-            Empleados.Add(emp);
-        }
-        AplicarFiltro();
+        _ = GuardarEmpleadoAsync(emp);
     }
 
     [RelayCommand]

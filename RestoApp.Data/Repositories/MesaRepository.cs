@@ -32,7 +32,7 @@ public class MesaRepository : Repository<Mesa>, IMesaRepository
     {
         var nuevoIdParam = new SqlParameter("@NuevoId", SqlDbType.Int) { Direction = ParameterDirection.Output };
         await _context.Database.ExecuteSqlRawAsync(
-            "EXEC sp_Mesa_Crear @NroMesa = {0}, @Capacidad = {1}, @IdUbicacion = {2}, @Estado = {3}, @NuevoId = @NuevoId OUTPUT",
+            "EXEC sp_Mesa_Crear @NroMesa = {0}, @Capacidad = {1}, @IdUbicacion = {2}, @Estado = {3}, @NuevoId = {4} OUTPUT",
             nroMesa, capacidad, idUbicacion, estado, nuevoIdParam);
         return (int)(nuevoIdParam.Value ?? 0);
     }

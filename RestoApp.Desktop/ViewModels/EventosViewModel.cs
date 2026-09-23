@@ -75,16 +75,9 @@ public partial class EventosViewModel : ObservableObject
     {
         if (string.IsNullOrWhiteSpace(NuevoNombre)) return;
 
-        int nuevoId = Eventos.Any() ? Eventos.Max(e => e.IdEvento) + 1 : 1;
-        var nuevoItem = new EventoItemViewModel
-        {
-            IdEvento = nuevoId,
-            NombreEvento = NuevoNombre.Trim(),
-            FechaEvento = NuevaFecha?.DateTime ?? DateTime.Now,
-            Descripcion = string.IsNullOrWhiteSpace(NuevaDescripcion) ? "Evento especial y promociones para clientes." : NuevaDescripcion.Trim(),
-            EsActivo = true,
-            CantReservasVinculadas = 0
-        };
+        string nombre = NuevoNombre.Trim();
+        DateTime fecha = NuevaFecha?.DateTime ?? DateTime.Now;
+        string desc = string.IsNullOrWhiteSpace(NuevaDescripcion) ? "Evento especial y promociones para clientes." : NuevaDescripcion.Trim();
 
         if (_eventoService != null)
         {
@@ -92,9 +85,9 @@ public partial class EventosViewModel : ObservableObject
             {
                 var entity = new Evento
                 {
-                    NombreEvento = nuevoItem.NombreEvento,
-                    FechaEvento = nuevoItem.FechaEvento,
-                    Descripcion = nuevoItem.Descripcion,
+                    NombreEvento = nombre,
+                    FechaEvento = fecha,
+                    Descripcion = desc,
                     EsActivo = true
                 };
                 await _eventoService.RegistrarEventoAsync(entity);
@@ -106,7 +99,7 @@ public partial class EventosViewModel : ObservableObject
             }
         }
 
-        Eventos.Insert(0, nuevoItem);
+        await CargarEventosAsync();
 
         // Limpiar formulario
         NuevoNombre = string.Empty;
@@ -132,6 +125,6 @@ public partial class EventosViewModel : ObservableObject
             }
         }
 
-        Eventos.Remove(item);
+        await CargarEventosAsync();
     }
 }

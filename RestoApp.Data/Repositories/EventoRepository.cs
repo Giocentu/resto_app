@@ -35,7 +35,7 @@ public class EventoRepository : Repository<Evento>, IEventoRepository
         var descParam = !string.IsNullOrWhiteSpace(descripcion) ? (object)descripcion : DBNull.Value;
 
         await _context.Database.ExecuteSqlRawAsync(
-            "EXEC sp_Evento_Crear @NombreEvento = {0}, @FechaEvento = {1}, @Descripcion = {2}, @NuevoId = @NuevoId OUTPUT",
+            "EXEC sp_Evento_Crear @NombreEvento = {0}, @FechaEvento = {1}, @Descripcion = {2}, @NuevoId = {3} OUTPUT",
             nombreEvento, fechaParam, descParam, nuevoIdParam);
 
         return (int)(nuevoIdParam.Value ?? 0);

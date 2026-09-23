@@ -40,7 +40,7 @@ public class PagoRepository : Repository<Pago>, IPagoRepository
         var idMesaParam = idMesa.HasValue ? (object)idMesa.Value : DBNull.Value;
 
         await _context.Database.ExecuteSqlRawAsync(
-            "EXEC sp_Pago_Crear @Monto = {0}, @FechaPago = {1}, @IdMetodo = {2}, @IdReserva = {3}, @IdMesa = {4}, @NuevoId = @NuevoId OUTPUT",
+            "EXEC sp_Pago_Crear @Monto = {0}, @FechaPago = {1}, @IdMetodo = {2}, @IdReserva = {3}, @IdMesa = {4}, @NuevoId = {5} OUTPUT",
             (double)monto, fechaPago, idMetodo, idReservaParam, idMesaParam, nuevoIdParam);
 
         return (int)(nuevoIdParam.Value ?? 0);

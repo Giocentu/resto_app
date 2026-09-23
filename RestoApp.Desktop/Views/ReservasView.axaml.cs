@@ -22,7 +22,7 @@ public partial class ReservasView : UserControl
             await formWindow.ShowDialog(mainWindow);
             if (formWindow.ReservaResult != null && DataContext is ReservasViewModel viewModel)
             {
-                viewModel.AgregarOActualizarReserva(formWindow.ReservaResult);
+                await viewModel.GuardarReservaAsync(formWindow.ReservaResult);
             }
         }
     }
@@ -39,7 +39,7 @@ public partial class ReservasView : UserControl
                 await formEditar.ShowDialog(mainWindow);
                 if (formEditar.ReservaResult != null && DataContext is ReservasViewModel viewModel)
                 {
-                    viewModel.AgregarOActualizarReserva(formEditar.ReservaResult);
+                    await viewModel.GuardarReservaAsync(formEditar.ReservaResult);
                 }
             }
         }
