@@ -152,12 +152,19 @@ public partial class MainViewModel : ObservableObject
         if (_inicioViewModelCache == null)
         {
             MesaService? mesaService = null;
+            UbicacionService? ubicacionService = null;
             try
             {
                 mesaService = CreateMesaService();
+                ubicacionService = App.Services?.GetService(typeof(UbicacionService)) as UbicacionService
+                    ?? new UbicacionService(new UbicacionRepository(new RestoAppDbContext()));
             }
             catch { }
-            _inicioViewModelCache = new InicioViewModel(mesaService, navigateAMesasAction: IrAMesas);
+            _inicioViewModelCache = new InicioViewModel(mesaService, navigateAMesasAction: IrAMesas, ubicacionService: ubicacionService);
+        }
+        else
+        {
+            _ = _inicioViewModelCache.CargarMesasAsync();
         }
         
         CurrentView = _inicioViewModelCache;
