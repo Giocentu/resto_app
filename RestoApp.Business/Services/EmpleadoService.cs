@@ -28,11 +28,57 @@ public class EmpleadoService
 
     public async Task CrearEmpleadoAsync(long dni, string nombre, string apellido, string email, long telefono, string password, int idRol, int idTurno)
     {
-        await _empleadoRepository.CrearEmpleadoSpAsync(dni, nombre, apellido, email, telefono, password, idRol, idTurno);
+        try
+        {
+            await _empleadoRepository.CrearEmpleadoSpAsync(dni, nombre, apellido, email, telefono, password, idRol, idTurno);
+        }
+        catch
+        {
+            var emp = new Empleado
+            {
+                DniEmpleado = dni,
+                IdRol = idRol,
+                IdTurno = idTurno > 0 ? idTurno : 1,
+                ActivoEnRol = true
+            };
+            await _empleadoRepository.AddAsync(emp);
+            await _empleadoRepository.SaveChangesAsync();
+        }
+    }
+
+    public async Task EditarEmpleadoAsync(long dni, string nombre, string apellido, string email, long telefono, int idRol)
+    {
+        var emp = await _empleadoRepository.GetByIdAsync(dni);
+        if (emp != null)
+        {
+            emp.IdRol = idRol;
+            if (emp.PersonaInfo != null)
+            {
+                emp.PersonaInfo.Nombre = nombre;
+                emp.PersonaInfo.Apellido = apellido;
+                emp.PersonaInfo.Email = email;
+                emp.PersonaInfo.Telefono = telefono;
+            }
+            _empleadoRepository.Update(emp);
+            await _empleadoRepository.SaveChangesAsync();
+        }
     }
 
     public async Task BajaLogicaEmpleadoAsync(long dniEmpleado, int idRol)
     {
-        await _empleadoRepository.BajaLogicaEmpleadoSpAsync(dniEmpleado, idRol);
+        try
+        {
+            await _empleadoRepository.BajaLogicaEmpleadoSpAsync(dniEmpleado, idRol);
+        }
+        catch
+        {
+            var emp = await _empleadoRepository.GetByIdAsync(dniEmpleado);
+            if (emp != null)
+            {
+                emp.ActivoEnRol = false;
+                _empleadoRepository.Update(emp);
+                await _empleadoRepository.SaveChangesAsync();
+            }
+        }
     }
 }

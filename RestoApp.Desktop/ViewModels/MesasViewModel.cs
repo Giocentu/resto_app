@@ -159,6 +159,42 @@ public partial class MesasViewModel : ObservableObject
         Mesas = new ObservableCollection<MesaItemViewModel>(listaMapeada);
     }
 
+    public async Task GuardarMesaAsync(MesaItemViewModel mesa)
+    {
+        if (mesa == null) return;
+
+        int idUbicacion = mesa.UbicacionDescripcion?.ToLower() switch
+        {
+            "terraza" => 1,
+            "2dopiso" or "segundo piso" or "2do piso" => 2,
+            "plantabaja" or "planta baja" => 3,
+            "patio" => 4,
+            _ => 1
+        };
+
+        if (_mesaService != null)
+        {
+            try
+            {
+                if (mesa.IdMesa > 0)
+                {
+                    await _mesaService.EditarMesaAsync(mesa.IdMesa, mesa.NroMesa, mesa.Capacidad, idUbicacion, "LIBRE");
+                }
+                else
+                {
+                    await _mesaService.CrearMesaAsync(mesa.NroMesa, mesa.Capacidad, idUbicacion, "LIBRE");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[MESAS GUARDAR DB ERROR] {ex.Message}");
+                _ = AlertaService.MostrarAlertaConexionAsync();
+            }
+        }
+
+        await CargarMesasAsync();
+    }
+
     private readonly Action _volverInicio;
 
 

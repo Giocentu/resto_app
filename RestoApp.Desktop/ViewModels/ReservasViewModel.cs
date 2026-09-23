@@ -107,26 +107,52 @@ public partial class ReservasViewModel : ObservableObject
         }
     }
 
+    public async Task GuardarReservaAsync(ReservaItemViewModel resItem)
+    {
+        if (resItem == null) return;
+
+        if (_reservaService != null)
+        {
+            try
+            {
+                DateTime dt = DateTime.Now.AddHours(2);
+                if (DateTime.TryParse(resItem.FechaHora, out DateTime parsed))
+                {
+                    dt = parsed;
+                }
+
+                int? nroMesa = null;
+                if (int.TryParse(resItem.NroMesa, out int parsedMesa))
+                {
+                    nroMesa = parsedMesa;
+                }
+
+                long dniCliente = 46452703;
+
+                await _reservaService.CrearReservaAsync(
+                    fechaReserva: dt,
+                    cantPersonas: resItem.CantidadPersonas,
+                    idEstado: 1,
+                    dniCliente: dniCliente,
+                    idEvento: null,
+                    dniEmpleado: null,
+                    idRol: null,
+                    idMesa: nroMesa
+                );
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[RESERVAS GUARDAR DB ERROR] {ex.Message}");
+                _ = AlertaService.MostrarAlertaConexionAsync();
+            }
+        }
+
+        await CargarReservasAsync();
+    }
+
     public void AgregarOActualizarReserva(ReservaItemViewModel nuevaReserva)
     {
-        var existente = Reservas.FirstOrDefault(r => r.IdReserva == nuevaReserva.IdReserva && nuevaReserva.IdReserva > 0);
-        if (existente != null)
-        {
-            existente.FechaHora = nuevaReserva.FechaHora;
-            existente.ClienteNombre = nuevaReserva.ClienteNombre;
-            existente.NroMesa = nuevaReserva.NroMesa;
-            existente.CantidadPersonas = nuevaReserva.CantidadPersonas;
-            existente.EstadoTexto = nuevaReserva.EstadoTexto;
-        }
-        else
-        {
-            if (nuevaReserva.IdReserva <= 0)
-            {
-                nuevaReserva.IdReserva = (Reservas.Max(r => (int?)r.IdReserva) ?? 100) + 1;
-            }
-            Reservas.Add(nuevaReserva);
-        }
-        AplicarFiltro();
+        _ = GuardarReservaAsync(nuevaReserva);
     }
 
     private void AplicarFiltro()

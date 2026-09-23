@@ -41,7 +41,7 @@ public class ReservaRepository : Repository<Reserva>, IReservaRepository
         var idMesaParam = idMesa.HasValue ? (object)idMesa.Value : DBNull.Value;
 
         await _context.Database.ExecuteSqlRawAsync(
-            "EXEC sp_Reserva_Crear @FechaReserva = {0}, @CantPersonas = {1}, @IdEstado = {2}, @DniCliente = {3}, @IdEvento = {4}, @DniEmpleado = {5}, @IdRol = {6}, @IdMesa = {7}, @NuevaReservaId = @NuevaReservaId OUTPUT",
+            "EXEC sp_Reserva_Crear @FechaReserva = {0}, @CantPersonas = {1}, @IdEstado = {2}, @DniCliente = {3}, @IdEvento = {4}, @DniEmpleado = {5}, @IdRol = {6}, @IdMesa = {7}, @NuevaReservaId = {8} OUTPUT",
             fechaReserva, cantPersonas, idEstado, dniCliente, idEventoParam, dniEmpleadoParam, idRolParam, idMesaParam, nuevaReservaIdParam);
 
         return (int)(nuevaReservaIdParam.Value ?? 0);

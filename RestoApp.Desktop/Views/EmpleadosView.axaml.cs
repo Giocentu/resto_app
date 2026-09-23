@@ -22,7 +22,7 @@ public partial class EmpleadosView : UserControl
             await formWindow.ShowDialog(mainWindow);
             if (formWindow.EmpleadoResult != null && DataContext is EmpleadosViewModel viewModel)
             {
-                viewModel.AgregarOActualizarEmpleado(formWindow.EmpleadoResult);
+                await viewModel.GuardarEmpleadoAsync(formWindow.EmpleadoResult);
             }
         }
     }
@@ -39,7 +39,7 @@ public partial class EmpleadosView : UserControl
                 await formEditar.ShowDialog(mainWindow);
                 if (formEditar.EmpleadoResult != null && DataContext is EmpleadosViewModel viewModel)
                 {
-                    viewModel.AgregarOActualizarEmpleado(formEditar.EmpleadoResult);
+                    await viewModel.GuardarEmpleadoAsync(formEditar.EmpleadoResult);
                 }
             }
         }

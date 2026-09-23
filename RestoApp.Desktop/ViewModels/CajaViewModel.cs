@@ -251,15 +251,13 @@ public partial class CajaViewModel : ObservableObject
     [RelayCommand]
     private async Task ProcesarPagoYLiquidarAsync()
     {
-        int nuevoId = Pagos.Any() ? Pagos.Max(p => p.IdPago) + 1 : 1;
-        var nuevoPagoItem = new PagoItemViewModel
+        string medio = MedioPagoSeleccionado?.ToLower() ?? "";
+        int idMetodo = medio switch
         {
-            IdPago = nuevoId,
-            FechaPago = DateTime.Now,
-            Descripcion = CuentaSeleccionada != null ? $"Cobro Mesa #{CuentaSeleccionada.NroMesa} ({CuentaSeleccionada.Sector})" : "Cobro General",
-            ClienteNombre = ClienteNombreModal,
-            MedioPago = MedioPagoSeleccionado,
-            Monto = MontoCobrar
+            var s when s.Contains("crédito") || s.Contains("credito") => 1,
+            var s when s.Contains("débito") || s.Contains("debito") => 2,
+            var s when s.Contains("efectivo") => 3,
+            _ => 3
         };
 
         if (_pagoService != null)
@@ -270,8 +268,8 @@ public partial class CajaViewModel : ObservableObject
                 {
                     Monto = (double)MontoCobrar,
                     FechaPago = DateTime.Now,
-                    IdMetodo = 1, // Default EF metodo
-                    IdReserva = 1
+                    IdMetodo = idMetodo,
+                    IdReserva = null
                 };
                 await _pagoService.RegistrarPagoAsync(pagoEntity);
             }
@@ -282,21 +280,10 @@ public partial class CajaViewModel : ObservableObject
             }
         }
 
-        Pagos.Insert(0, nuevoPagoItem);
-
-        // Si se cobró una mesa pendiente, la quitamos de pendientes
-        if (CuentaSeleccionada != null)
-        {
-            CuentasPendientes.Remove(CuentaSeleccionada);
-            CuentaSeleccionada = CuentasPendientes.FirstOrDefault();
-        }
-
-        AplicarFiltro();
-        RecalcularTotalesTurno();
+        await CargarDatosAsync();
         MostrarModalProcesarPago = false;
 
-        // Mostrar comprobante directamente tras el pago exitoso
-        ComprobantePago = nuevoPagoItem;
+        ComprobantePago = Pagos.FirstOrDefault();
         MostrarModalComprobante = true;
     }
 
@@ -318,9 +305,7 @@ public partial class CajaViewModel : ObservableObject
             }
         }
 
-        Pagos.Remove(item);
-        AplicarFiltro();
-        RecalcularTotalesTurno();
+        await CargarDatosAsync();
     }
 
     [RelayCommand]

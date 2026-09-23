@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("RestoApp.Business")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b0251316b09a0ec76c3f183076be6178daaa3d6f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+82b5ba4ec418e8da717b6a88623937c101c28c55")]
 [assembly: System.Reflection.AssemblyProductAttribute("RestoApp.Business")]
 [assembly: System.Reflection.AssemblyTitleAttribute("RestoApp.Business")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
