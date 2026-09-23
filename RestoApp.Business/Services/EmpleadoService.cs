@@ -81,4 +81,15 @@ public class EmpleadoService
             }
         }
     }
+
+    public async Task RestaurarEmpleadoAsync(long dniEmpleado, int idRol = 1)
+    {
+        var emp = await _empleadoRepository.GetByIdAsync(dniEmpleado);
+        if (emp != null)
+        {
+            emp.ActivoEnRol = true;
+            _empleadoRepository.Update(emp);
+            await _empleadoRepository.SaveChangesAsync();
+        }
+    }
 }

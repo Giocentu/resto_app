@@ -61,4 +61,17 @@ public class ReservaService
             }
         }
     }
+
+    public async Task EditarReservaAsync(int idReserva, DateTime fechaReserva, int cantPersonas, int idEstado)
+    {
+        var res = await _reservaRepository.GetByIdAsync(idReserva);
+        if (res != null)
+        {
+            res.FechaReserva = fechaReserva;
+            res.CantPersonas = cantPersonas;
+            res.IdEstado = idEstado;
+            _reservaRepository.Update(res);
+            await _reservaRepository.SaveChangesAsync();
+        }
+    }
 }

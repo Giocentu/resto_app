@@ -251,7 +251,7 @@
                                                 CornerRadius="5" Padding="10,5" Cursor="Hand" HorizontalAlignment="Center">
                                             <StackPanel Orientation="Horizontal" Spacing="4">
                                                 <TextBlock Text="🔄" FontSize="11"/>
-                                                <TextBlock Text="Restaurar (Re-activar)" FontSize="11" FontWeight="Bold"/>
+                                                <TextBlock Text="Restaurar" FontSize="11" FontWeight="Bold"/>
                                             </StackPanel>
                                         </Button>
                                     </DataTemplate>

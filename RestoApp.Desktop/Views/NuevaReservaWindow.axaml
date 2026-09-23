@@ -42,10 +42,16 @@
                         <TimePicker x:Name="TpHora" HorizontalAlignment="Stretch" Height="38" ClockIdentifier="24HourClock"/>
                     </StackPanel>
 
-                    <!-- Campo Mesa -->
+                    <!-- Campo Mesa Asignada (Sincronizado con BD) -->
                     <StackPanel Spacing="6">
-                        <TextBlock Text="Mesa Asignada:" Foreground="#34495E" FontWeight="Bold" FontSize="13"/>
-                        <TextBox x:Name="TxtMesa" PlaceholderText="Ej. Mesa 7 o VIP" Height="38" VerticalContentAlignment="Center"/>
+                        <TextBlock Text="Mesa Asignada (Ubicación):" Foreground="#34495E" FontWeight="Bold" FontSize="13"/>
+                        <ComboBox x:Name="CboMesa" HorizontalAlignment="Stretch" Height="38"/>
+                    </StackPanel>
+
+                    <!-- Campo Evento (Sincronizado con BD) -->
+                    <StackPanel Spacing="6">
+                        <TextBlock Text="Evento Asociado:" Foreground="#34495E" FontWeight="Bold" FontSize="13"/>
+                        <ComboBox x:Name="CboEvento" HorizontalAlignment="Stretch" Height="38"/>
                     </StackPanel>
 
                     <!-- Campo Personas -->
@@ -54,8 +60,8 @@
                         <TextBox x:Name="TxtPersonas" PlaceholderText="Ej. 4" Height="38" VerticalContentAlignment="Center"/>
                     </StackPanel>
 
-                    <!-- Mensaje de Error / Validación -->
-                    <TextBlock x:Name="TxtError" Foreground="#E74C3C" FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Center" IsVisible="False" TextWrapping="Wrap"/>
+                    <!-- Mensaje de Error / Validación en Texto Rojo -->
+                    <TextBlock x:Name="TxtError" Foreground="#E74C3C" FontSize="12" FontWeight="Bold" HorizontalAlignment="Center" IsVisible="False" TextWrapping="Wrap" Margin="0,5,0,0"/>
                 </StackPanel>
             </ScrollViewer>
 

@@ -36,22 +36,38 @@
                         <TextBox x:Name="TxtNombre" PlaceholderText="Ej. Carlos Valenzuela..." Height="38" VerticalContentAlignment="Center"/>
                     </StackPanel>
 
-                    <!-- Campo Cargo / Rol -->
+                    <!-- Campo Cargo / Rol (Sincronizado con BD) -->
                     <StackPanel Spacing="6">
                         <TextBlock Text="Cargo / Rol Asignado:" Foreground="#34495E" FontWeight="Bold" FontSize="13"/>
                         <ComboBox x:Name="CboRol" HorizontalAlignment="Stretch" Height="38" SelectedIndex="3">
                             <ComboBoxItem Content="Dueño"/>
                             <ComboBoxItem Content="Gerente"/>
+                            <ComboBoxItem Content="CM"/>
                             <ComboBoxItem Content="Cajero"/>
                             <ComboBoxItem Content="Mozo"/>
-                            <ComboBoxItem Content="Recepcion"/>
+                            <ComboBoxItem Content="Cocinero"/>
+                            <ComboBoxItem Content="Bachero"/>
+                            <ComboBoxItem Content="Bartender"/>
+                            <ComboBoxItem Content="Seguridad"/>
+                        </ComboBox>
+                    </StackPanel>
+
+                    <!-- Campo Turno Laboral (Sincronizado con BD) -->
+                    <StackPanel Spacing="6">
+                        <TextBlock Text="Turno Laboral Asignado:" Foreground="#34495E" FontWeight="Bold" FontSize="13"/>
+                        <ComboBox x:Name="CboTurno" HorizontalAlignment="Stretch" Height="38" SelectedIndex="0">
+                            <ComboBoxItem Content="Turno 1 (19:55 - 01:55)"/>
+                            <ComboBoxItem Content="Turno 2 (16:17 - 01:24)"/>
+                            <ComboBoxItem Content="Turno 3 (16:57 - 01:00)"/>
+                            <ComboBoxItem Content="Turno 4 (16:20 - 01:02)"/>
+                            <ComboBoxItem Content="Turno 5 (17:53 - 01:51)"/>
                         </ComboBox>
                     </StackPanel>
 
                     <!-- Campo Teléfono -->
                     <StackPanel Spacing="6">
                         <TextBlock Text="Teléfono de Contacto:" Foreground="#34495E" FontWeight="Bold" FontSize="13"/>
-                        <TextBox x:Name="TxtTelefono" PlaceholderText="Ej. 11-4455-6677" Height="38" VerticalContentAlignment="Center"/>
+                        <TextBox x:Name="TxtTelefono" PlaceholderText="Ej. 3795753983" Height="38" VerticalContentAlignment="Center"/>
                     </StackPanel>
 
                     <!-- Campo Estado -->
@@ -63,8 +79,8 @@
                         </ComboBox>
                     </StackPanel>
 
-                    <!-- Mensaje de Error / Validación -->
-                    <TextBlock x:Name="TxtError" Foreground="#E74C3C" FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Center" IsVisible="False" TextWrapping="Wrap"/>
+                    <!-- Mensaje de Error / Validación en Texto Rojo -->
+                    <TextBlock x:Name="TxtError" Foreground="#E74C3C" FontSize="12" FontWeight="Bold" HorizontalAlignment="Center" IsVisible="False" TextWrapping="Wrap" Margin="0,5,0,0"/>
                 </StackPanel>
             </ScrollViewer>
 

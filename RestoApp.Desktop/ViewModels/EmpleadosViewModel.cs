@@ -72,14 +72,26 @@ public partial class EmpleadosViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void RestaurarEmpleado(EmpleadoItemViewModel empleado)
+    private async Task RestaurarEmpleadoAsync(EmpleadoItemViewModel empleado)
     {
         if (empleado != null)
         {
-            empleado.Estado = "Activo";
+            if (_empleadoService != null)
+            {
+                try
+                {
+                    await _empleadoService.RestaurarEmpleadoAsync(empleado.DniEmpleado, 1);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[EMPLEADOS RESTAURAR DB ERROR] {ex.Message}");
+                    _ = AlertaService.MostrarAlertaConexionAsync();
+                }
+            }
             EmpleadosBajas.Remove(empleado);
-            Empleados.Add(empleado);
-            AplicarFiltro();
+            empleado.Estado = "Activo";
+            await CargarEmpleadosAsync();
+            await CargarEmpleadosBajasAsync();
         }
     }
 
