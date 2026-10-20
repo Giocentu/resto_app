@@ -20,6 +20,9 @@ public partial class EmpleadosViewModel : ObservableObject
     public bool PuedeEditar => SesionGlobal.RolActual == RolUsuario.Dueno
                         || SesionGlobal.RolActual == RolUsuario.Gerente;
 
+    public List<string> ListaRoles { get; } = new() { "Todos", "Dueño", "Gerente", "CM", "Cajero", "Mozo", "Recepcion", "Cocinero", "Bachero", "Bartender", "Seguridad" };
+    public List<string> ListaEstados { get; } = new() { "Todos", "Activo", "Inactivo" };
+
     [ObservableProperty]
     private ObservableCollection<EmpleadoItemViewModel> _empleados = new();
 
@@ -27,19 +30,13 @@ public partial class EmpleadosViewModel : ObservableObject
     private ObservableCollection<EmpleadoItemViewModel> _empleadosFiltrados = new();
 
     [ObservableProperty]
-    private ObservableCollection<EmpleadoItemViewModel> _empleadosBajas = new();
-
-    [ObservableProperty]
-    private bool _esVistaPrincipal = true;
-
-    [ObservableProperty]
-    private bool _esVistaBajas = false;
-
-    [ObservableProperty]
     private string _textoBusqueda = string.Empty;
 
     [ObservableProperty]
     private string _filtroRol = "Todos";
+
+    [ObservableProperty]
+    private string _filtroEstado = "Todos";
 
     [ObservableProperty]
     private int _totalEmpleadosCount;
@@ -55,103 +52,32 @@ public partial class EmpleadosViewModel : ObservableObject
 
     partial void OnTextoBusquedaChanged(string value) => AplicarFiltro();
     partial void OnFiltroRolChanged(string value) => AplicarFiltro();
+    partial void OnFiltroEstadoChanged(string value) => AplicarFiltro();
 
     [RelayCommand]
-    private void VerBajas()
+    private async Task ToggleEstadoEmpleadoAsync(EmpleadoItemViewModel empleado)
     {
-        EsVistaPrincipal = false;
-        EsVistaBajas = true;
-        _ = CargarEmpleadosBajasAsync();
-    }
-
-    [RelayCommand]
-    private void VolverPrincipal()
-    {
-        EsVistaPrincipal = true;
-        EsVistaBajas = false;
-    }
-
-    [RelayCommand]
-    private async Task RestaurarEmpleadoAsync(EmpleadoItemViewModel empleado)
-    {
-        if (empleado != null)
-        {
-            if (_empleadoService != null)
-            {
-                try
-                {
-                    await _empleadoService.RestaurarEmpleadoAsync(empleado.DniEmpleado, 1);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"[EMPLEADOS RESTAURAR DB ERROR] {ex.Message}");
-                    _ = AlertaService.MostrarAlertaConexionAsync();
-                }
-            }
-            EmpleadosBajas.Remove(empleado);
-            empleado.Estado = "Activo";
-            await CargarEmpleadosAsync();
-            await CargarEmpleadosBajasAsync();
-        }
-    }
-
-    private async Task CargarEmpleadosBajasAsync()
-    {
-        if (_empleadoService != null)
+        if (empleado != null && _empleadoService != null)
         {
             try
             {
-                var inactivos = await _empleadoService.ObtenerEmpleadosAsync(soloActivos: false);
-                var listaBajas = new List<EmpleadoItemViewModel>();
-                foreach (var emp in inactivos.Where(e => !e.ActivoEnRol))
+                if (empleado.EsActivo)
                 {
-                    string nombre = emp.PersonaInfo?.Nombre ?? "Empleado";
-                    string apellido = emp.PersonaInfo?.Apellido ?? "";
-                    string cargo = emp.Rol?.Descripcion ?? $"Rol ID: {emp.IdRol}";
-                    string telefono = emp.PersonaInfo?.Telefono.ToString() ?? "No registrado";
-
-                    listaBajas.Add(new EmpleadoItemViewModel
-                    {
-                        DniEmpleado = emp.DniEmpleado,
-                        NombreCompleto = $"{nombre} {apellido}".Trim(),
-                        RolCargo = cargo,
-                        Telefono = telefono,
-                        Estado = "Inactivo",
-                        PuedeEditar = PuedeEditar
-                    });
+                    await _empleadoService.BajaLogicaEmpleadoAsync(empleado.DniEmpleado, empleado.IdRol);
+                    empleado.Estado = "Inactivo";
                 }
-                EmpleadosBajas = new ObservableCollection<EmpleadoItemViewModel>(listaBajas);
+                else
+                {
+                    await _empleadoService.RestaurarEmpleadoAsync(empleado.DniEmpleado, empleado.IdRol);
+                    empleado.Estado = "Activo";
+                }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[EMPLEADOS BAJAS DB ERROR] {ex.Message}");
-                _ = AlertaService.MostrarAlertaConexionAsync();
+                Console.WriteLine($"[EMPLEADOS TOGGLE DB ERROR] {ex.Message}");
+                _ = AlertaService.MostrarAlertaConexionAsync($"⚠️ Error al cambiar estado del empleado: {ex.Message}");
             }
-        }
-        InactivosCount = EmpleadosBajas.Count;
-    }
-
-    [RelayCommand]
-    private async Task DarBajaEmpleadoAsync(EmpleadoItemViewModel empleado)
-    {
-        if (empleado != null)
-        {
-            if (_empleadoService != null)
-            {
-                try
-                {
-                    await _empleadoService.BajaLogicaEmpleadoAsync(empleado.DniEmpleado, 1);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"[EMPLEADOS DB ERROR] {ex.Message}");
-                    _ = AlertaService.MostrarAlertaConexionAsync();
-                }
-            }
-            Empleados.Remove(empleado);
-            empleado.Estado = "Inactivo";
-            EmpleadosBajas.Add(empleado);
-            AplicarFiltro();
+            await CargarEmpleadosAsync();
         }
     }
 
@@ -188,16 +114,29 @@ public partial class EmpleadosViewModel : ObservableObject
                 if (existente != null)
                 {
                     await _empleadoService.EditarEmpleadoAsync(emp.DniEmpleado, nombre, apellido, email, tel, idRol);
+                    if (emp.Estado == "Inactivo")
+                    {
+                        await _empleadoService.BajaLogicaEmpleadoAsync(emp.DniEmpleado, idRol);
+                    }
+                    else
+                    {
+                        await _empleadoService.RestaurarEmpleadoAsync(emp.DniEmpleado, idRol);
+                    }
                 }
                 else
                 {
                     await _empleadoService.CrearEmpleadoAsync(emp.DniEmpleado, nombre, apellido, email, tel, "123456", idRol, 1);
+                    if (emp.Estado == "Inactivo")
+                    {
+                        await _empleadoService.BajaLogicaEmpleadoAsync(emp.DniEmpleado, idRol);
+                    }
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"[EMPLEADOS GUARDAR DB ERROR] {ex.Message}");
-                _ = AlertaService.MostrarAlertaConexionAsync();
+                string errorDetail = ex.InnerException?.Message ?? ex.Message;
+                _ = AlertaService.MostrarAlertaConexionAsync($"⚠️ Error al guardar empleado: {errorDetail}");
             }
         }
 
@@ -219,9 +158,15 @@ public partial class EmpleadosViewModel : ObservableObject
     {
         IEnumerable<EmpleadoItemViewModel> resultado = Empleados;
 
-        if (!string.IsNullOrWhiteSpace(FiltroRol) && FiltroRol != "Todos")
+        if (!string.IsNullOrWhiteSpace(FiltroRol) && !FiltroRol.Equals("Todos", StringComparison.OrdinalIgnoreCase))
         {
-            resultado = resultado.Where(e => e.RolCargo.Equals(FiltroRol, StringComparison.OrdinalIgnoreCase) || e.RolCargo.ToLower().Contains(FiltroRol.ToLower()));
+            var fRol = FiltroRol.ToLower().Trim();
+            resultado = resultado.Where(e => e.RolCargo.ToLower().Contains(fRol));
+        }
+
+        if (!string.IsNullOrWhiteSpace(FiltroEstado) && !FiltroEstado.Equals("Todos", StringComparison.OrdinalIgnoreCase))
+        {
+            resultado = resultado.Where(e => e.Estado.Equals(FiltroEstado, StringComparison.OrdinalIgnoreCase));
         }
 
         if (!string.IsNullOrWhiteSpace(TextoBusqueda))
@@ -231,7 +176,8 @@ public partial class EmpleadosViewModel : ObservableObject
                 e.NombreCompleto.ToLower().Contains(q) ||
                 e.DniEmpleado.ToString().Contains(q) ||
                 e.RolCargo.ToLower().Contains(q) ||
-                e.Telefono.ToLower().Contains(q)
+                e.Telefono.ToLower().Contains(q) ||
+                e.Estado.ToLower().Contains(q)
             );
         }
 
@@ -244,7 +190,7 @@ public partial class EmpleadosViewModel : ObservableObject
         TotalEmpleadosCount = Empleados.Count;
         ActivosCount = Empleados.Count(e => e.Estado.Equals("Activo", StringComparison.OrdinalIgnoreCase));
         MozosCount = Empleados.Count(e => e.RolCargo.ToLower().Contains("mozo"));
-        InactivosCount = EmpleadosBajas.Count;
+        InactivosCount = Empleados.Count(e => e.Estado.Equals("Inactivo", StringComparison.OrdinalIgnoreCase));
     }
 
     public EmpleadosViewModel(EmpleadoService? empleadoService = null)
@@ -261,7 +207,7 @@ public partial class EmpleadosViewModel : ObservableObject
         {
             try
             {
-                var listaEntidades = await _empleadoService.ObtenerEmpleadosAsync(soloActivos: true);
+                var listaEntidades = await _empleadoService.ObtenerEmpleadosAsync(soloActivos: false);
                 
                 foreach (var emp in listaEntidades)
                 {
@@ -273,6 +219,7 @@ public partial class EmpleadosViewModel : ObservableObject
                     listaMapeada.Add(new EmpleadoItemViewModel
                     {
                         DniEmpleado = emp.DniEmpleado,
+                        IdRol = emp.IdRol,
                         NombreCompleto = $"{nombre} {apellido}".Trim(),
                         RolCargo = cargo,
                         Telefono = telefono,

@@ -15,4 +15,7 @@ public class TurnoEmpleado
 
     [Column("fin_turno")]
     public TimeSpan FinTurno { get; set; }
+
+    [Column("es_activo")]
+    public bool EsActivo { get; set; } = true;
 }

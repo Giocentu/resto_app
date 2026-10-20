@@ -48,16 +48,21 @@ public class EmpleadoService
 
     public async Task EditarEmpleadoAsync(long dni, string nombre, string apellido, string email, long telefono, int idRol)
     {
-        var emp = await _empleadoRepository.GetByIdAsync(dni);
+        var empleados = await _empleadoRepository.GetEmpleadosSpAsync(soloActivos: false);
+        var emp = System.Linq.Enumerable.FirstOrDefault(empleados, e => e.DniEmpleado == dni);
         if (emp != null)
         {
-            emp.IdRol = idRol;
             if (emp.PersonaInfo != null)
             {
                 emp.PersonaInfo.Nombre = nombre;
                 emp.PersonaInfo.Apellido = apellido;
                 emp.PersonaInfo.Email = email;
                 emp.PersonaInfo.Telefono = telefono;
+            }
+            if (emp.IdRol != idRol)
+            {
+                await _empleadoRepository.BajaLogicaEmpleadoSpAsync(dni, emp.IdRol);
+                emp.IdRol = idRol;
             }
             _empleadoRepository.Update(emp);
             await _empleadoRepository.SaveChangesAsync();
@@ -66,30 +71,11 @@ public class EmpleadoService
 
     public async Task BajaLogicaEmpleadoAsync(long dniEmpleado, int idRol)
     {
-        try
-        {
-            await _empleadoRepository.BajaLogicaEmpleadoSpAsync(dniEmpleado, idRol);
-        }
-        catch
-        {
-            var emp = await _empleadoRepository.GetByIdAsync(dniEmpleado);
-            if (emp != null)
-            {
-                emp.ActivoEnRol = false;
-                _empleadoRepository.Update(emp);
-                await _empleadoRepository.SaveChangesAsync();
-            }
-        }
+        await _empleadoRepository.BajaLogicaEmpleadoSpAsync(dniEmpleado, idRol);
     }
 
-    public async Task RestaurarEmpleadoAsync(long dniEmpleado, int idRol = 1)
+    public async Task RestaurarEmpleadoAsync(long dniEmpleado, int idRol)
     {
-        var emp = await _empleadoRepository.GetByIdAsync(dniEmpleado);
-        if (emp != null)
-        {
-            emp.ActivoEnRol = true;
-            _empleadoRepository.Update(emp);
-            await _empleadoRepository.SaveChangesAsync();
-        }
+        await _empleadoRepository.RestaurarEmpleadoSpAsync(dniEmpleado, idRol);
     }
 }

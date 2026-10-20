@@ -1,29 +1,119 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
+using RestoApp.Business.Services;
+using RestoApp.Data;
+using RestoApp.Data.Repositories;
 using RestoApp.Desktop.ViewModels;
+using RestoApp.Entities;
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace RestoApp.Desktop.Views;
 
 public partial class NuevoEmpleadoWindow : Window
 {
+    private readonly ClienteService? _clienteService;
+    private readonly TurnoService? _turnoService;
+    private List<TurnoEmpleado> _listaTurnos = new();
+    private long _dniVerificado = 0;
+    private bool _esEdicion = false;
+
     public EmpleadoItemViewModel? EmpleadoResult { get; private set; }
 
     public NuevoEmpleadoWindow()
     {
         InitializeComponent();
+        _clienteService = App.Services?.GetService(typeof(ClienteService)) as ClienteService
+            ?? new ClienteService(new ClienteRepository(new RestoAppDbContext()));
+        _turnoService = App.Services?.GetService(typeof(TurnoService)) as TurnoService
+            ?? new TurnoService(new TurnoRepository(new RestoAppDbContext()));
+
+        _ = CargarTurnosDbAsync();
     }
 
-    public NuevoEmpleadoWindow(EmpleadoItemViewModel empleado)
+    private async Task CargarTurnosDbAsync()
     {
-        InitializeComponent();
+        if (_turnoService == null) return;
+        try
+        {
+            var turnos = await _turnoService.ObtenerTurnosAsync(soloActivos: true);
+            _listaTurnos = turnos.ToList();
+            var items = _listaTurnos.Select(t => $"Turno #{t.IdTurno} ({t.InicioTurno:hh\\:mm} - {t.FinTurno:hh\\:mm})").ToList();
+            if (!items.Any())
+            {
+                items.Add("Turno 1 (19:55 - 01:55)");
+            }
+            CboTurno.ItemsSource = items;
+            CboTurno.SelectedIndex = 0;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[NUEVO EMPLEADO TURNOS DB ERROR] {ex.Message}");
+        }
+    }
+
+    public NuevoEmpleadoWindow(EmpleadoItemViewModel empleado) : this()
+    {
+        _esEdicion = true;
         TxtTituloModal.Text = "Editar Empleado";
         TxtDni.Text = empleado.DniEmpleado.ToString();
+        _dniVerificado = empleado.DniEmpleado;
         TxtDni.IsEnabled = false; // El DNI es la clave identificadora
         TxtNombre.Text = empleado.NombreCompleto;
         SeleccionarRolEnCombo(empleado.RolCargo);
         TxtTelefono.Text = empleado.Telefono;
         SeleccionarEstadoEnCombo(empleado.Estado);
+    }
+
+    private async void TxtDni_TextChanged(object? sender, TextChangedEventArgs e)
+    {
+        if (_esEdicion) return;
+
+        string text = TxtDni.Text?.Trim() ?? "";
+        if (text.Length >= 7 && long.TryParse(text, out long dni))
+        {
+            await VerificarDniAsync(dni);
+        }
+        else
+        {
+            _dniVerificado = 0;
+            TxtNombre.Text = "";
+            TxtTelefono.Text = "";
+        }
+    }
+
+    private async void BtnBuscarDni_Click(object? sender, RoutedEventArgs e)
+    {
+        TxtError.IsVisible = false;
+        string text = TxtDni.Text?.Trim() ?? "";
+        if (!long.TryParse(text, out long dni) || dni <= 0)
+        {
+            MostrarError("⚠️ Por favor ingrese un número de DNI válido.");
+            return;
+        }
+
+        await VerificarDniAsync(dni);
+    }
+
+    private async Task VerificarDniAsync(long dni)
+    {
+        if (_clienteService == null) return;
+
+        var persona = await _clienteService.BuscarPersonaPorDniAsync(dni);
+        if (persona != null)
+        {
+            TxtNombre.Text = $"{persona.Nombre} {persona.Apellido}".Trim();
+            TxtTelefono.Text = persona.Telefono > 0 ? persona.Telefono.ToString() : "";
+            _dniVerificado = persona.Dni;
+            TxtError.IsVisible = false;
+        }
+        else
+        {
+            _dniVerificado = 0;
+            MostrarError("⚠️ Este DNI no existe en el sistema. Por favor registre a la persona primero desde la gestión de Clientes/Personas.");
+        }
     }
 
     private void SeleccionarRolEnCombo(string rol)
@@ -50,7 +140,7 @@ public partial class NuevoEmpleadoWindow : Window
         }
     }
 
-    private void BtnGuardar_Click(object? sender, RoutedEventArgs e)
+    private async void BtnGuardar_Click(object? sender, RoutedEventArgs e)
     {
         TxtError.IsVisible = false;
 
@@ -60,9 +150,18 @@ public partial class NuevoEmpleadoWindow : Window
             return;
         }
 
+        if (!_esEdicion && _dniVerificado != dni)
+        {
+            await VerificarDniAsync(dni);
+            if (_dniVerificado <= 0)
+            {
+                return;
+            }
+        }
+
         if (string.IsNullOrWhiteSpace(TxtNombre.Text))
         {
-            MostrarError("⚠️ Por favor ingrese el nombre y apellido completo del empleado.");
+            MostrarError("⚠️ La persona correspondiente a este DNI no fue encontrada.");
             return;
         }
 
