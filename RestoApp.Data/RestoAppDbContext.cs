@@ -17,6 +17,8 @@ public class RestoAppDbContext : DbContext
     public DbSet<Mesa> Mesas { get; set; }
     public DbSet<MetodoPago> MetodosPago { get; set; }
     public DbSet<Pago> Pagos { get; set; }
+    public DbSet<CategoriaMenu> CategoriasMenu { get; set; }
+    public DbSet<MenuItem> MenuItems { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
