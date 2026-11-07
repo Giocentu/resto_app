@@ -6,6 +6,8 @@ using RestoApp.Data.Repositories;
 using RestoApp.Desktop.Views;
 using RestoApp.Entities;
 using System;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace RestoApp.Desktop.ViewModels;
 
@@ -13,6 +15,15 @@ public partial class MainViewModel : ObservableObject
 {
     [ObservableProperty]
     private object? _currentView;
+
+    [ObservableProperty]
+    private string _backupStatus = string.Empty;
+
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(CrearBackupCommand))]
+    private bool _isBackupInProgress;
+
+    private readonly Func<Task<string?>>? _seleccionarRutaBackupAsync;
 
     // Propiedades de visibilidad basadas en el rol global
     public bool EsDueno => SesionGlobal.RolActual == RolUsuario.Dueno;
@@ -55,8 +66,10 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private int _indiceRolSeleccionado = 0; 
 
-    public MainViewModel()
+    public MainViewModel(Func<Task<string?>>? seleccionarRutaBackupAsync = null)
     {
+        _seleccionarRutaBackupAsync = seleccionarRutaBackupAsync;
+
         // Sincronizar el ComboBox con el rol actual establecido en el Login o SesionGlobal
         _indiceRolSeleccionado = SesionGlobal.RolActual switch
         {
@@ -92,8 +105,7 @@ public partial class MainViewModel : ObservableObject
         OnPropertyChanged(nameof(PuedeVerPersonal));
         OnPropertyChanged(nameof(PuedeVerCaja));
         OnPropertyChanged(nameof(PuedeVerPrincipal));
-        OnPropertyChanged(nameof(PuedeVerMenu));
-        OnPropertyChanged(nameof(PuedeVerReportes));
+
 
         // Recargamos la vista central actual si aplica
         if (CurrentView is InicioViewModel)
@@ -163,16 +175,7 @@ public partial class MainViewModel : ObservableObject
             ?? new PagoService(new PagoRepository(new RestoAppDbContext()));
     }
 
-    private MenuService CreateMenuService()
-    {
-        return App.Services?.GetService(typeof(MenuService)) as MenuService
-            ?? new MenuService(new MenuRepository(new RestoAppDbContext()));
-    }
 
-    private ReporteService CreateReporteService()
-    {
-        return App.Services?.GetService(typeof(ReporteService)) as ReporteService
-            ?? new ReporteService(new ReporteRepository(new RestoAppDbContext()));
     }
 
     [RelayCommand]
