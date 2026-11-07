@@ -987,3 +987,100 @@ BEGIN
 END;
 GO
 
+
+
+-- =================================================================================
+-- 8. REPORTES Y DASHBOARD ADMINISTRATIVO
+-- =================================================================================
+
+-- 8.1 KPIs Generales de Ventas y Operación
+CREATE OR ALTER PROCEDURE sp_Reportes_KpisGenerales
+    @FechaInicio DATETIME,
+    @FechaFin DATETIME
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT 
+        ISNULL((SELECT SUM(monto) FROM pagos WHERE fecha_pago BETWEEN CAST(@FechaInicio AS DATE) AND CAST(@FechaFin AS DATE)), 0) AS TotalVentas,
+        ISNULL((SELECT COUNT(cuenta_id) FROM cuenta_head WHERE estado = 'CERRADA' AND fecha_apertura BETWEEN @FechaInicio AND @FechaFin), 0) AS CuentasCerradas,
+        ISNULL((SELECT AVG(total) FROM cuenta_head WHERE estado = 'CERRADA' AND fecha_apertura BETWEEN @FechaInicio AND @FechaFin), 0) AS TicketPromedio,
+        ISNULL((SELECT COUNT(id_reserva) FROM reserva WHERE fecha_reserva BETWEEN CAST(@FechaInicio AS DATE) AND CAST(@FechaFin AS DATE)), 0) AS TotalReservas,
+        ISNULL((
+            SELECT SUM(cb.cantidad) 
+            FROM cuenta_body cb 
+            INNER JOIN cuenta_head ch ON cb.cuenta_id = ch.cuenta_id 
+            WHERE ch.estado = 'CERRADA' AND ch.fecha_apertura BETWEEN @FechaInicio AND @FechaFin
+        ), 0) AS TotalItemsVendidos;
+END;
+GO
+
+-- 8.2 Top Platos y Bebidas Más Vendidos del Menú
+CREATE OR ALTER PROCEDURE sp_Reportes_TopPlatos
+    @FechaInicio DATETIME,
+    @FechaFin DATETIME,
+    @Top INT = 10
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT TOP (@Top)
+        m.descripcion AS Descripcion,
+        cm.nombre AS Categoria,
+        SUM(cb.cantidad) AS CantidadVendida,
+        SUM(cb.cantidad * cb.precio_unitario) AS TotalRecaudado
+    FROM cuenta_body cb
+    INNER JOIN cuenta_head ch ON cb.cuenta_id = ch.cuenta_id
+    INNER JOIN menu m ON cb.id_item = m.id_item
+    INNER JOIN categoria_menu cm ON m.id_categoria = cm.id_categoria
+    WHERE ch.estado = 'CERRADA' 
+      AND ch.fecha_apertura BETWEEN @FechaInicio AND @FechaFin
+    GROUP BY m.id_item, m.descripcion, cm.nombre
+    ORDER BY CantidadVendida DESC;
+END;
+GO
+
+-- 8.3 Distribución de Facturación por Método de Pago
+CREATE OR ALTER PROCEDURE sp_Reportes_VentasPorMetodoPago
+    @FechaInicio DATE,
+    @FechaFin DATE
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT 
+        mp.forma_pago AS MetodoPago,
+        ISNULL(SUM(p.monto), 0) AS TotalCobrado,
+        COUNT(p.id_pago) AS CantidadOperaciones
+    FROM metodo_pago mp
+    LEFT JOIN pagos p ON mp.id_metodo = p.id_metodo 
+                     AND p.fecha_pago BETWEEN @FechaInicio AND @FechaFin
+    GROUP BY mp.id_metodo, mp.forma_pago
+    ORDER BY TotalCobrado DESC;
+END;
+GO
+
+-- 8.4 Rendimiento de Atención por Mozo (Personal)
+CREATE OR ALTER PROCEDURE sp_Reportes_RendimientoMozos
+    @FechaInicio DATETIME,
+    @FechaFin DATETIME
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT 
+        p.nombre + ' ' + p.apellido AS NombreEmpleado,
+        re.descripcion AS Puesto,
+        COUNT(ch.cuenta_id) AS MesasAtendidas,
+        ISNULL(SUM(ch.total), 0) AS FacturacionTotal,
+        ISNULL(AVG(ch.total), 0) AS PromedioPorMesa
+    FROM cuenta_head ch
+    INNER JOIN empleado e ON ch.dni_empleado = e.dni_empleado AND ch.id_rol = e.id_rol
+    INNER JOIN persona p ON e.dni_empleado = p.dni
+    INNER JOIN rol_empleado re ON e.id_rol = re.id_rol
+    WHERE ch.estado = 'CERRADA'
+      AND ch.fecha_apertura BETWEEN @FechaInicio AND @FechaFin
+    GROUP BY p.nombre, p.apellido, re.descripcion
+    ORDER BY FacturacionTotal DESC;
+END;
+GO
