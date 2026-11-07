@@ -38,10 +38,12 @@ public partial class MainWindow : Window
     {
         // 1. Removemos la clase 'active' de todos los botones del menú de forma segura
         BtnInicio?.Classes.Remove("active");
+        BtnMenu?.Classes.Remove("active");
         BtnReservas?.Classes.Remove("active");
         BtnPersonal?.Classes.Remove("active");
         BtnCaja?.Classes.Remove("active");
         BtnEventos?.Classes.Remove("active");
+        BtnReportes?.Classes.Remove("active");
 
         // 2. Identificamos qué botón disparó el evento y le añadimos la clase active
         if (sender is Button clickedButton)

@@ -27,6 +27,14 @@ UNION ALL
 SELECT 'Metodo Pago', COUNT(*) FROM metodo_pago
 UNION ALL
 SELECT 'Pagos', COUNT(*) FROM pagos
+UNION ALL
+SELECT 'Categoria Menu', COUNT(*) FROM categoria_menu
+UNION ALL
+SELECT 'Menu', COUNT(*) FROM menu
+UNION ALL
+SELECT 'Cuenta Head', COUNT(*) FROM cuenta_head
+UNION ALL
+SELECT 'Cuenta Body', COUNT(*) FROM cuenta_body
 ORDER BY Cantidad DESC; -- Ordena de mayor a menor cantidad
 
 
@@ -50,6 +58,12 @@ SELECT * FROM turno_empleado;
 
 SELECT '--- METODO PAGO ---' AS Tabla;
 SELECT * FROM metodo_pago;
+
+SELECT '--- CATEGORIA MENU ---' AS Tabla;
+SELECT * FROM categoria_menu;
+
+SELECT '--- MENU ---' AS Tabla;
+SELECT * FROM menu;
 
 -- =============================================
 -- TABLAS DE ENTIDADES E INFRAESTRUCTURA
@@ -81,3 +95,9 @@ SELECT * FROM reserva_mesa;
 
 SELECT '--- PAGOS ---' AS Tabla;
 SELECT * FROM pagos;
+
+SELECT '--- CUENTA_HEAD ---' AS Tabla;
+SELECT * FROM cuenta_head;
+
+SELECT '--- CUENTA_BODY ---' AS Tabla;
+SELECT * FROM cuenta_body;

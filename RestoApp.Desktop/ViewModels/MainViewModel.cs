@@ -55,6 +55,13 @@ public partial class MainViewModel : ObservableObject
                                   ||  SesionGlobal.RolActual == RolUsuario.Recepcion
                                   ||  SesionGlobal.RolActual == RolUsuario.Mozo;
 
+    public bool PuedeVerMenu => SesionGlobal.RolActual == RolUsuario.Dueno 
+                             ||  SesionGlobal.RolActual == RolUsuario.Gerente
+                             ||  SesionGlobal.RolActual == RolUsuario.Mozo;
+
+    public bool PuedeVerReportes => SesionGlobal.RolActual == RolUsuario.Dueno 
+                                ||  SesionGlobal.RolActual == RolUsuario.Gerente;
+
     // 0 = Dueño, 1 = Gerente, 2 = Cajero, 3 = Recepción, 4 = Mozo
     [ObservableProperty]
     private int _indiceRolSeleccionado = 0; 
@@ -98,12 +105,20 @@ public partial class MainViewModel : ObservableObject
         OnPropertyChanged(nameof(PuedeVerPersonal));
         OnPropertyChanged(nameof(PuedeVerCaja));
         OnPropertyChanged(nameof(PuedeVerPrincipal));
-        CrearBackupCommand.NotifyCanExecuteChanged();
+
 
         // Recargamos la vista central actual si aplica
         if (CurrentView is InicioViewModel)
         {
             IrAInicio();
+        }
+        else if (CurrentView is MenuViewModel)
+        {
+            IrAMenu();
+        }
+        else if (CurrentView is ReportesViewModel)
+        {
+            IrAReportes();
         }
         else if (CurrentView is MesasViewModel)
         {
@@ -160,56 +175,7 @@ public partial class MainViewModel : ObservableObject
             ?? new PagoService(new PagoRepository(new RestoAppDbContext()));
     }
 
-    private BackupService CreateBackupService()
-    {
-        return App.Services?.GetService(typeof(BackupService)) as BackupService
-            ?? new BackupService(new BackupRepository(new RestoAppDbContext()));
-    }
 
-    private bool CanCrearBackup() => EsDueno && !IsBackupInProgress;
-
-    [RelayCommand(CanExecute = nameof(CanCrearBackup))]
-    private async Task CrearBackupAsync()
-    {
-        if (_seleccionarRutaBackupAsync is null)
-        {
-            BackupStatus = "No se pudo abrir el selector de destino.";
-            return;
-        }
-
-        IsBackupInProgress = true;
-        try
-        {
-            string? backupFilePath;
-            try
-            {
-                BackupStatus = "Selecciona el destino de la copia...";
-                backupFilePath = await _seleccionarRutaBackupAsync();
-            }
-            catch (Exception ex)
-            {
-                BackupStatus = $"No se pudo seleccionar el destino: {ex.Message}";
-                return;
-            }
-
-            if (string.IsNullOrWhiteSpace(backupFilePath))
-            {
-                BackupStatus = string.Empty;
-                return;
-            }
-
-            BackupStatus = "Creando copia de seguridad...";
-            await CreateBackupService().BackupDatabaseAsync(backupFilePath);
-            BackupStatus = $"Copia creada: {Path.GetFileName(backupFilePath)}";
-        }
-        catch (Exception ex)
-        {
-            BackupStatus = $"No se pudo crear la copia: {ex.Message}";
-        }
-        finally
-        {
-            IsBackupInProgress = false;
-        }
     }
 
     [RelayCommand]
@@ -294,6 +260,30 @@ public partial class MainViewModel : ObservableObject
         }
         catch { }
         CurrentView = new EventosViewModel(eventoService);
+    }
+
+    [RelayCommand]
+    private void IrAMenu()
+    {
+        MenuService? menuService = null;
+        try
+        {
+            menuService = CreateMenuService();
+        }
+        catch { }
+        CurrentView = new MenuViewModel(menuService);
+    }
+
+    [RelayCommand]
+    private void IrAReportes()
+    {
+        ReporteService? reporteService = null;
+        try
+        {
+            reporteService = CreateReporteService();
+        }
+        catch { }
+        CurrentView = new ReportesViewModel(reporteService);
     }
 
 

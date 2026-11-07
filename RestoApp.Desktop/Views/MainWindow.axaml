@@ -62,10 +62,12 @@
                 <TextBlock Text="RestoApp" Foreground="White" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,30,0,25"/>
 
                 <Button x:Name="BtnInicio" IsVisible="{Binding PuedeVerPrincipal}" Classes="navBtn active" Content="Inicio" Click="MenuButton_Click" Command="{Binding IrAInicioCommand}"/>
+                <Button x:Name="BtnMenu" IsVisible="{Binding PuedeVerMenu}" Classes="navBtn" Content="Menu" Click="MenuButton_Click" Command="{Binding IrAMenuCommand}"/>
                 <Button x:Name="BtnReservas" IsVisible="{Binding PuedeVerReservas}" Classes="navBtn" Content="Reservas" Click="MenuButton_Click" Command="{Binding IrAReservasCommand}"/>
                 <Button x:Name="BtnPersonal" IsVisible="{Binding PuedeVerPersonal}" Classes="navBtn" Content="Personal" Click="MenuButton_Click" Command="{Binding IrAEmpleadosCommand}"/>
                 <Button x:Name="BtnCaja" IsVisible="{Binding PuedeVerCaja}" Classes="navBtn" Content="Caja" Click="MenuButton_Click" Command="{Binding IrACajaCommand}"/>
                 <Button x:Name="BtnEventos" IsVisible="{Binding PuedeVerEventos}" Classes="navBtn" Content="Eventos" Click="MenuButton_Click" Command="{Binding IrAEventosCommand}"/>
+                <Button x:Name="BtnReportes" IsVisible="{Binding PuedeVerReportes}" Classes="navBtn" Content="Reportes" Click="MenuButton_Click" Command="{Binding IrAReportesCommand}"/>
             </StackPanel>
 
             <!-- Fila 1: Área de Usuario y Logout -->
