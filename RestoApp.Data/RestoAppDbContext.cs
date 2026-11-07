@@ -17,12 +17,19 @@ public class RestoAppDbContext : DbContext
     public DbSet<Mesa> Mesas { get; set; }
     public DbSet<MetodoPago> MetodosPago { get; set; }
     public DbSet<Pago> Pagos { get; set; }
+    public DbSet<CategoriaMenu> CategoriasMenu { get; set; }
+    public DbSet<MenuItem> MenuItems { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         // Reemplaza "TU_SERVIDOR" por el nombre de tu instancia (ej. localhost\SQLEXPRESS)
+<<<<<<< HEAD
         optionsBuilder.UseSqlServer(@"Server=HERNAN\SQLEXPRESS;Database=resto_DB;Integrated Security=True;TrustServerCertificate=True;");    
     }
+=======
+optionsBuilder.UseSqlServer(@"Server=localhost;Database=resto_DB;User Id=SA;Password=Gio1234.;TrustServerCertificate=True;");
+}
+>>>>>>> 2546f42b83fe106a1a7cd636c7afbfc532b225a2
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         // Clave primaria compuesta para Empleado (dni_empleado, id_rol)

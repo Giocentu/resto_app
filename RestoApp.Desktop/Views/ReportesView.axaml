@@ -1,0 +1,184 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:RestoApp.Desktop.ViewModels"
+             x:Class="RestoApp.Desktop.Views.ReportesView"
+             x:DataType="vm:ReportesViewModel">
+
+    <UserControl.Styles>
+        <Style Selector="Border.kpiCard">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#E2E8F0"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="Padding" Value="14"/>
+            <Setter Property="BoxShadow" Value="0 2 6 0 #10000000"/>
+        </Style>
+
+        <Style Selector="Button.tabBtn">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#7F8C8D"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Padding" Value="14,8"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+        <Style Selector="Button.tabBtn.activeTab">
+            <Setter Property="Background" Value="#3498DB"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+    </UserControl.Styles>
+
+    <Grid RowDefinitions="Auto, Auto, Auto, *">
+
+        <!-- ========================================== -->
+        <!-- FILA 0: ENCABEZADO Y ACCIÓN PRINCIPAL      -->
+        <!-- ========================================== -->
+        <Grid Grid.Row="0" ColumnDefinitions="*, Auto" Margin="0,0,0,14">
+            <StackPanel Grid.Column="0">
+                <TextBlock Text="Panel de Reportes y Rendimiento" FontSize="22" FontWeight="Bold" Foreground="#2C3E50"/>
+                <TextBlock Text="Análisis administrativo de facturación, artículos más vendidos y rendimiento operativo" FontSize="12" Foreground="#7F8C8D"/>
+            </StackPanel>
+
+            <Button Grid.Column="1" Content="Actualizar" 
+                    Command="{Binding GenerarReporteCommand}" 
+                    Background="#3498DB" Foreground="White" FontWeight="Bold" 
+                    Padding="18,8" CornerRadius="8" Cursor="Hand" VerticalAlignment="Center"/>
+        </Grid>
+
+        <!-- ========================================== -->
+        <!-- FILA 1: BARRA DE FILTROS Y RANGO TEMPORAL -->
+        <!-- ========================================== -->
+        <Border Grid.Row="1" Background="White" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="8" Padding="12,10" Margin="0,0,0,15">
+            <Grid ColumnDefinitions="Auto, *, Auto">
+                
+                <!-- Presets Rápidos -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                    <TextBlock Text="Periodo:" Foreground="#64748B" FontWeight="SemiBold" FontSize="12" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                    <Button Content="Hoy" Command="{Binding EstablecerPresetHoyCommand}" Background="#F1F5F9" Foreground="#334155" FontSize="12" Padding="12,6" CornerRadius="6" Cursor="Hand"/>
+                    <Button Content="Últimos 7 Días" Command="{Binding EstablecerPresetSemanaCommand}" Background="#F1F5F9" Foreground="#334155" FontSize="12" Padding="12,6" CornerRadius="6" Cursor="Hand"/>
+                    <Button Content="Este Mes" Command="{Binding EstablecerPresetMesCommand}" Background="#F1F5F9" Foreground="#334155" FontSize="12" Padding="12,6" CornerRadius="6" Cursor="Hand"/>
+                </StackPanel>
+
+                <!-- Selector de Fechas (Desde - Hasta) -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                    <TextBlock Text="Desde:" VerticalAlignment="Center" Foreground="#64748B" FontSize="12" FontWeight="SemiBold"/>
+                    <DatePicker SelectedDate="{Binding FechaInicio, Mode=TwoWay}" MaxWidth="150" Height="34"/>
+                    
+                    <TextBlock Text="Hasta:" VerticalAlignment="Center" Foreground="#64748B" FontSize="12" FontWeight="SemiBold" Margin="4,0,0,0"/>
+                    <DatePicker SelectedDate="{Binding FechaFin, Mode=TwoWay}" MaxWidth="150" Height="34"/>
+                </StackPanel>
+
+            </Grid>
+        </Border>
+
+        <!-- ========================================== -->
+        <!-- FILA 2: TARJETAS KPI (MÉTRICAS RESUMEN)   -->
+        <!-- ========================================== -->
+        <Grid Grid.Row="2" ColumnDefinitions="*, *, *, *, *" Margin="0,0,0,15">
+            
+            <!-- KPI 1: Ventas Totales -->
+            <Border Grid.Column="0" Classes="kpiCard" Margin="0,0,8,0">
+                <StackPanel Spacing="4">
+                    <TextBlock Text="Ventas Totales" FontSize="12" Foreground="#7F8C8D" FontWeight="Bold"/>
+                    <TextBlock Text="{Binding TotalVentas, StringFormat='${0:N2}'}" FontSize="18" FontWeight="Bold" Foreground="#27AE60"/>
+                    <TextBlock Text="Recaudación período" FontSize="10" Foreground="#BDC3C7"/>
+                </StackPanel>
+            </Border>
+
+            <!-- KPI 2: Ticket Promedio -->
+            <Border Grid.Column="1" Classes="kpiCard" Margin="0,0,8,0">
+                <StackPanel Spacing="4">
+                    <TextBlock Text="Ticket Promedio" FontSize="12" Foreground="#7F8C8D" FontWeight="Bold"/>
+                    <TextBlock Text="{Binding TicketPromedio, StringFormat='${0:N2}'}" FontSize="18" FontWeight="Bold" Foreground="#2980B9"/>
+                    <TextBlock Text="Gasto medio por mesa" FontSize="10" Foreground="#BDC3C7"/>
+                </StackPanel>
+            </Border>
+
+            <!-- KPI 3: Cuentas Cerradas -->
+            <Border Grid.Column="2" Classes="kpiCard" Margin="0,0,8,0">
+                <StackPanel Spacing="4">
+                    <TextBlock Text="Cuentas Cerradas" FontSize="12" Foreground="#7F8C8D" FontWeight="Bold"/>
+                    <TextBlock Text="{Binding CuentasCerradas}" FontSize="18" FontWeight="Bold" Foreground="#2C3E50"/>
+                    <TextBlock Text="Comandas finalizadas" FontSize="10" Foreground="#BDC3C7"/>
+                </StackPanel>
+            </Border>
+
+            <!-- KPI 4: Platos Vendidos -->
+            <Border Grid.Column="3" Classes="kpiCard" Margin="0,0,8,0">
+                <StackPanel Spacing="4">
+                    <TextBlock Text="Platos Despachados" FontSize="12" Foreground="#7F8C8D" FontWeight="Bold"/>
+                    <TextBlock Text="{Binding TotalItemsVendidos}" FontSize="18" FontWeight="Bold" Foreground="#8E44AD"/>
+                    <TextBlock Text="Volumen de cocina y barra" FontSize="10" Foreground="#BDC3C7"/>
+                </StackPanel>
+            </Border>
+
+            <!-- KPI 5: Reservas Registradas -->
+            <Border Grid.Column="4" Classes="kpiCard">
+                <StackPanel Spacing="4">
+                    <TextBlock Text="Reservas Registradas" FontSize="12" Foreground="#7F8C8D" FontWeight="Bold"/>
+                    <TextBlock Text="{Binding TotalReservas}" FontSize="18" FontWeight="Bold" Foreground="#D35400"/>
+                    <TextBlock Text="Total clientes reservados" FontSize="10" Foreground="#BDC3C7"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- ========================================== -->
+        <!-- FILA 3: CONTENIDO DETALLADO (DATA GRIDS)   -->
+        <!-- ========================================== -->
+        <Border Grid.Row="3" Background="White" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="10" Padding="15">
+            <Grid RowDefinitions="Auto, *">
+                
+                <!-- Selector de Sub-Reportes -->
+                <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="6" Margin="0,0,0,12">
+                    <Button Content="Top 10 Platos Más Vendidos" 
+                            Command="{Binding CambiarTabCommand}" CommandParameter="Platos"
+                            Classes="tabBtn" Classes.activeTab="{Binding EsTabPlatos}"/>
+
+                    <Button Content="Facturación por Método de Pago" 
+                            Command="{Binding CambiarTabCommand}" CommandParameter="Pagos"
+                            Classes="tabBtn" Classes.activeTab="{Binding EsTabPagos}"/>
+
+                    <Button Content="Rendimiento de Personal / Mozos" 
+                            Command="{Binding CambiarTabCommand}" CommandParameter="Mozos"
+                            Classes="tabBtn" Classes.activeTab="{Binding EsTabMozos}"/>
+                </StackPanel>
+
+                <!-- TABLA 1: TOP PLATOS -->
+                <DataGrid Grid.Row="1" ItemsSource="{Binding TopPlatos}" IsVisible="{Binding EsTabPlatos}"
+                          AutoGenerateColumns="False" IsReadOnly="True" GridLinesVisibility="Horizontal">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Producto / Ítem" Binding="{Binding Descripcion}" Width="*"/>
+                        <DataGridTextColumn Header="Categoría" Binding="{Binding Categoria}" Width="160"/>
+                        <DataGridTextColumn Header="Unidades Vendidas" Binding="{Binding CantidadVendida}" Width="150"/>
+                        <DataGridTextColumn Header="Total Recaudado" Binding="{Binding TotalRecaudado, StringFormat='${0:N2}'}" Width="160"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+
+                <!-- TABLA 2: MÉTODOS DE PAGO -->
+                <DataGrid Grid.Row="1" ItemsSource="{Binding VentasPorMetodo}" IsVisible="{Binding EsTabPagos}"
+                          AutoGenerateColumns="False" IsReadOnly="True" GridLinesVisibility="Horizontal">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Forma de Pago" Binding="{Binding MetodoPago}" Width="*"/>
+                        <DataGridTextColumn Header="Operaciones" Binding="{Binding CantidadOperaciones}" Width="150"/>
+                        <DataGridTextColumn Header="Total Cobrado" Binding="{Binding TotalCobrado, StringFormat='${0:N2}'}" Width="160"/>
+                        <DataGridTextColumn Header="% del Total" Binding="{Binding PorcentajeDelTotal, StringFormat='{}{0:F1}%'}" Width="130"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+
+                <!-- TABLA 3: RENDIMIENTO DE MOZOS -->
+                <DataGrid Grid.Row="1" ItemsSource="{Binding RendimientoMozos}" IsVisible="{Binding EsTabMozos}"
+                          AutoGenerateColumns="False" IsReadOnly="True" GridLinesVisibility="Horizontal">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Empleado" Binding="{Binding NombreEmpleado}" Width="*"/>
+                        <DataGridTextColumn Header="Rol" Binding="{Binding Puesto}" Width="140"/>
+                        <DataGridTextColumn Header="Mesas Atendidas" Binding="{Binding MesasAtendidas}" Width="150"/>
+                        <DataGridTextColumn Header="Total Facturado" Binding="{Binding FacturacionTotal, StringFormat='${0:N2}'}" Width="160"/>
+                        <DataGridTextColumn Header="Promedio / Mesa" Binding="{Binding PromedioPorMesa, StringFormat='${0:N2}'}" Width="150"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+
+            </Grid>
+        </Border>
+
+    </Grid>
+</UserControl>

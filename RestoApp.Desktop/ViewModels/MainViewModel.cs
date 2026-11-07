@@ -55,6 +55,13 @@ public partial class MainViewModel : ObservableObject
                                   ||  SesionGlobal.RolActual == RolUsuario.Recepcion
                                   ||  SesionGlobal.RolActual == RolUsuario.Mozo;
 
+    public bool PuedeVerMenu => SesionGlobal.RolActual == RolUsuario.Dueno 
+                             ||  SesionGlobal.RolActual == RolUsuario.Gerente
+                             ||  SesionGlobal.RolActual == RolUsuario.Mozo;
+
+    public bool PuedeVerReportes => SesionGlobal.RolActual == RolUsuario.Dueno 
+                                ||  SesionGlobal.RolActual == RolUsuario.Gerente;
+
     // 0 = Dueño, 1 = Gerente, 2 = Cajero, 3 = Recepción, 4 = Mozo
     [ObservableProperty]
     private int _indiceRolSeleccionado = 0; 
@@ -98,12 +105,25 @@ public partial class MainViewModel : ObservableObject
         OnPropertyChanged(nameof(PuedeVerPersonal));
         OnPropertyChanged(nameof(PuedeVerCaja));
         OnPropertyChanged(nameof(PuedeVerPrincipal));
+<<<<<<< HEAD
         CrearBackupCommand.NotifyCanExecuteChanged();
+=======
+        OnPropertyChanged(nameof(PuedeVerMenu));
+        OnPropertyChanged(nameof(PuedeVerReportes));
+>>>>>>> 2546f42b83fe106a1a7cd636c7afbfc532b225a2
 
         // Recargamos la vista central actual si aplica
         if (CurrentView is InicioViewModel)
         {
             IrAInicio();
+        }
+        else if (CurrentView is MenuViewModel)
+        {
+            IrAMenu();
+        }
+        else if (CurrentView is ReportesViewModel)
+        {
+            IrAReportes();
         }
         else if (CurrentView is MesasViewModel)
         {
@@ -160,6 +180,7 @@ public partial class MainViewModel : ObservableObject
             ?? new PagoService(new PagoRepository(new RestoAppDbContext()));
     }
 
+<<<<<<< HEAD
     private BackupService CreateBackupService()
     {
         return App.Services?.GetService(typeof(BackupService)) as BackupService
@@ -210,6 +231,18 @@ public partial class MainViewModel : ObservableObject
         {
             IsBackupInProgress = false;
         }
+=======
+    private MenuService CreateMenuService()
+    {
+        return App.Services?.GetService(typeof(MenuService)) as MenuService
+            ?? new MenuService(new MenuRepository(new RestoAppDbContext()));
+    }
+
+    private ReporteService CreateReporteService()
+    {
+        return App.Services?.GetService(typeof(ReporteService)) as ReporteService
+            ?? new ReporteService(new ReporteRepository(new RestoAppDbContext()));
+>>>>>>> 2546f42b83fe106a1a7cd636c7afbfc532b225a2
     }
 
     [RelayCommand]
@@ -294,6 +327,30 @@ public partial class MainViewModel : ObservableObject
         }
         catch { }
         CurrentView = new EventosViewModel(eventoService);
+    }
+
+    [RelayCommand]
+    private void IrAMenu()
+    {
+        MenuService? menuService = null;
+        try
+        {
+            menuService = CreateMenuService();
+        }
+        catch { }
+        CurrentView = new MenuViewModel(menuService);
+    }
+
+    [RelayCommand]
+    private void IrAReportes()
+    {
+        ReporteService? reporteService = null;
+        try
+        {
+            reporteService = CreateReporteService();
+        }
+        catch { }
+        CurrentView = new ReportesViewModel(reporteService);
     }
 
 

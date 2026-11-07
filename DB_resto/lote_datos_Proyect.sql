@@ -1,9 +1,16 @@
---USE resto_DB
+USE resto_DB;
+GO
+SET ANSI_NULLS ON;
+GO
+SET QUOTED_IDENTIFIER ON;
+GO
 
 --LOTE DE DATOS PROYECTO RESTAURANT
 --------------------------------------------------
 --TABLA persona
 --------------------------------------------------
+IF NOT EXISTS (SELECT 1 FROM persona)
+BEGIN
 insert into persona (dni, nombre, apellido, email, telefono, password) values (96079673, 'Giovanni', 'Centurion', 'giocen@gmail.org', 3795753983, 'SoyJefe123');
 insert into persona (dni, nombre, apellido, email, telefono, password) values (42739764, 'Hernan', 'Cespes', 'hcesped@gmail.org', 3795753988, 'SoyHernan123');
 insert into persona (dni, nombre, apellido, email, telefono, password) values (46452703, 'Elena', 'Martinez', 'gjones0@unesco.org', 3795753991, 'password1');
@@ -1006,66 +1013,81 @@ insert into persona (dni, nombre, apellido, email, telefono, password) values (6
 insert into persona (dni, nombre, apellido, email, telefono, password) values (98992876, 'Pedro', 'Flores', 'iaddyrp@tuttocitta.it', 3797623926, 'password1');
 insert into persona (dni, nombre, apellido, email, telefono, password) values (52081861, 'Juan', 'Sanchez', 'moggrq@earthlink.net', 3797452508, 'password1');
 insert into persona (dni, nombre, apellido, email, telefono, password) values (65524986, 'Pablo', 'Sanchez', 'dscurrrr@noaa.gov', 3797701700, 'password1');
+END;
+GO
 
 --------------------------------------------------
 --TABLA turno_empleado
 --------------------------------------------------
---turno_empleado
-insert into turno_empleado (inicio_turno, fin_turno) values ('19:55', '1:55');
-insert into turno_empleado (inicio_turno, fin_turno) values ('16:17', '1:24');
-insert into turno_empleado (inicio_turno, fin_turno) values ('16:57', '1:00');
-insert into turno_empleado (inicio_turno, fin_turno) values ('16:20', '1:02');
-insert into turno_empleado (inicio_turno, fin_turno) values ('17:53', '1:51');
-
+IF NOT EXISTS (SELECT 1 FROM turno_empleado)
+BEGIN
+    SET IDENTITY_INSERT turno_empleado ON;
+    INSERT INTO turno_empleado (id_turno, inicio_turno, fin_turno) VALUES 
+    (1, '19:55', '1:55'),
+    (2, '16:17', '1:24'),
+    (3, '16:57', '1:00'),
+    (4, '16:20', '1:02'),
+    (5, '17:53', '1:51');
+    SET IDENTITY_INSERT turno_empleado OFF;
+END;
+GO
 
 --------------------------------------------------
 --TABLA estado_reserva
 --------------------------------------------------
-insert into estado_reserva (id_estado, estado) values (1, 'Confirmado');
-insert into estado_reserva (id_estado, estado) values (2, 'Cancelado');
-insert into estado_reserva (id_estado, estado) values (3, 'Pagado');
-
-
+IF NOT EXISTS (SELECT 1 FROM estado_reserva WHERE id_estado = 1) insert into estado_reserva (id_estado, estado) values (1, 'Confirmado');
+IF NOT EXISTS (SELECT 1 FROM estado_reserva WHERE id_estado = 2) insert into estado_reserva (id_estado, estado) values (2, 'Cancelado');
+IF NOT EXISTS (SELECT 1 FROM estado_reserva WHERE id_estado = 3) insert into estado_reserva (id_estado, estado) values (3, 'Pagado');
+GO
 
 --------------------------------------------------
 --TABLA rol_empleado
 --------------------------------------------------
---------------------------------------------------
--- TABLA rol_empleado (CORREGIDA)
---------------------------------------------------
--- Roles con Permiso Total (1)
-INSERT INTO rol_empleado (id_rol, descripcion, permiso_admin) VALUES (1, 'Dueño', 1);
-INSERT INTO rol_empleado (id_rol, descripcion, permiso_admin) VALUES (2, 'Gerente', 1);
--- Roles Restringidos (0 - por defecto)
-INSERT INTO rol_empleado (id_rol, descripcion, permiso_admin) VALUES (3, 'CM', 0);
-INSERT INTO rol_empleado (id_rol, descripcion, permiso_admin) VALUES (4, 'Cajero', 0);
-INSERT INTO rol_empleado (id_rol, descripcion, permiso_admin) VALUES (5, 'Mozo', 0);
-INSERT INTO rol_empleado (id_rol, descripcion, permiso_admin) VALUES (6, 'Cocinero', 0);
-INSERT INTO rol_empleado (id_rol, descripcion, permiso_admin) VALUES (7, 'Bachero', 0);
-INSERT INTO rol_empleado (id_rol, descripcion, permiso_admin) VALUES (8, 'Bartender', 0);
-INSERT INTO rol_empleado (id_rol, descripcion, permiso_admin) VALUES (9, 'Seguridad', 0);
+IF NOT EXISTS (SELECT 1 FROM rol_empleado WHERE id_rol = 1)
+BEGIN
+    -- Roles con Permiso Total (1)
+    INSERT INTO rol_empleado (id_rol, descripcion, permiso_admin) VALUES (1, 'Dueño', 1);
+    INSERT INTO rol_empleado (id_rol, descripcion, permiso_admin) VALUES (2, 'Gerente', 1);
+    -- Roles Restringidos (0 - por defecto)
+    INSERT INTO rol_empleado (id_rol, descripcion, permiso_admin) VALUES (3, 'CM', 0);
+    INSERT INTO rol_empleado (id_rol, descripcion, permiso_admin) VALUES (4, 'Cajero', 0);
+    INSERT INTO rol_empleado (id_rol, descripcion, permiso_admin) VALUES (5, 'Mozo', 0);
+    INSERT INTO rol_empleado (id_rol, descripcion, permiso_admin) VALUES (6, 'Cocinero', 0);
+    INSERT INTO rol_empleado (id_rol, descripcion, permiso_admin) VALUES (7, 'Bachero', 0);
+    INSERT INTO rol_empleado (id_rol, descripcion, permiso_admin) VALUES (8, 'Bartender', 0);
+    INSERT INTO rol_empleado (id_rol, descripcion, permiso_admin) VALUES (9, 'Seguridad', 0);
+END;
+GO
 
-
---------------------------------------------------
 --------------------------------------------------
 --TABLA evento (Ajustado a adjusment_v2)
 --------------------------------------------------
-SET IDENTITY_INSERT evento ON;
-insert into evento (id_evento, nombre_evento, fecha_evento, descripcion, es_activo) values (1, 'Cumpleaños', DATEADD(day, 5, GETDATE()), 'Menú festivo con copa de bienvenida para festejos.', 1);
-insert into evento (id_evento, nombre_evento, fecha_evento, descripcion, es_activo) values (2, 'Despedida de soltera', DATEADD(day, 10, GETDATE()), 'Reserva de salón VIP y show especial.', 1);
-insert into evento (id_evento, nombre_evento, fecha_evento, descripcion, es_activo) values (3, 'Evento Privado', DATEADD(day, 14, GETDATE()), 'Cierre exclusivo de sector terraza para empresa.', 1);
-insert into evento (id_evento, nombre_evento, fecha_evento, descripcion, es_activo) values (4, 'Cena de fin de año', DATEADD(day, 30, GETDATE()), 'Gran cena show con DJ y brindis de fin de año.', 1);
-insert into evento (id_evento, nombre_evento, fecha_evento, descripcion, es_activo) values (5, 'Cata de vino', DATEADD(day, 7, GETDATE()), 'Degustación de bodegas premium con maridaje de pasos.', 1);
-insert into evento (id_evento, nombre_evento, fecha_evento, descripcion, es_activo) values (6, 'Cena Normal', GETDATE(), 'Reserva regular de mesa.', 1);
-SET IDENTITY_INSERT evento OFF;
+IF NOT EXISTS (SELECT 1 FROM evento)
+BEGIN
+    SET IDENTITY_INSERT evento ON;
+    insert into evento (id_evento, nombre_evento, fecha_evento, descripcion, es_activo) values (1, 'Cumpleaños', DATEADD(day, 5, GETDATE()), 'Menú festivo con copa de bienvenida para festejos.', 1);
+    insert into evento (id_evento, nombre_evento, fecha_evento, descripcion, es_activo) values (2, 'Despedida de soltera', DATEADD(day, 10, GETDATE()), 'Reserva de salón VIP y show especial.', 1);
+    insert into evento (id_evento, nombre_evento, fecha_evento, descripcion, es_activo) values (3, 'Evento Privado', DATEADD(day, 14, GETDATE()), 'Cierre exclusivo de sector terraza para empresa.', 1);
+    insert into evento (id_evento, nombre_evento, fecha_evento, descripcion, es_activo) values (4, 'Cena de fin de año', DATEADD(day, 30, GETDATE()), 'Gran cena show con DJ y brindis de fin de año.', 1);
+    insert into evento (id_evento, nombre_evento, fecha_evento, descripcion, es_activo) values (5, 'Cata de vino', DATEADD(day, 7, GETDATE()), 'Degustación de bodegas premium con maridaje de pasos.', 1);
+    insert into evento (id_evento, nombre_evento, fecha_evento, descripcion, es_activo) values (6, 'Cena Normal', GETDATE(), 'Reserva regular de mesa.', 1);
+    SET IDENTITY_INSERT evento OFF;
+END;
+GO
 
 --------------------------------------------------
 --TABLA ubicacion_mesa
 --------------------------------------------------
-IF NOT EXISTS (SELECT 1 FROM ubicacion_mesa WHERE ubicacion = 'Terraza') insert into ubicacion_mesa (ubicacion) values ('Terraza');
-IF NOT EXISTS (SELECT 1 FROM ubicacion_mesa WHERE ubicacion = '2doPiso') insert into ubicacion_mesa (ubicacion) values ('2doPiso');
-IF NOT EXISTS (SELECT 1 FROM ubicacion_mesa WHERE ubicacion = 'PlantaBaja') insert into ubicacion_mesa (ubicacion) values ('PlantaBaja');
-IF NOT EXISTS (SELECT 1 FROM ubicacion_mesa WHERE ubicacion = 'Patio') insert into ubicacion_mesa (ubicacion) values ('Patio');
+IF NOT EXISTS (SELECT 1 FROM ubicacion_mesa)
+BEGIN
+    SET IDENTITY_INSERT ubicacion_mesa ON;
+    insert into ubicacion_mesa (id_ubicacion, ubicacion) values (1, 'Terraza');
+    insert into ubicacion_mesa (id_ubicacion, ubicacion) values (2, '2doPiso');
+    insert into ubicacion_mesa (id_ubicacion, ubicacion) values (3, 'PlantaBaja');
+    insert into ubicacion_mesa (id_ubicacion, ubicacion) values (4, 'Patio');
+    SET IDENTITY_INSERT ubicacion_mesa OFF;
+END;
+GO
 
 --------------------------------------------------
 --TABLA mesa 
@@ -1082,29 +1104,34 @@ IF NOT EXISTS (SELECT 1 FROM mesa WHERE nro_mesa = 9) insert into mesa (nro_mesa
 IF NOT EXISTS (SELECT 1 FROM mesa WHERE nro_mesa = 10) insert into mesa (nro_mesa, capacidad, id_ubicacion, estado, es_activo) values (10, 6, 3, 'RESERVADA', 1);
 IF NOT EXISTS (SELECT 1 FROM mesa WHERE nro_mesa = 11) insert into mesa (nro_mesa, capacidad, id_ubicacion, estado, es_activo) values (11, 8, 4, 'LIBRE', 1);
 IF NOT EXISTS (SELECT 1 FROM mesa WHERE nro_mesa = 12) insert into mesa (nro_mesa, capacidad, id_ubicacion, estado, es_activo) values (12, 2, 4, 'LIBRE', 1);
+GO
 
 --------------------------------------------------
 --TABLA empleado
 --------------------------------------------------
 -- Insercion de admins    
+DECLARE @TurnoDefecto INT;
+SELECT TOP 1 @TurnoDefecto = id_turno FROM turno_empleado ORDER BY id_turno ASC;
+
 IF NOT EXISTS (SELECT 1 FROM empleado WHERE dni_empleado = 42739764 AND id_rol = 1)
-    INSERT INTO empleado (dni_empleado, id_rol, id_turno, activo_en_rol) VALUES (42739764, 1, 1, 1);
+    INSERT INTO empleado (dni_empleado, id_rol, id_turno, activo_en_rol) VALUES (42739764, 1, @TurnoDefecto, 1);
 
 IF NOT EXISTS (SELECT 1 FROM empleado WHERE dni_empleado = 96079673 AND id_rol = 2)
-    INSERT INTO empleado (dni_empleado, id_rol, id_turno, activo_en_rol) VALUES (96079673, 2, 1, 1);
+    INSERT INTO empleado (dni_empleado, id_rol, id_turno, activo_en_rol) VALUES (96079673, 2, @TurnoDefecto, 1);
 
 -- Insercion de empleados de demostración adicionales
 INSERT INTO empleado (dni_empleado, id_rol, id_turno, activo_en_rol)
 SELECT TOP(18)
     p.dni,
     (ABS(CHECKSUM(NEWID())) % 7) + 3,
-    (ABS(CHECKSUM(NEWID())) % 5) + 1,
+    (SELECT TOP 1 t.id_turno FROM turno_empleado t ORDER BY CHECKSUM(NEWID(), p.dni)),
     1
 FROM persona p
 WHERE p.dni NOT IN (42739764, 96079673)
   AND p.dni NOT IN (SELECT dni_empleado FROM empleado)
   AND p.dni NOT IN (SELECT dni_cliente FROM cliente)
 ORDER BY NEWID();
+GO
     
 --------------------------------------------------
 --TABLA cliente
@@ -1116,6 +1143,7 @@ FROM persona p
 WHERE p.dni NOT IN (SELECT dni_empleado FROM empleado)
   AND p.dni NOT IN (SELECT dni_cliente FROM cliente)
 ORDER BY p.dni;
+GO
     
 --------------------------------------------------
 --TABLA metodo_pago
@@ -1123,6 +1151,7 @@ ORDER BY p.dni;
 IF NOT EXISTS (SELECT 1 FROM metodo_pago WHERE id_metodo = 1) insert into metodo_pago (id_metodo, forma_pago) values (1, 'Credito');
 IF NOT EXISTS (SELECT 1 FROM metodo_pago WHERE id_metodo = 2) insert into metodo_pago (id_metodo, forma_pago) values (2, 'Debito');
 IF NOT EXISTS (SELECT 1 FROM metodo_pago WHERE id_metodo = 3) insert into metodo_pago (id_metodo, forma_pago) values (3, 'Efectivo');
+GO
 
 --------------------------------------------------
 --TABLA reserva (REGISTROS INICIALES DE PRUEBA)
@@ -1132,23 +1161,31 @@ BEGIN
     DECLARE @ClienteDni BIGINT;
     SELECT TOP 1 @ClienteDni = dni_cliente FROM cliente;
 
-    IF @ClienteDni IS NOT NULL
+    DECLARE @EmpleadoDni BIGINT, @EmpleadoRol INT;
+    SELECT TOP 1 @EmpleadoDni = dni_empleado, @EmpleadoRol = id_rol 
+    FROM empleado 
+    WHERE activo_en_rol = 1 AND id_rol IN (1, 2, 3, 4, 5);
+
+    IF @ClienteDni IS NOT NULL AND @EmpleadoDni IS NOT NULL
     BEGIN
         INSERT INTO reserva (fecha_reserva, cant_personas, id_estado, id_evento, dni_cliente, dni_empleado, id_rol)
         VALUES 
-        (DATEADD(hour, 2, GETDATE()), 4, 1, 1, @ClienteDni, 42739764, 1),
-        (DATEADD(hour, 4, GETDATE()), 2, 1, 2, @ClienteDni, 42739764, 1),
-        (DATEADD(day, 1, GETDATE()), 8, 1, 3, @ClienteDni, 42739764, 1);
+        (DATEADD(hour, 2, GETDATE()), 4, 1, 1, @ClienteDni, @EmpleadoDni, @EmpleadoRol),
+        (DATEADD(hour, 4, GETDATE()), 2, 1, 2, @ClienteDni, @EmpleadoDni, @EmpleadoRol),
+        (DATEADD(day, 1, GETDATE()), 8, 1, 3, @ClienteDni, @EmpleadoDni, @EmpleadoRol);
 
         -- Asociar la primera reserva a mesa 7 y la segunda a mesa 10
         DECLARE @Res1 INT, @Res2 INT;
         SELECT TOP 1 @Res1 = id_reserva FROM reserva ORDER BY id_reserva ASC;
         SELECT TOP 1 @Res2 = id_reserva FROM reserva ORDER BY id_reserva DESC;
 
-        INSERT INTO reserva_mesa (id_reserva, id_mesa) VALUES (@Res1, 7);
-        INSERT INTO reserva_mesa (id_reserva, id_mesa) VALUES (@Res2, 10);
+        IF @Res1 IS NOT NULL AND EXISTS (SELECT 1 FROM mesa WHERE id_mesa = 7)
+            INSERT INTO reserva_mesa (id_reserva, id_mesa) VALUES (@Res1, 7);
+        IF @Res2 IS NOT NULL AND EXISTS (SELECT 1 FROM mesa WHERE id_mesa = 10)
+            INSERT INTO reserva_mesa (id_reserva, id_mesa) VALUES (@Res2, 10);
     END
 END;
+GO
 
 --------------------------------------------------
 --TABLA pagos (REGISTROS INICIALES DE PRUEBA)
@@ -1163,6 +1200,130 @@ BEGIN
     (18500.00, CAST(GETDATE() AS DATE), 3, @ReservaId),
     (31200.00, CAST(GETDATE() AS DATE), 1, NULL),
     (45000.00, CAST(GETDATE() AS DATE), 2, NULL);
+END;
+GO
+
+--------------------------------------------------
+--TABLA categoria_menu (ACTUALIZACION IMPLEMENTADA)
+--------------------------------------------------
+IF NOT EXISTS (SELECT 1 FROM categoria_menu)
+BEGIN
+    SET IDENTITY_INSERT categoria_menu ON;
+    INSERT INTO categoria_menu (id_categoria, nombre) VALUES
+    (1, 'Entradas'),
+    (2, 'Parrilla y Carnes'),
+    (3, 'Pastas Artesanales'),
+    (4, 'Minutas y Hamburguesas'),
+    (5, 'Bebidas sin Alcohol'),
+    (6, 'Cervezas'),
+    (7, 'Vinos de Selección'),
+    (8, 'Postres Caseros'),
+    (9, 'Cafetería');
+    SET IDENTITY_INSERT categoria_menu OFF;
+END;
+GO
+
+--------------------------------------------------
+--TABLA menu (ACTUALIZACION IMPLEMENTADA)
+--------------------------------------------------
+IF NOT EXISTS (SELECT 1 FROM menu)
+BEGIN
+    INSERT INTO menu (descripcion, precio, id_categoria, activo) VALUES
+    ('Provoleta Parrilla Especial', 7500.00, 1, 1),
+    ('Empanada de Carne Cortada', 1800.00, 1, 1),
+    ('Ensalada Caesar Pollo', 8900.00, 1, 1),
+    ('Bife de Chorizo 400g', 18500.00, 2, 1),
+    ('Ojo de Bife Angus', 21000.00, 2, 1),
+    ('Asado de Tira Especial', 19800.00, 2, 1),
+    ('Salmon Rosado Grillado', 26000.00, 2, 1),
+    ('Ravioles de Ricota y Nuez', 11500.00, 3, 1),
+    ('Sorrentinos Jamon y Queso', 12200.00, 3, 1),
+    ('Fettuccine Alfredo', 10800.00, 3, 1),
+    ('Risotto de Hongos', 14500.00, 3, 1),
+    ('Milanesa Napolitana', 13500.00, 4, 1),
+    ('Suprema a la Suiza', 12800.00, 4, 1),
+    ('Hamburguesa Completa', 9800.00, 4, 1),
+    ('Papas Fritas Rusticas', 5200.00, 4, 1),
+    ('Agua Mineral 500ml', 2200.00, 5, 1),
+    ('Gaseosa Linea 500ml', 2800.00, 5, 1),
+    ('Cerveza Patagonia 730ml', 5800.00, 6, 1),
+    ('Cerveza Corona 330ml', 4200.00, 6, 1),
+    ('Copa Vino Malbec Reserva', 4500.00, 7, 1),
+    ('Botella Malbec Catena', 28500.00, 7, 1),
+    ('Flan Casero Dulce Leche', 4500.00, 8, 1),
+    ('Tiramisu Italiano', 5200.00, 8, 1),
+    ('Volcan de Chocolate', 6100.00, 8, 1),
+    ('Cafe Espresso Cortado', 2400.00, 9, 1),
+    ('Plato Temporada Pasada', 9500.00, 2, 0); -- Inactivo para pruebas
+END;
+GO
+
+--------------------------------------------------
+--TABLA cuenta_head y cuenta_body (ACTUALIZACION IMPLEMENTADA)
+--------------------------------------------------
+IF NOT EXISTS (SELECT 1 FROM cuenta_head)
+BEGIN
+    -- Obtener un mozo activo (rol 5 = Mozo, o cualquier empleado de atención)
+    DECLARE @MozoDni BIGINT, @MozoRol INT;
+    SELECT TOP 1 @MozoDni = dni_empleado, @MozoRol = id_rol 
+    FROM empleado 
+    WHERE activo_en_rol = 1 AND id_rol IN (5, 4, 2, 1)
+    ORDER BY CASE WHEN id_rol = 5 THEN 0 ELSE 1 END;
+
+    -- Cuenta 1: Mesa 6 (Mesa actualmente en estado 'OCUPADA', comanda abierta)
+    DECLARE @CuentaMesa6 INT;
+    INSERT INTO cuenta_head (id_mesa, total, estado, fecha_apertura, dni_empleado, id_rol) 
+    VALUES (6, 0, 'ABIERTA', DATEADD(minute, -75, GETDATE()), @MozoDni, @MozoRol);
+    SET @CuentaMesa6 = SCOPE_IDENTITY();
+
+    -- Detalle con cantidad y snapshot de precio unitario
+    INSERT INTO cuenta_body (cuenta_id, id_item, cantidad, precio_unitario)
+    SELECT @CuentaMesa6, id_item, 1, precio FROM menu WHERE descripcion = 'Bife de Chorizo 400g';
+    INSERT INTO cuenta_body (cuenta_id, id_item, cantidad, precio_unitario)
+    SELECT @CuentaMesa6, id_item, 1, precio FROM menu WHERE descripcion = 'Ojo de Bife Angus';
+    INSERT INTO cuenta_body (cuenta_id, id_item, cantidad, precio_unitario)
+    SELECT @CuentaMesa6, id_item, 1, precio FROM menu WHERE descripcion = 'Papas Fritas Rusticas';
+    INSERT INTO cuenta_body (cuenta_id, id_item, cantidad, precio_unitario)
+    SELECT @CuentaMesa6, id_item, 1, precio FROM menu WHERE descripcion = 'Ensalada Caesar Pollo';
+    INSERT INTO cuenta_body (cuenta_id, id_item, cantidad, precio_unitario)
+    SELECT @CuentaMesa6, id_item, 2, precio FROM menu WHERE descripcion = 'Cerveza Patagonia 730ml';
+    INSERT INTO cuenta_body (cuenta_id, id_item, cantidad, precio_unitario)
+    SELECT @CuentaMesa6, id_item, 2, precio FROM menu WHERE descripcion = 'Tiramisu Italiano';
+
+    -- Cuenta 2: Mesa 9 (Mesa actualmente en estado 'OCUPADA', comanda abierta)
+    DECLARE @CuentaMesa9 INT;
+    INSERT INTO cuenta_head (id_mesa, total, estado, fecha_apertura, dni_empleado, id_rol) 
+    VALUES (9, 0, 'ABIERTA', DATEADD(minute, -40, GETDATE()), @MozoDni, @MozoRol);
+    SET @CuentaMesa9 = SCOPE_IDENTITY();
+
+    INSERT INTO cuenta_body (cuenta_id, id_item, cantidad, precio_unitario)
+    SELECT @CuentaMesa9, id_item, 1, precio FROM menu WHERE descripcion = 'Sorrentinos Jamon y Queso';
+    INSERT INTO cuenta_body (cuenta_id, id_item, cantidad, precio_unitario)
+    SELECT @CuentaMesa9, id_item, 1, precio FROM menu WHERE descripcion = 'Ravioles de Ricota y Nuez';
+    INSERT INTO cuenta_body (cuenta_id, id_item, cantidad, precio_unitario)
+    SELECT @CuentaMesa9, id_item, 1, precio FROM menu WHERE descripcion = 'Botella Malbec Catena';
+    INSERT INTO cuenta_body (cuenta_id, id_item, cantidad, precio_unitario)
+    SELECT @CuentaMesa9, id_item, 2, precio FROM menu WHERE descripcion = 'Agua Mineral 500ml';
+    INSERT INTO cuenta_body (cuenta_id, id_item, cantidad, precio_unitario)
+    SELECT @CuentaMesa9, id_item, 1, precio FROM menu WHERE descripcion = 'Volcan de Chocolate';
+
+    -- Cuenta 3: Mesa 4 (Mesa en estado 'EN LIMPIEZA', cuenta previa ya CERRADA y liquidada)
+    DECLARE @CuentaMesa4 INT;
+    INSERT INTO cuenta_head (id_mesa, total, estado, fecha_apertura, fecha_cierre, dni_empleado, id_rol) 
+    VALUES (4, 0, 'CERRADA', DATEADD(hour, -2, GETDATE()), DATEADD(minute, -20, GETDATE()), @MozoDni, @MozoRol);
+    SET @CuentaMesa4 = SCOPE_IDENTITY();
+
+    INSERT INTO cuenta_body (cuenta_id, id_item, cantidad, precio_unitario)
+    SELECT @CuentaMesa4, id_item, 1, precio FROM menu WHERE descripcion = 'Milanesa Napolitana';
+    INSERT INTO cuenta_body (cuenta_id, id_item, cantidad, precio_unitario)
+    SELECT @CuentaMesa4, id_item, 1, precio FROM menu WHERE descripcion = 'Gaseosa Linea 500ml';
+    INSERT INTO cuenta_body (cuenta_id, id_item, cantidad, precio_unitario)
+    SELECT @CuentaMesa4, id_item, 1, precio FROM menu WHERE descripcion = 'Flan Casero Dulce Leche';
+
+    -- Vincular el pago registrado para la cuenta liquidada
+    UPDATE pagos
+    SET id_cuenta = @CuentaMesa4
+    WHERE id_pago = 1;
 END;
 GO
 
