@@ -1,6 +1,9 @@
 using Avalonia.Controls;
+using Avalonia.Platform.Storage;
 using RestoApp.Desktop.ViewModels;
 using Avalonia.Interactivity;
+using System;
+using System.Threading.Tasks;
 
 namespace RestoApp.Desktop.Views;
 
@@ -9,7 +12,26 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
-        DataContext = new MainViewModel();
+        DataContext = new MainViewModel(SeleccionarRutaBackupAsync);
+    }
+
+    private async Task<string?> SeleccionarRutaBackupAsync()
+    {
+        var archivo = await StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
+        {
+            Title = "Guardar copia de seguridad",
+            SuggestedFileName = $"RestoApp_Backup_{DateTime.Now:yyyyMMdd_HHmmss}.bak",
+            DefaultExtension = "bak",
+            FileTypeChoices =
+            [
+                new FilePickerFileType("Copia de seguridad de SQL Server")
+                {
+                    Patterns = ["*.bak"]
+                }
+            ]
+        });
+
+        return archivo?.Path.LocalPath;
     }
 
     private void MenuButton_Click(object? sender, RoutedEventArgs e)

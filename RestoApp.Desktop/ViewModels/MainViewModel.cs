@@ -6,6 +6,8 @@ using RestoApp.Data.Repositories;
 using RestoApp.Desktop.Views;
 using RestoApp.Entities;
 using System;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace RestoApp.Desktop.ViewModels;
 
@@ -13,6 +15,15 @@ public partial class MainViewModel : ObservableObject
 {
     [ObservableProperty]
     private object? _currentView;
+
+    [ObservableProperty]
+    private string _backupStatus = string.Empty;
+
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(CrearBackupCommand))]
+    private bool _isBackupInProgress;
+
+    private readonly Func<Task<string?>>? _seleccionarRutaBackupAsync;
 
     // Propiedades de visibilidad basadas en el rol global
     public bool EsDueno => SesionGlobal.RolActual == RolUsuario.Dueno;
@@ -48,8 +59,10 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private int _indiceRolSeleccionado = 0; 
 
-    public MainViewModel()
+    public MainViewModel(Func<Task<string?>>? seleccionarRutaBackupAsync = null)
     {
+        _seleccionarRutaBackupAsync = seleccionarRutaBackupAsync;
+
         // Sincronizar el ComboBox con el rol actual establecido en el Login o SesionGlobal
         _indiceRolSeleccionado = SesionGlobal.RolActual switch
         {
@@ -85,6 +98,7 @@ public partial class MainViewModel : ObservableObject
         OnPropertyChanged(nameof(PuedeVerPersonal));
         OnPropertyChanged(nameof(PuedeVerCaja));
         OnPropertyChanged(nameof(PuedeVerPrincipal));
+        CrearBackupCommand.NotifyCanExecuteChanged();
 
         // Recargamos la vista central actual si aplica
         if (CurrentView is InicioViewModel)
@@ -144,6 +158,58 @@ public partial class MainViewModel : ObservableObject
     {
         return App.Services?.GetService(typeof(PagoService)) as PagoService
             ?? new PagoService(new PagoRepository(new RestoAppDbContext()));
+    }
+
+    private BackupService CreateBackupService()
+    {
+        return App.Services?.GetService(typeof(BackupService)) as BackupService
+            ?? new BackupService(new BackupRepository(new RestoAppDbContext()));
+    }
+
+    private bool CanCrearBackup() => EsDueno && !IsBackupInProgress;
+
+    [RelayCommand(CanExecute = nameof(CanCrearBackup))]
+    private async Task CrearBackupAsync()
+    {
+        if (_seleccionarRutaBackupAsync is null)
+        {
+            BackupStatus = "No se pudo abrir el selector de destino.";
+            return;
+        }
+
+        IsBackupInProgress = true;
+        try
+        {
+            string? backupFilePath;
+            try
+            {
+                BackupStatus = "Selecciona el destino de la copia...";
+                backupFilePath = await _seleccionarRutaBackupAsync();
+            }
+            catch (Exception ex)
+            {
+                BackupStatus = $"No se pudo seleccionar el destino: {ex.Message}";
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(backupFilePath))
+            {
+                BackupStatus = string.Empty;
+                return;
+            }
+
+            BackupStatus = "Creando copia de seguridad...";
+            await CreateBackupService().BackupDatabaseAsync(backupFilePath);
+            BackupStatus = $"Copia creada: {Path.GetFileName(backupFilePath)}";
+        }
+        catch (Exception ex)
+        {
+            BackupStatus = $"No se pudo crear la copia: {ex.Message}";
+        }
+        finally
+        {
+            IsBackupInProgress = false;
+        }
     }
 
     [RelayCommand]
