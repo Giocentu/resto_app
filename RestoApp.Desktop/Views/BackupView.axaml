@@ -1,0 +1,127 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:RestoApp.Desktop.ViewModels"
+             x:Class="RestoApp.Desktop.Views.BackupView"
+             x:DataType="vm:BackupViewModel">
+
+    <Grid RowDefinitions="Auto, Auto, Auto, *" Margin="30">
+
+        <!-- Fila 0: Encabezado -->
+        <StackPanel Grid.Row="0" Spacing="6" Margin="0,0,0,25">
+            <TextBlock Text="Copia de Seguridad y Restauración" 
+                       FontSize="26" 
+                       FontWeight="Bold" 
+                       Foreground="#2C3E50"/>
+            <TextBlock Text="Herramienta de respaldo y recuperación de datos de RestoApp (exclusivo para Dueño)." 
+                       FontSize="14" 
+                       Foreground="#7F8C8D"/>
+        </StackPanel>
+
+        <!-- Fila 1: Panel con las 2 opciones principales -->
+        <Grid Grid.Row="1" ColumnDefinitions="*, *" Margin="0,0,0,20">
+
+            <!-- Tarjeta 1: Crear Backup -->
+            <Border Grid.Column="0" 
+                    Background="White" 
+                    CornerRadius="12" 
+                    Padding="25" 
+                    Margin="0,0,12,0"
+                    BoxShadow="0 4 12 0 #15000000">
+                <Grid RowDefinitions="Auto, Auto, *, Auto">
+                    <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="12" Margin="0,0,0,14">
+                        <Border Background="#EBF5FB" CornerRadius="24" Width="48" Height="48">
+                            <TextBlock Text="💾" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="Crear Copia" FontSize="18" FontWeight="Bold" Foreground="#2C3E50"/>
+                            <TextBlock Text="Generar archivo .bak" FontSize="12" Foreground="#7F8C8D"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <TextBlock Grid.Row="1" 
+                               Text="Guarda un respaldo completo de la base de datos SQL Server (mesas, menú, pedidos, pagos y reservas) en un archivo seleccionable."
+                               FontSize="13" 
+                               Foreground="#5D6D7E" 
+                               TextWrapping="Wrap" 
+                               Margin="0,0,0,20"/>
+
+                    <Button Grid.Row="3"
+                            Content="Crear Copia de Seguridad"
+                            Command="{Binding CrearBackupCommand}"
+                            Background="#3498DB" 
+                            Foreground="White" 
+                            FontSize="15" 
+                            FontWeight="Bold" 
+                            Padding="12" 
+                            CornerRadius="8" 
+                            HorizontalAlignment="Stretch" 
+                            HorizontalContentAlignment="Center"
+                            Cursor="Hand"/>
+                </Grid>
+            </Border>
+
+            <!-- Tarjeta 2: Restaurar Backup -->
+            <Border Grid.Column="1" 
+                    Background="White" 
+                    CornerRadius="12" 
+                    Padding="25" 
+                    Margin="12,0,0,0"
+                    BoxShadow="0 4 12 0 #15000000">
+                <Grid RowDefinitions="Auto, Auto, *, Auto">
+                    <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="12" Margin="0,0,0,14">
+                        <Border Background="#FEF9E7" CornerRadius="24" Width="48" Height="48">
+                            <TextBlock Text="🔄" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="Restaurar Base" FontSize="18" FontWeight="Bold" Foreground="#2C3E50"/>
+                            <TextBlock Text="Recuperar desde .bak" FontSize="12" Foreground="#7F8C8D"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <TextBlock Grid.Row="1" 
+                               Text="Sobrescribe la base de datos con un respaldo previo. Por seguridad y consistencia, se requiere la autorización de dos usuarios administradores distintos."
+                               FontSize="13" 
+                               Foreground="#5D6D7E" 
+                               TextWrapping="Wrap" 
+                               Margin="0,0,0,20"/>
+
+                    <Button Grid.Row="3"
+                            Content="Restaurar Base de Datos"
+                            Command="{Binding RestaurarBackupCommand}"
+                            Background="#E67E22" 
+                            Foreground="White" 
+                            FontSize="15" 
+                            FontWeight="Bold" 
+                            Padding="12" 
+                            CornerRadius="8" 
+                            HorizontalAlignment="Stretch" 
+                            HorizontalContentAlignment="Center"
+                            Cursor="Hand"/>
+                </Grid>
+            </Border>
+
+        </Grid>
+
+        <!-- Fila 2: Indicador de Estado / Mensaje de Resultado -->
+        <Border Grid.Row="2" 
+                Background="White" 
+                CornerRadius="10" 
+                Padding="16,14" 
+                Margin="0,10,0,0"
+                BorderBrush="#BDC3C7" 
+                BorderThickness="1"
+                IsVisible="{Binding TieneEstado}">
+            <StackPanel Orientation="Horizontal" Spacing="12">
+                <TextBlock Text="ℹ️" FontSize="18" VerticalAlignment="Center"/>
+                <TextBlock Text="{Binding BackupStatus}" 
+                           FontSize="14" 
+                           FontWeight="SemiBold" 
+                           Foreground="#2C3E50" 
+                           VerticalAlignment="Center"
+                           TextWrapping="Wrap"/>
+            </StackPanel>
+        </Border>
+
+    </Grid>
+</UserControl>
+

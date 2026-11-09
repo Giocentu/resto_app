@@ -69,6 +69,20 @@ public partial class MainViewModel : ObservableObject
     public bool PuedeVerReportes => SesionGlobal.RolActual == RolUsuario.Dueno
                                 || SesionGlobal.RolActual == RolUsuario.Gerente;
 
+    public string NombreUsuarioConectado => string.IsNullOrWhiteSpace(SesionGlobal.NombreCompletoActual)
+        ? (string.IsNullOrWhiteSpace(SesionGlobal.UsuarioActual) ? "Usuario Conectado" : SesionGlobal.UsuarioActual)
+        : SesionGlobal.NombreCompletoActual;
+
+    public string RolActualTexto => SesionGlobal.RolActual switch
+    {
+        RolUsuario.Dueno => "Dueño",
+        RolUsuario.Gerente => "Gerente",
+        RolUsuario.Cajero => "Cajero",
+        RolUsuario.Recepcion => "Recepción",
+        RolUsuario.Mozo => "Mozo",
+        _ => "Personal"
+    };
+
     // 0 = Dueño, 1 = Gerente, 2 = Cajero, 3 = Recepción, 4 = Mozo
     [ObservableProperty]
     private int _indiceRolSeleccionado = 0;
@@ -119,6 +133,7 @@ public partial class MainViewModel : ObservableObject
         OnPropertyChanged(nameof(PuedeVerPrincipal));
         OnPropertyChanged(nameof(PuedeVerMenu));
         OnPropertyChanged(nameof(PuedeVerReportes));
+        OnPropertyChanged(nameof(NombreUsuarioConectado));
         CrearBackupCommand.NotifyCanExecuteChanged();
         RestaurarBackupCommand.NotifyCanExecuteChanged();
 
@@ -455,6 +470,12 @@ public partial class MainViewModel : ObservableObject
         }
         catch { }
         CurrentView = new ReportesViewModel(reporteService);
+    }
+
+    [RelayCommand]
+    private void IrABackup()
+    {
+        CurrentView = new BackupViewModel(this);
     }
 
 }

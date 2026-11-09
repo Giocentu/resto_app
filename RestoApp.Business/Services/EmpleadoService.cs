@@ -118,25 +118,25 @@ public class EmpleadoService
         }
 
         // Siempre garantizamos la presencia de usuarios Dueño y Gerente para pruebas o entornos base
-        if (!System.Linq.Enumerable.Any(lista, u => u.Id == "demo_dueno"))
+        if (!System.Linq.Enumerable.Any(lista, u => u.Id == "96079673" || u.Id == "demo_dueno"))
         {
             lista.Add(new UsuarioAutorizanteItem
             {
-                Id = "demo_dueno",
-                NombreCompleto = "Dueño (demo)",
+                Id = "96079673",
+                NombreCompleto = "Giovanni Centurion",
                 Rol = "Dueño",
-                PasswordEsperada = "123"
+                PasswordEsperada = "123123"
             });
         }
 
-        if (!System.Linq.Enumerable.Any(lista, u => u.Id == "demo_gerente"))
+        if (!System.Linq.Enumerable.Any(lista, u => u.Id == "42739764" || u.Id == "demo_gerente"))
         {
             lista.Add(new UsuarioAutorizanteItem
             {
-                Id = "demo_gerente",
-                NombreCompleto = "Gerente (demo)",
+                Id = "42739764",
+                NombreCompleto = "Hernan Cespedes",
                 Rol = "Gerente",
-                PasswordEsperada = "123"
+                PasswordEsperada = "123123"
             });
         }
 

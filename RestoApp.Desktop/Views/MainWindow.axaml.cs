@@ -79,6 +79,7 @@ public partial class MainWindow : Window
         BtnCaja?.Classes.Remove("active");
         BtnEventos?.Classes.Remove("active");
         BtnReportes?.Classes.Remove("active");
+        BtnBackup?.Classes.Remove("active");
 
         // 2. Identificamos qué botón disparó el evento y le añadimos la clase active
         if (sender is Button clickedButton)
@@ -89,6 +90,10 @@ public partial class MainWindow : Window
 
     private void CerrarSesion(object? sender, RoutedEventArgs e)
     {
+        SesionGlobal.UsuarioActual = string.Empty;
+        SesionGlobal.NombreCompletoActual = string.Empty;
+        SesionGlobal.DniActual = null;
+
         var loginWindow = new LoginWindow();
         loginWindow.Show();
 
