@@ -1,0 +1,113 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:entities="using:RestoApp.Entities"
+        x:Class="RestoApp.Desktop.Views.AutorizacionRestoreWindow"
+        Title="Autorización para Restauración"
+        Width="460" Height="530"
+        WindowStartupLocation="CenterOwner"
+        CanResize="False">
+
+    <Border Background="#F8F9FA" Padding="25">
+        <StackPanel Spacing="14">
+            <!-- Header con icono y título -->
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="10">
+                <TextBlock Text="🔒" FontSize="26" VerticalAlignment="Center"/>
+                <TextBlock Text="Autorización Requerida"
+                           FontSize="18"
+                           FontWeight="Bold"
+                           Foreground="#2C3E50"
+                           VerticalAlignment="Center"/>
+            </StackPanel>
+
+            <TextBlock Text="Para restaurar la base de datos debe validar las credenciales de 2 usuarios distintos con categoría Dueño o Gerente."
+                       FontSize="12"
+                       Foreground="#7F8C8D"
+                       TextWrapping="Wrap"
+                       TextAlignment="Center"/>
+
+            <!-- Bloque Usuario 1 -->
+            <Border Background="White" CornerRadius="8" Padding="14" BorderBrush="#BDC3C7" BorderThickness="1">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="Primer Autorizante (Dueño / Gerente):"
+                               FontWeight="SemiBold"
+                               FontSize="13"
+                               Foreground="#2C3E50"/>
+                    <ComboBox x:Name="CmbUsuario1"
+                              HorizontalAlignment="Stretch">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate x:DataType="entities:UsuarioAutorizanteItem">
+                                <TextBlock Text="{Binding DisplayText}"/>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+
+                    <TextBlock Text="Contraseña:"
+                               FontSize="12"
+                               Foreground="#34495E"/>
+                    <TextBox x:Name="TxtPassword1"
+                             PasswordChar="•"
+                             PlaceholderText="Contraseña del primer usuario"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Bloque Usuario 2 -->
+            <Border Background="White" CornerRadius="8" Padding="14" BorderBrush="#BDC3C7" BorderThickness="1">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="Segundo Autorizante (Dueño / Gerente):"
+                               FontWeight="SemiBold"
+                               FontSize="13"
+                               Foreground="#2C3E50"/>
+                    <ComboBox x:Name="CmbUsuario2"
+                              HorizontalAlignment="Stretch">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate x:DataType="entities:UsuarioAutorizanteItem">
+                                <TextBlock Text="{Binding DisplayText}"/>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+
+                    <TextBlock Text="Contraseña:"
+                               FontSize="12"
+                               Foreground="#34495E"/>
+                    <TextBox x:Name="TxtPassword2"
+                             PasswordChar="•"
+                             PlaceholderText="Contraseña del segundo usuario"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Mensaje de Error -->
+            <TextBlock x:Name="TxtError"
+                       Foreground="#E74C3C"
+                       FontSize="12"
+                       FontWeight="SemiBold"
+                       TextWrapping="Wrap"
+                       TextAlignment="Center"
+                       IsVisible="False"/>
+
+            <!-- Botones de Acción -->
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="15" Margin="0,6,0,0">
+                <Button Content="Cancelar"
+                        Click="BtnCancelar_Click"
+                        Width="120"
+                        Padding="0,8"
+                        HorizontalContentAlignment="Center"
+                        Background="#95A5A6"
+                        Foreground="White"
+                        CornerRadius="6"
+                        Cursor="Hand"/>
+
+                <Button Content="Autorizar"
+                        Click="BtnConfirmar_Click"
+                        Width="140"
+                        Padding="0,8"
+                        HorizontalContentAlignment="Center"
+                        Background="#27AE60"
+                        Foreground="White"
+                        FontWeight="Bold"
+                        CornerRadius="6"
+                        Cursor="Hand"/>
+            </StackPanel>
+        </StackPanel>
+    </Border>
+</Window>
+

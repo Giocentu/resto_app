@@ -4,7 +4,7 @@
         x:Class="RestoApp.Desktop.Views.MainWindow"
         x:DataType="vm:MainViewModel"
         Title="RestoApp - Sistema POS Gastronómico Desktop"
-        Height="720" Width="1180"
+        Height="1000" Width="1900"
         MinHeight="680" MinWidth="1150"
         WindowStartupLocation="CenterScreen">
 
@@ -72,15 +72,14 @@
 
             <!-- Fila 1: Área de Usuario y Logout -->
             <StackPanel Grid.Row="1" Spacing="10" Margin="15,20,15,25">
-                <TextBlock Text="SQL Server necesita permiso para escribir en la unidad seleccionada."
-                           IsVisible="{Binding EsDueno}"
-                           Foreground="#BDC3C7"
-                           FontSize="10"
-                           TextWrapping="Wrap"/>
                 <Button Classes="navBtn"
                         IsVisible="{Binding EsDueno}"
                         Content="Crear copia de seguridad"
                         Command="{Binding CrearBackupCommand}"/>
+                <Button Classes="navBtn"
+                        IsVisible="{Binding EsDueno}"
+                        Content="Restaurar base de datos"
+                        Command="{Binding RestaurarBackupCommand}"/>
                 <TextBlock Text="{Binding BackupStatus}"
                             IsVisible="{Binding EsDueno}"
                            Foreground="#ECF0F1"

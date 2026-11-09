@@ -33,6 +33,14 @@
         <DataTemplate DataType="{x:Type vm:EventosViewModel}">
             <v:EventosView/>
         </DataTemplate>
+
+        <DataTemplate DataType="{x:Type vm:MenuViewModel}">
+            <v:MenuView/>
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type vm:ReportesViewModel}">
+            <v:ReportesView/>
+        </DataTemplate>
     </Application.DataTemplates>
 
     <Application.Styles>

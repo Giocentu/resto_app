@@ -2,6 +2,9 @@ using Avalonia.Controls;
 using Avalonia.Platform.Storage;
 using RestoApp.Desktop.ViewModels;
 using Avalonia.Interactivity;
+using RestoApp.Business.Services;
+using RestoApp.Data;
+using RestoApp.Data.Repositories;
 using System;
 using System.Threading.Tasks;
 
@@ -12,7 +15,10 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
-        DataContext = new MainViewModel(SeleccionarRutaBackupAsync);
+        DataContext = new MainViewModel(
+            SeleccionarRutaBackupAsync,
+            SeleccionarRutaRestoreAsync,
+            SolicitarAutorizacionRestoreAsync);
     }
 
     private async Task<string?> SeleccionarRutaBackupAsync()
@@ -31,7 +37,36 @@ public partial class MainWindow : Window
             ]
         });
 
-        return archivo?.Path.LocalPath;
+        return archivo?.TryGetLocalPath() ?? archivo?.Path.LocalPath;
+    }
+
+    private async Task<string?> SeleccionarRutaRestoreAsync()
+    {
+        var archivos = await StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
+        {
+            Title = "Seleccionar copia de seguridad (.bak) para restaurar",
+            AllowMultiple = false,
+            FileTypeFilter =
+            [
+                new FilePickerFileType("Copia de seguridad de SQL Server (*.bak)")
+                {
+                    Patterns = ["*.bak"]
+                }
+            ]
+        });
+
+        var archivo = archivos?.Count > 0 ? archivos[0] : null;
+        return archivo?.TryGetLocalPath() ?? archivo?.Path.LocalPath;
+    }
+
+    private async Task<bool> SolicitarAutorizacionRestoreAsync()
+    {
+        var empleadoService = App.Services?.GetService(typeof(EmpleadoService)) as EmpleadoService
+            ?? new EmpleadoService(new EmpleadoRepository(new RestoAppDbContext()));
+
+        var usuarios = await empleadoService.ObtenerUsuariosAutorizantesAsync();
+        var dialog = new AutorizacionRestoreWindow(usuarios);
+        return await dialog.ShowDialog<bool>(this);
     }
 
     private void MenuButton_Click(object? sender, RoutedEventArgs e)

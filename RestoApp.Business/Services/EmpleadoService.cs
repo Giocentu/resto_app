@@ -78,4 +78,68 @@ public class EmpleadoService
     {
         await _empleadoRepository.RestaurarEmpleadoSpAsync(dniEmpleado, idRol);
     }
+
+    public async Task<List<UsuarioAutorizanteItem>> ObtenerUsuariosAutorizantesAsync()
+    {
+        var lista = new List<UsuarioAutorizanteItem>();
+        try
+        {
+            var empleados = await ObtenerEmpleadosAsync(soloActivos: true);
+            foreach (var emp in empleados)
+            {
+                var rolDesc = emp.Rol?.Descripcion ?? (emp.IdRol == 1 ? "Dueño" : emp.IdRol == 2 ? "Gerente" : string.Empty);
+                bool esAutorizado = emp.IdRol == 1 || emp.IdRol == 2 ||
+                                    rolDesc.Equals("Dueño", StringComparison.OrdinalIgnoreCase) ||
+                                    rolDesc.Equals("Dueno", StringComparison.OrdinalIgnoreCase) ||
+                                    rolDesc.Equals("Gerente", StringComparison.OrdinalIgnoreCase) ||
+                                    (emp.Rol?.PermisoAdmin == true);
+
+                if (esAutorizado)
+                {
+                    var nombre = $"{emp.PersonaInfo?.Nombre} {emp.PersonaInfo?.Apellido}".Trim();
+                    if (string.IsNullOrWhiteSpace(nombre))
+                    {
+                        nombre = $"Empleado #{emp.DniEmpleado}";
+                    }
+
+                    lista.Add(new UsuarioAutorizanteItem
+                    {
+                        Id = emp.DniEmpleado.ToString(),
+                        NombreCompleto = nombre,
+                        Rol = string.IsNullOrWhiteSpace(rolDesc) ? "Gerente" : rolDesc,
+                        PasswordEsperada = emp.PersonaInfo?.Password ?? string.Empty
+                    });
+                }
+            }
+        }
+        catch
+        {
+            // Fallback si la BD no está disponible
+        }
+
+        // Siempre garantizamos la presencia de usuarios Dueño y Gerente para pruebas o entornos base
+        if (!System.Linq.Enumerable.Any(lista, u => u.Id == "demo_dueno"))
+        {
+            lista.Add(new UsuarioAutorizanteItem
+            {
+                Id = "demo_dueno",
+                NombreCompleto = "Dueño (demo)",
+                Rol = "Dueño",
+                PasswordEsperada = "123"
+            });
+        }
+
+        if (!System.Linq.Enumerable.Any(lista, u => u.Id == "demo_gerente"))
+        {
+            lista.Add(new UsuarioAutorizanteItem
+            {
+                Id = "demo_gerente",
+                NombreCompleto = "Gerente (demo)",
+                Rol = "Gerente",
+                PasswordEsperada = "123"
+            });
+        }
+
+        return lista;
+    }
 }

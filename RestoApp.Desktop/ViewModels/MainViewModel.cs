@@ -21,54 +21,66 @@ public partial class MainViewModel : ObservableObject
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(CrearBackupCommand))]
+    [NotifyCanExecuteChangedFor(nameof(RestaurarBackupCommand))]
     private bool _isBackupInProgress;
 
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(CrearBackupCommand))]
+    [NotifyCanExecuteChangedFor(nameof(RestaurarBackupCommand))]
+    private bool _isRestoreInProgress;
+
     private readonly Func<Task<string?>>? _seleccionarRutaBackupAsync;
+    private readonly Func<Task<string?>>? _seleccionarRutaRestoreAsync;
+    private readonly Func<Task<bool>>? _solicitarAutorizacionRestoreAsync;
 
     // Propiedades de visibilidad basadas en el rol global
     public bool EsDueno => SesionGlobal.RolActual == RolUsuario.Dueno;
 
+    public bool PuedeVerMesas => SesionGlobal.RolActual == RolUsuario.Dueno
+                              || SesionGlobal.RolActual == RolUsuario.Gerente
+                              || SesionGlobal.RolActual == RolUsuario.Recepcion
+                              || SesionGlobal.RolActual == RolUsuario.Mozo;
 
-    public bool PuedeVerMesas => SesionGlobal.RolActual == RolUsuario.Dueno 
-                              ||  SesionGlobal.RolActual == RolUsuario.Gerente
-                              ||  SesionGlobal.RolActual == RolUsuario.Recepcion
-                              ||  SesionGlobal.RolActual == RolUsuario.Mozo;
+    public bool PuedeVerEventos => SesionGlobal.RolActual == RolUsuario.Dueno
+                                || SesionGlobal.RolActual == RolUsuario.Gerente
+                                || SesionGlobal.RolActual == RolUsuario.Recepcion;
 
-    public bool PuedeVerEventos => SesionGlobal.RolActual == RolUsuario.Dueno 
-                                ||  SesionGlobal.RolActual == RolUsuario.Gerente
-                                ||  SesionGlobal.RolActual == RolUsuario.Recepcion;
+    public bool PuedeVerReservas => SesionGlobal.RolActual == RolUsuario.Dueno
+                                 || SesionGlobal.RolActual == RolUsuario.Gerente
+                                 || SesionGlobal.RolActual == RolUsuario.Recepcion;
 
-    public bool PuedeVerReservas => SesionGlobal.RolActual == RolUsuario.Dueno 
-                                 ||  SesionGlobal.RolActual == RolUsuario.Gerente
-                                 ||  SesionGlobal.RolActual == RolUsuario.Recepcion;
-
-    public bool PuedeVerPersonal => SesionGlobal.RolActual == RolUsuario.Dueno 
-                                 ||  SesionGlobal.RolActual == RolUsuario.Gerente;
+    public bool PuedeVerPersonal => SesionGlobal.RolActual == RolUsuario.Dueno
+                                 || SesionGlobal.RolActual == RolUsuario.Gerente;
 
     public bool PuedeVerCaja => SesionGlobal.RolActual == RolUsuario.Dueno
                              || SesionGlobal.RolActual == RolUsuario.Gerente
                              || SesionGlobal.RolActual == RolUsuario.Cajero;
 
-    public bool PuedeVerPrincipal => SesionGlobal.RolActual == RolUsuario.Dueno 
-                                  ||  SesionGlobal.RolActual == RolUsuario.Gerente
-                                  ||  SesionGlobal.RolActual == RolUsuario.Cajero
-                                  ||  SesionGlobal.RolActual == RolUsuario.Recepcion
-                                  ||  SesionGlobal.RolActual == RolUsuario.Mozo;
+    public bool PuedeVerPrincipal => SesionGlobal.RolActual == RolUsuario.Dueno
+                                  || SesionGlobal.RolActual == RolUsuario.Gerente
+                                  || SesionGlobal.RolActual == RolUsuario.Cajero
+                                  || SesionGlobal.RolActual == RolUsuario.Recepcion
+                                  || SesionGlobal.RolActual == RolUsuario.Mozo;
 
-    public bool PuedeVerMenu => SesionGlobal.RolActual == RolUsuario.Dueno 
-                             ||  SesionGlobal.RolActual == RolUsuario.Gerente
-                             ||  SesionGlobal.RolActual == RolUsuario.Mozo;
+    public bool PuedeVerMenu => SesionGlobal.RolActual == RolUsuario.Dueno
+                             || SesionGlobal.RolActual == RolUsuario.Gerente
+                             || SesionGlobal.RolActual == RolUsuario.Mozo;
 
-    public bool PuedeVerReportes => SesionGlobal.RolActual == RolUsuario.Dueno 
-                                ||  SesionGlobal.RolActual == RolUsuario.Gerente;
+    public bool PuedeVerReportes => SesionGlobal.RolActual == RolUsuario.Dueno
+                                || SesionGlobal.RolActual == RolUsuario.Gerente;
 
     // 0 = Dueño, 1 = Gerente, 2 = Cajero, 3 = Recepción, 4 = Mozo
     [ObservableProperty]
-    private int _indiceRolSeleccionado = 0; 
+    private int _indiceRolSeleccionado = 0;
 
-    public MainViewModel(Func<Task<string?>>? seleccionarRutaBackupAsync = null)
+    public MainViewModel(
+        Func<Task<string?>>? seleccionarRutaBackupAsync = null,
+        Func<Task<string?>>? seleccionarRutaRestoreAsync = null,
+        Func<Task<bool>>? solicitarAutorizacionRestoreAsync = null)
     {
         _seleccionarRutaBackupAsync = seleccionarRutaBackupAsync;
+        _seleccionarRutaRestoreAsync = seleccionarRutaRestoreAsync;
+        _solicitarAutorizacionRestoreAsync = solicitarAutorizacionRestoreAsync;
 
         // Sincronizar el ComboBox con el rol actual establecido en el Login o SesionGlobal
         _indiceRolSeleccionado = SesionGlobal.RolActual switch
@@ -94,7 +106,7 @@ public partial class MainViewModel : ObservableObject
             1 => RolUsuario.Gerente,
             2 => RolUsuario.Cajero,
             3 => RolUsuario.Recepcion,
-            _ => RolUsuario.Mozo 
+            _ => RolUsuario.Mozo
         };
 
         // Notificamos a la barra lateral que re-evalúe qué botones mostrar
@@ -105,12 +117,10 @@ public partial class MainViewModel : ObservableObject
         OnPropertyChanged(nameof(PuedeVerPersonal));
         OnPropertyChanged(nameof(PuedeVerCaja));
         OnPropertyChanged(nameof(PuedeVerPrincipal));
-<<<<<<< HEAD
-        CrearBackupCommand.NotifyCanExecuteChanged();
-=======
         OnPropertyChanged(nameof(PuedeVerMenu));
         OnPropertyChanged(nameof(PuedeVerReportes));
->>>>>>> 2546f42b83fe106a1a7cd636c7afbfc532b225a2
+        CrearBackupCommand.NotifyCanExecuteChanged();
+        RestaurarBackupCommand.NotifyCanExecuteChanged();
 
         // Recargamos la vista central actual si aplica
         if (CurrentView is InicioViewModel)
@@ -180,14 +190,25 @@ public partial class MainViewModel : ObservableObject
             ?? new PagoService(new PagoRepository(new RestoAppDbContext()));
     }
 
-<<<<<<< HEAD
     private BackupService CreateBackupService()
     {
         return App.Services?.GetService(typeof(BackupService)) as BackupService
             ?? new BackupService(new BackupRepository(new RestoAppDbContext()));
     }
 
-    private bool CanCrearBackup() => EsDueno && !IsBackupInProgress;
+    private MenuService CreateMenuService()
+    {
+        return App.Services?.GetService(typeof(MenuService)) as MenuService
+            ?? new MenuService(new MenuRepository(new RestoAppDbContext()));
+    }
+
+    private ReporteService CreateReporteService()
+    {
+        return App.Services?.GetService(typeof(ReporteService)) as ReporteService
+            ?? new ReporteService(new ReporteRepository(new RestoAppDbContext()));
+    }
+
+    private bool CanCrearBackup() => EsDueno && !IsBackupInProgress && !IsRestoreInProgress;
 
     [RelayCommand(CanExecute = nameof(CanCrearBackup))]
     private async Task CrearBackupAsync()
@@ -225,24 +246,107 @@ public partial class MainViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            BackupStatus = $"No se pudo crear la copia: {ex.Message}";
+            if (ex.Message.Contains("error 5", StringComparison.OrdinalIgnoreCase) ||
+                ex.Message.Contains("Access is denied", StringComparison.OrdinalIgnoreCase) ||
+                ex.Message.Contains("Acceso denegado", StringComparison.OrdinalIgnoreCase))
+            {
+                BackupStatus = "Error de permisos: SQL Server no tiene permiso para escribir en esa carpeta. Intenta elegir C:\\Backups o una carpeta con permisos para SQL Server.";
+            }
+            else
+            {
+                BackupStatus = $"No se pudo crear la copia: {ex.Message}";
+            }
         }
         finally
         {
             IsBackupInProgress = false;
         }
-=======
-    private MenuService CreateMenuService()
-    {
-        return App.Services?.GetService(typeof(MenuService)) as MenuService
-            ?? new MenuService(new MenuRepository(new RestoAppDbContext()));
     }
 
-    private ReporteService CreateReporteService()
+    private bool CanRestaurarBackup() => EsDueno && !IsBackupInProgress && !IsRestoreInProgress;
+
+    [RelayCommand(CanExecute = nameof(CanRestaurarBackup))]
+    private async Task RestaurarBackupAsync()
     {
-        return App.Services?.GetService(typeof(ReporteService)) as ReporteService
-            ?? new ReporteService(new ReporteRepository(new RestoAppDbContext()));
->>>>>>> 2546f42b83fe106a1a7cd636c7afbfc532b225a2
+        if (_seleccionarRutaRestoreAsync is null || _solicitarAutorizacionRestoreAsync is null)
+        {
+            BackupStatus = "No se pudo abrir el selector o la ventana de autorización.";
+            return;
+        }
+
+        try
+        {
+            BackupStatus = "Seleccione el archivo .bak a restaurar...";
+            var backupFilePath = await _seleccionarRutaRestoreAsync();
+
+            if (string.IsNullOrWhiteSpace(backupFilePath))
+            {
+                BackupStatus = string.Empty;
+                return;
+            }
+
+            if (!File.Exists(backupFilePath))
+            {
+                BackupStatus = "El archivo seleccionado no existe.";
+                return;
+            }
+
+            BackupStatus = "Verificando archivo de backup (RESTORE HEADERONLY)...";
+            var header = await CreateBackupService().LeerEncabezadoBackupAsync(backupFilePath);
+
+            if (!header.EsCopiaCompleta)
+            {
+                BackupStatus = $"El archivo no es una copia de seguridad completa (Tipo: {header.BackupType}). Restauración bloqueada.";
+                return;
+            }
+
+            if (!string.IsNullOrWhiteSpace(header.DatabaseName) &&
+                !string.Equals(header.DatabaseName, "resto_DB", StringComparison.OrdinalIgnoreCase))
+            {
+                BackupStatus = $"El backup pertenece a '{header.DatabaseName}', no a 'resto_DB'. Restauración bloqueada por seguridad.";
+                return;
+            }
+
+            var fechaStr = header.BackupFinishDate.HasValue ? header.BackupFinishDate.Value.ToString("yyyy-MM-dd HH:mm") : "fecha desconocida";
+            BackupStatus = $"Backup válido de '{header.DatabaseName}' ({fechaStr}). Esperando autorización de 2 usuarios...";
+
+            var autorizado = await _solicitarAutorizacionRestoreAsync();
+            if (!autorizado)
+            {
+                BackupStatus = "Restauración cancelada: autorización no completada.";
+                return;
+            }
+
+            IsRestoreInProgress = true;
+            BackupStatus = $"Restaurando base de datos desde {Path.GetFileName(backupFilePath)}...";
+
+            await CreateBackupService().RestoreDatabaseAsync(backupFilePath);
+            BackupStatus = $"¡Base de datos restaurada exitosamente desde {Path.GetFileName(backupFilePath)}!";
+
+            // Recargamos la vista central
+            if (CurrentView is InicioViewModel)
+            {
+                _inicioViewModelCache = null;
+                IrAInicio();
+            }
+        }
+        catch (Exception ex)
+        {
+            if (ex.Message.Contains("error 5", StringComparison.OrdinalIgnoreCase) ||
+                ex.Message.Contains("Access is denied", StringComparison.OrdinalIgnoreCase) ||
+                ex.Message.Contains("Acceso denegado", StringComparison.OrdinalIgnoreCase))
+            {
+                BackupStatus = "Error de permisos: SQL Server no tiene permiso para leer el archivo en esa carpeta. Intenta mover el .bak a C:\\Backups o a la carpeta de SQL Server.";
+            }
+            else
+            {
+                BackupStatus = $"No se pudo restaurar: {ex.Message}";
+            }
+        }
+        finally
+        {
+            IsRestoreInProgress = false;
+        }
     }
 
     [RelayCommand]
@@ -265,7 +369,7 @@ public partial class MainViewModel : ObservableObject
         {
             _ = _inicioViewModelCache.CargarMesasAsync();
         }
-        
+
         CurrentView = _inicioViewModelCache;
     }
 
@@ -302,7 +406,7 @@ public partial class MainViewModel : ObservableObject
             service = CreateMesaService();
         }
         catch { }
-        CurrentView = new MesasViewModel(service, () => IrAInicio() );
+        CurrentView = new MesasViewModel(service, () => IrAInicio());
     }
 
     [RelayCommand]
@@ -352,6 +456,5 @@ public partial class MainViewModel : ObservableObject
         catch { }
         CurrentView = new ReportesViewModel(reporteService);
     }
-
 
 }
