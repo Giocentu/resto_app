@@ -79,6 +79,7 @@ public partial class MainWindow : Window
         BtnCaja?.Classes.Remove("active");
         BtnEventos?.Classes.Remove("active");
         BtnReportes?.Classes.Remove("active");
+        BtnBackup?.Classes.Remove("active");
 
         // 2. Identificamos qué botón disparó el evento y le añadimos la clase active
         if (sender is Button clickedButton)

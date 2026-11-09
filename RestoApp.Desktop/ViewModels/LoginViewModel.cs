@@ -26,52 +26,6 @@ public partial class LoginViewModel : ObservableObject
 
     public bool TieneError => !string.IsNullOrWhiteSpace(MensajeError);
 
-    [RelayCommand]
-    private void UsarDueno()
-    {
-        NombreUsuario = "dueño";
-        Password = "123123";
-        MensajeError = string.Empty;
-    }
-
-    [RelayCommand]
-    private void UsarGiovanni() => UsarDueno();
-
-    [RelayCommand]
-    private void UsarGerente()
-    {
-        NombreUsuario = "gerente";
-        Password = "123123";
-        MensajeError = string.Empty;
-    }
-
-    [RelayCommand]
-    private void UsarHernan() => UsarGerente();
-
-    [RelayCommand]
-    private void UsarCajero()
-    {
-        NombreUsuario = "cajero";
-        Password = "123123";
-        MensajeError = string.Empty;
-    }
-
-    [RelayCommand]
-    private void UsarMozo()
-    {
-        NombreUsuario = "mozo";
-        Password = "123123";
-        MensajeError = string.Empty;
-    }
-
-    [RelayCommand]
-    private void UsarRecepcion()
-    {
-        NombreUsuario = "recepcion";
-        Password = "123123";
-        MensajeError = string.Empty;
-    }
-
     public async Task<bool> IniciarSesionAsync()
     {
         MensajeError = string.Empty;

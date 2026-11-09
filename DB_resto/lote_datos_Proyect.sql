@@ -1424,3 +1424,181 @@ BEGIN
 END;
 GO
 
+---------------------------------------------------
+-- LOTE DE DATOS ENRIQUECIDO PARA REPORTES Y ANALÍTICA
+---------------------------------------------------
+-- 1. Actualizar total en todas las cuentas existentes a partir del detalle
+UPDATE ch 
+SET ch.total = ISNULL((SELECT SUM(cb.cantidad * cb.precio_unitario) FROM cuenta_body cb WHERE cb.cuenta_id = ch.cuenta_id), 0) 
+FROM cuenta_head ch;
+
+-- 2. Asegurar cuentas cerradas históricas y recientes para los reportes
+IF (SELECT COUNT(*) FROM cuenta_head WHERE estado = 'CERRADA') < 8
+BEGIN
+    DECLARE @Cta INT;
+    DECLARE @TotalCta FLOAT;
+
+    -- Cuenta R1: Hace 6 días - Mesa 1 - Mozo: Marcos Mozo (id_rol = 5)
+    INSERT INTO cuenta_head (id_mesa, total, estado, fecha_apertura, fecha_cierre, dni_empleado, id_rol)
+    VALUES (1, 0, 'CERRADA', DATEADD(hour, -2, DATEADD(day, -6, GETDATE())), DATEADD(minute, -30, DATEADD(day, -6, GETDATE())), 22222222, 5);
+    SET @Cta = SCOPE_IDENTITY();
+    INSERT INTO cuenta_body (cuenta_id, id_item, cantidad, precio_unitario)
+    SELECT @Cta, id_item, 2, precio FROM menu WHERE descripcion = 'Bife de Chorizo 400g'
+    UNION ALL SELECT @Cta, id_item, 1, precio FROM menu WHERE descripcion = 'Provoleta Parrilla Especial'
+    UNION ALL SELECT @Cta, id_item, 2, precio FROM menu WHERE descripcion = 'Papas Fritas Rusticas'
+    UNION ALL SELECT @Cta, id_item, 2, precio FROM menu WHERE descripcion = 'Cerveza Patagonia 730ml';
+    SELECT @TotalCta = SUM(cantidad * precio_unitario) FROM cuenta_body WHERE cuenta_id = @Cta;
+    UPDATE cuenta_head SET total = @TotalCta WHERE cuenta_id = @Cta;
+    INSERT INTO pagos (monto, fecha_pago, id_metodo, id_cuenta) VALUES (@TotalCta, CAST(DATEADD(day, -6, GETDATE()) AS DATE), 1, @Cta);
+
+    -- Cuenta R2: Hace 5 días - Mesa 2 - Mozo: Marcos Mozo
+    INSERT INTO cuenta_head (id_mesa, total, estado, fecha_apertura, fecha_cierre, dni_empleado, id_rol)
+    VALUES (2, 0, 'CERRADA', DATEADD(hour, -3, DATEADD(day, -5, GETDATE())), DATEADD(minute, -50, DATEADD(day, -5, GETDATE())), 22222222, 5);
+    SET @Cta = SCOPE_IDENTITY();
+    INSERT INTO cuenta_body (cuenta_id, id_item, cantidad, precio_unitario)
+    SELECT @Cta, id_item, 3, precio FROM menu WHERE descripcion = 'Sorrentinos Jamon y Queso'
+    UNION ALL SELECT @Cta, id_item, 1, precio FROM menu WHERE descripcion = 'Botella Malbec Catena'
+    UNION ALL SELECT @Cta, id_item, 2, precio FROM menu WHERE descripcion = 'Tiramisu Italiano';
+    SELECT @TotalCta = SUM(cantidad * precio_unitario) FROM cuenta_body WHERE cuenta_id = @Cta;
+    UPDATE cuenta_head SET total = @TotalCta WHERE cuenta_id = @Cta;
+    INSERT INTO pagos (monto, fecha_pago, id_metodo, id_cuenta) VALUES (@TotalCta, CAST(DATEADD(day, -5, GETDATE()) AS DATE), 2, @Cta);
+
+    -- Cuenta R3: Hace 4 días - Mesa 3 - Mozo: Hernan Cespedes (id_rol = 2)
+    INSERT INTO cuenta_head (id_mesa, total, estado, fecha_apertura, fecha_cierre, dni_empleado, id_rol)
+    VALUES (3, 0, 'CERRADA', DATEADD(hour, -4, DATEADD(day, -4, GETDATE())), DATEADD(minute, -80, DATEADD(day, -4, GETDATE())), 42739764, 2);
+    SET @Cta = SCOPE_IDENTITY();
+    INSERT INTO cuenta_body (cuenta_id, id_item, cantidad, precio_unitario)
+    SELECT @Cta, id_item, 2, precio FROM menu WHERE descripcion = 'Ojo de Bife Angus'
+    UNION ALL SELECT @Cta, id_item, 1, precio FROM menu WHERE descripcion = 'Asado de Tira Especial'
+    UNION ALL SELECT @Cta, id_item, 2, precio FROM menu WHERE descripcion = 'Ensalada Caesar Pollo'
+    UNION ALL SELECT @Cta, id_item, 3, precio FROM menu WHERE descripcion = 'Copa Vino Malbec Reserva';
+    SELECT @TotalCta = SUM(cantidad * precio_unitario) FROM cuenta_body WHERE cuenta_id = @Cta;
+    UPDATE cuenta_head SET total = @TotalCta WHERE cuenta_id = @Cta;
+    INSERT INTO pagos (monto, fecha_pago, id_metodo, id_cuenta) VALUES (@TotalCta, CAST(DATEADD(day, -4, GETDATE()) AS DATE), 1, @Cta);
+
+    -- Cuenta R4: Hace 3 días - Mesa 5 - Mozo: Carlos Cajero (id_rol = 4)
+    INSERT INTO cuenta_head (id_mesa, total, estado, fecha_apertura, fecha_cierre, dni_empleado, id_rol)
+    VALUES (5, 0, 'CERRADA', DATEADD(hour, -5, DATEADD(day, -3, GETDATE())), DATEADD(minute, -100, DATEADD(day, -3, GETDATE())), 11111111, 4);
+    SET @Cta = SCOPE_IDENTITY();
+    INSERT INTO cuenta_body (cuenta_id, id_item, cantidad, precio_unitario)
+    SELECT @Cta, id_item, 3, precio FROM menu WHERE descripcion = 'Milanesa Napolitana'
+    UNION ALL SELECT @Cta, id_item, 2, precio FROM menu WHERE descripcion = 'Papas Fritas Rusticas'
+    UNION ALL SELECT @Cta, id_item, 3, precio FROM menu WHERE descripcion = 'Gaseosa Linea 500ml'
+    UNION ALL SELECT @Cta, id_item, 3, precio FROM menu WHERE descripcion = 'Flan Casero Dulce Leche';
+    SELECT @TotalCta = SUM(cantidad * precio_unitario) FROM cuenta_body WHERE cuenta_id = @Cta;
+    UPDATE cuenta_head SET total = @TotalCta WHERE cuenta_id = @Cta;
+    INSERT INTO pagos (monto, fecha_pago, id_metodo, id_cuenta) VALUES (@TotalCta, CAST(DATEADD(day, -3, GETDATE()) AS DATE), 3, @Cta);
+
+    -- Cuenta R5: Hace 3 días - Mesa 7 - Mozo: Marcos Mozo
+    INSERT INTO cuenta_head (id_mesa, total, estado, fecha_apertura, fecha_cierre, dni_empleado, id_rol)
+    VALUES (7, 0, 'CERRADA', DATEADD(hour, -2, DATEADD(day, -3, GETDATE())), DATEADD(minute, -40, DATEADD(day, -3, GETDATE())), 22222222, 5);
+    SET @Cta = SCOPE_IDENTITY();
+    INSERT INTO cuenta_body (cuenta_id, id_item, cantidad, precio_unitario)
+    SELECT @Cta, id_item, 2, precio FROM menu WHERE descripcion = 'Hamburguesa Completa'
+    UNION ALL SELECT @Cta, id_item, 2, precio FROM menu WHERE descripcion = 'Cerveza Corona 330ml'
+    UNION ALL SELECT @Cta, id_item, 1, precio FROM menu WHERE descripcion = 'Volcan de Chocolate';
+    SELECT @TotalCta = SUM(cantidad * precio_unitario) FROM cuenta_body WHERE cuenta_id = @Cta;
+    UPDATE cuenta_head SET total = @TotalCta WHERE cuenta_id = @Cta;
+    INSERT INTO pagos (monto, fecha_pago, id_metodo, id_cuenta) VALUES (@TotalCta, CAST(DATEADD(day, -3, GETDATE()) AS DATE), 2, @Cta);
+
+    -- Cuenta R6: Hace 2 días - Mesa 8 - Mozo: Hernan Cespedes
+    INSERT INTO cuenta_head (id_mesa, total, estado, fecha_apertura, fecha_cierre, dni_empleado, id_rol)
+    VALUES (8, 0, 'CERRADA', DATEADD(hour, -4, DATEADD(day, -2, GETDATE())), DATEADD(minute, -70, DATEADD(day, -2, GETDATE())), 42739764, 2);
+    SET @Cta = SCOPE_IDENTITY();
+    INSERT INTO cuenta_body (cuenta_id, id_item, cantidad, precio_unitario)
+    SELECT @Cta, id_item, 1, precio FROM menu WHERE descripcion = 'Salmon Rosado Grillado'
+    UNION ALL SELECT @Cta, id_item, 1, precio FROM menu WHERE descripcion = 'Risotto de Hongos'
+    UNION ALL SELECT @Cta, id_item, 1, precio FROM menu WHERE descripcion = 'Botella Malbec Catena'
+    UNION ALL SELECT @Cta, id_item, 2, precio FROM menu WHERE descripcion = 'Cafe Espresso Cortado';
+    SELECT @TotalCta = SUM(cantidad * precio_unitario) FROM cuenta_body WHERE cuenta_id = @Cta;
+    UPDATE cuenta_head SET total = @TotalCta WHERE cuenta_id = @Cta;
+    INSERT INTO pagos (monto, fecha_pago, id_metodo, id_cuenta) VALUES (@TotalCta, CAST(DATEADD(day, -2, GETDATE()) AS DATE), 1, @Cta);
+
+    -- Cuenta R7: Hace 2 días - Mesa 11 - Mozo: Marcos Mozo
+    INSERT INTO cuenta_head (id_mesa, total, estado, fecha_apertura, fecha_cierre, dni_empleado, id_rol)
+    VALUES (11, 0, 'CERRADA', DATEADD(hour, -3, DATEADD(day, -2, GETDATE())), DATEADD(minute, -45, DATEADD(day, -2, GETDATE())), 22222222, 5);
+    SET @Cta = SCOPE_IDENTITY();
+    INSERT INTO cuenta_body (cuenta_id, id_item, cantidad, precio_unitario)
+    SELECT @Cta, id_item, 4, precio FROM menu WHERE descripcion = 'Empanada de Carne Cortada'
+    UNION ALL SELECT @Cta, id_item, 2, precio FROM menu WHERE descripcion = 'Asado de Tira Especial'
+    UNION ALL SELECT @Cta, id_item, 2, precio FROM menu WHERE descripcion = 'Cerveza Patagonia 730ml'
+    UNION ALL SELECT @Cta, id_item, 2, precio FROM menu WHERE descripcion = 'Flan Casero Dulce Leche';
+    SELECT @TotalCta = SUM(cantidad * precio_unitario) FROM cuenta_body WHERE cuenta_id = @Cta;
+    UPDATE cuenta_head SET total = @TotalCta WHERE cuenta_id = @Cta;
+    INSERT INTO pagos (monto, fecha_pago, id_metodo, id_cuenta) VALUES (@TotalCta, CAST(DATEADD(day, -2, GETDATE()) AS DATE), 3, @Cta);
+
+    -- Cuenta R8: Ayer - Mesa 1 - Mozo: Carlos Cajero
+    INSERT INTO cuenta_head (id_mesa, total, estado, fecha_apertura, fecha_cierre, dni_empleado, id_rol)
+    VALUES (1, 0, 'CERRADA', DATEADD(hour, -6, DATEADD(day, -1, GETDATE())), DATEADD(minute, -90, DATEADD(day, -1, GETDATE())), 11111111, 4);
+    SET @Cta = SCOPE_IDENTITY();
+    INSERT INTO cuenta_body (cuenta_id, id_item, cantidad, precio_unitario)
+    SELECT @Cta, id_item, 2, precio FROM menu WHERE descripcion = 'Ravioles de Ricota y Nuez'
+    UNION ALL SELECT @Cta, id_item, 2, precio FROM menu WHERE descripcion = 'Fettuccine Alfredo'
+    UNION ALL SELECT @Cta, id_item, 2, precio FROM menu WHERE descripcion = 'Copa Vino Malbec Reserva'
+    UNION ALL SELECT @Cta, id_item, 2, precio FROM menu WHERE descripcion = 'Tiramisu Italiano';
+    SELECT @TotalCta = SUM(cantidad * precio_unitario) FROM cuenta_body WHERE cuenta_id = @Cta;
+    UPDATE cuenta_head SET total = @TotalCta WHERE cuenta_id = @Cta;
+    INSERT INTO pagos (monto, fecha_pago, id_metodo, id_cuenta) VALUES (@TotalCta, CAST(DATEADD(day, -1, GETDATE()) AS DATE), 2, @Cta);
+
+    -- Cuenta R9: Ayer - Mesa 6 - Mozo: Marcos Mozo
+    INSERT INTO cuenta_head (id_mesa, total, estado, fecha_apertura, fecha_cierre, dni_empleado, id_rol)
+    VALUES (6, 0, 'CERRADA', DATEADD(hour, -3, DATEADD(day, -1, GETDATE())), DATEADD(minute, -30, DATEADD(day, -1, GETDATE())), 22222222, 5);
+    SET @Cta = SCOPE_IDENTITY();
+    INSERT INTO cuenta_body (cuenta_id, id_item, cantidad, precio_unitario)
+    SELECT @Cta, id_item, 2, precio FROM menu WHERE descripcion = 'Bife de Chorizo 400g'
+    UNION ALL SELECT @Cta, id_item, 1, precio FROM menu WHERE descripcion = 'Ojo de Bife Angus'
+    UNION ALL SELECT @Cta, id_item, 2, precio FROM menu WHERE descripcion = 'Papas Fritas Rusticas'
+    UNION ALL SELECT @Cta, id_item, 3, precio FROM menu WHERE descripcion = 'Agua Mineral 500ml';
+    SELECT @TotalCta = SUM(cantidad * precio_unitario) FROM cuenta_body WHERE cuenta_id = @Cta;
+    UPDATE cuenta_head SET total = @TotalCta WHERE cuenta_id = @Cta;
+    INSERT INTO pagos (monto, fecha_pago, id_metodo, id_cuenta) VALUES (@TotalCta, CAST(DATEADD(day, -1, GETDATE()) AS DATE), 1, @Cta);
+
+    -- Cuenta R10: Hoy (Turno previo cerrado) - Mesa 2 - Mozo: Hernan Cespedes
+    INSERT INTO cuenta_head (id_mesa, total, estado, fecha_apertura, fecha_cierre, dni_empleado, id_rol)
+    VALUES (2, 0, 'CERRADA', DATEADD(hour, -4, GETDATE()), DATEADD(minute, -75, GETDATE()), 42739764, 2);
+    SET @Cta = SCOPE_IDENTITY();
+    INSERT INTO cuenta_body (cuenta_id, id_item, cantidad, precio_unitario)
+    SELECT @Cta, id_item, 2, precio FROM menu WHERE descripcion = 'Suprema a la Suiza'
+    UNION ALL SELECT @Cta, id_item, 1, precio FROM menu WHERE descripcion = 'Provoleta Parrilla Especial'
+    UNION ALL SELECT @Cta, id_item, 2, precio FROM menu WHERE descripcion = 'Gaseosa Linea 500ml'
+    UNION ALL SELECT @Cta, id_item, 2, precio FROM menu WHERE descripcion = 'Volcan de Chocolate';
+    SELECT @TotalCta = SUM(cantidad * precio_unitario) FROM cuenta_body WHERE cuenta_id = @Cta;
+    UPDATE cuenta_head SET total = @TotalCta WHERE cuenta_id = @Cta;
+    INSERT INTO pagos (monto, fecha_pago, id_metodo, id_cuenta) VALUES (@TotalCta, CAST(GETDATE() AS DATE), 1, @Cta);
+
+    -- Cuenta R11: Hoy - Mesa 4 - Mozo: Marcos Mozo
+    INSERT INTO cuenta_head (id_mesa, total, estado, fecha_apertura, fecha_cierre, dni_empleado, id_rol)
+    VALUES (4, 0, 'CERRADA', DATEADD(hour, -2, GETDATE()), DATEADD(minute, -25, GETDATE()), 22222222, 5);
+    SET @Cta = SCOPE_IDENTITY();
+    INSERT INTO cuenta_body (cuenta_id, id_item, cantidad, precio_unitario)
+    SELECT @Cta, id_item, 2, precio FROM menu WHERE descripcion = 'Hamburguesa Completa'
+    UNION ALL SELECT @Cta, id_item, 1, precio FROM menu WHERE descripcion = 'Papas Fritas Rusticas'
+    UNION ALL SELECT @Cta, id_item, 2, precio FROM menu WHERE descripcion = 'Cerveza Patagonia 730ml';
+    SELECT @TotalCta = SUM(cantidad * precio_unitario) FROM cuenta_body WHERE cuenta_id = @Cta;
+    UPDATE cuenta_head SET total = @TotalCta WHERE cuenta_id = @Cta;
+    INSERT INTO pagos (monto, fecha_pago, id_metodo, id_cuenta) VALUES (@TotalCta, CAST(GETDATE() AS DATE), 3, @Cta);
+END;
+
+-- 3. Asegurar reservas en distintas fechas del periodo para el KPI de reservas
+IF (SELECT COUNT(*) FROM reserva) < 8
+BEGIN
+    DECLARE @ClienteDniAux BIGINT;
+    SELECT TOP 1 @ClienteDniAux = dni_cliente FROM cliente;
+
+    IF @ClienteDniAux IS NOT NULL
+    BEGIN
+        INSERT INTO reserva (fecha_reserva, cant_personas, id_estado, id_evento, dni_cliente, dni_empleado, id_rol)
+        VALUES
+        (DATEADD(day, -5, GETDATE()), 4, 3, NULL, @ClienteDniAux, 22222222, 5),
+        (DATEADD(day, -4, GETDATE()), 2, 3, NULL, @ClienteDniAux, 22222222, 5),
+        (DATEADD(day, -3, GETDATE()), 6, 3, 1,    @ClienteDniAux, 42739764, 2),
+        (DATEADD(day, -2, GETDATE()), 4, 3, NULL, @ClienteDniAux, 11111111, 4),
+        (DATEADD(day, -1, GETDATE()), 3, 3, NULL, @ClienteDniAux, 22222222, 5),
+        (GETDATE(),                   2, 1, NULL, @ClienteDniAux, 22222222, 5),
+        (DATEADD(day, 1, GETDATE()),  5, 1, 2,    @ClienteDniAux, 42739764, 2),
+        (DATEADD(day, 2, GETDATE()),  8, 1, 3,    @ClienteDniAux, 96079673, 1);
+    END;
+END;
+GO
+
+

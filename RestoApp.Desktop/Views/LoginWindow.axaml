@@ -3,31 +3,31 @@
         xmlns:vm="using:RestoApp.Desktop.ViewModels"
         x:Class="RestoApp.Desktop.Views.LoginWindow"
         x:DataType="vm:LoginViewModel"
-        Title="RestoApp - Iniciar Sesión" Height="610" Width="440"
+        Title="RestoApp - Iniciar Sesión" Height="490" Width="400"
         WindowStartupLocation="CenterScreen"
         CanResize="False"
         Background="#1E293B"
         KeyDown="OnWindowKeyDown">
 
     <Grid VerticalAlignment="Center" HorizontalAlignment="Center" Margin="20">
-        <Border Background="White" CornerRadius="12" Padding="30,25" Width="380"
+        <Border Background="White" CornerRadius="12" Padding="30,28" Width="340"
                 BoxShadow="0 10 25 0 #40000000">
-            <StackPanel Spacing="16">
+            <StackPanel Spacing="18">
                 
                 <!-- Encabezado con icono y títulos -->
                 <StackPanel HorizontalAlignment="Center" Spacing="4">
                     <Border Background="#3498DB" CornerRadius="24" Width="48" Height="48" HorizontalAlignment="Center" Margin="0,0,0,6">
                         <TextBlock Text="🍽️" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
-                    <TextBlock Text="RestoApp" FontSize="24" FontWeight="Bold" Foreground="#1E293B" HorizontalAlignment="Center"/>
+                    <TextBlock Text="RestoApp" FontSize="22" FontWeight="Bold" Foreground="#1E293B" HorizontalAlignment="Center"/>
                     <TextBlock Text="Sistema de Gestión Gastronómica" FontSize="12" Foreground="#64748B" HorizontalAlignment="Center"/>
                 </StackPanel>
 
-                <Separator Background="#E2E8F0" Margin="0,4"/>
+                <Separator Background="#E2E8F0" Margin="0,2"/>
 
                 <!-- Campo Usuario -->
                 <StackPanel Spacing="6">
-                    <TextBlock Text="Usuario" FontSize="12" FontWeight="SemiBold" Foreground="#334155"/>
+                    <TextBlock Text="Usuario" FontSize="13" FontWeight="SemiBold" Foreground="#334155"/>
                     <TextBox Text="{Binding NombreUsuario}" 
                              PlaceholderText="Usuario" 
                              FontSize="14" Padding="12,10" 
@@ -36,9 +36,9 @@
                 
                 <!-- Campo Contraseña -->
                 <StackPanel Spacing="6">
-                    <TextBlock Text="Contraseña:" FontSize="12" FontWeight="SemiBold" Foreground="#334155"/>
+                    <TextBlock Text="Contraseña" FontSize="13" FontWeight="SemiBold" Foreground="#334155"/>
                     <TextBox Text="{Binding Password}" 
-                             PlaceholderText="••••••" 
+                             PlaceholderText="Contraseña" 
                              PasswordChar="•" 
                              FontSize="14" Padding="12,10" 
                              CornerRadius="6"/>
@@ -56,7 +56,7 @@
                                    FontWeight="SemiBold" 
                                    TextWrapping="Wrap"
                                    VerticalAlignment="Center"
-                                   MaxWidth="270"/>
+                                   MaxWidth="240"/>
                     </StackPanel>
                 </Border>
 
@@ -69,40 +69,10 @@
                         HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" 
                         Padding="12" CornerRadius="6" Cursor="Hand">
                     <Panel>
-                        <TextBlock Text="Ingresar al Sistema" IsVisible="{Binding !EstaCargando}" HorizontalAlignment="Center"/>
+                        <TextBlock Text="Ingresar" IsVisible="{Binding !EstaCargando}" HorizontalAlignment="Center"/>
                         <TextBlock Text="Verificando..." IsVisible="{Binding EstaCargando}" HorizontalAlignment="Center"/>
                     </Panel>
                 </Button>
-
-                <!-- Accesos directos de prueba por rol -->
-                <Border Background="#F8F9FA" CornerRadius="8" Padding="10,8" BorderBrush="#E2E8F0" BorderThickness="1">
-                    <StackPanel Spacing="6">
-                        <TextBlock Text="Accesos rápidos por rol (Clave: 123123):" 
-                                   FontSize="11" FontWeight="SemiBold" Foreground="#64748B" HorizontalAlignment="Center"/>
-                        <WrapPanel HorizontalAlignment="Center">
-                            <Button Content="Dueño" 
-                                    Command="{Binding UsarDuenoCommand}"
-                                    FontSize="11" Padding="8,4" Margin="2" CornerRadius="4" 
-                                    Background="#E2E8F0" Foreground="#1E293B" Cursor="Hand"/>
-                            <Button Content="Gerente" 
-                                    Command="{Binding UsarGerenteCommand}"
-                                    FontSize="11" Padding="8,4" Margin="2" CornerRadius="4" 
-                                    Background="#E2E8F0" Foreground="#1E293B" Cursor="Hand"/>
-                            <Button Content="Cajero" 
-                                    Command="{Binding UsarCajeroCommand}"
-                                    FontSize="11" Padding="8,4" Margin="2" CornerRadius="4" 
-                                    Background="#E2E8F0" Foreground="#1E293B" Cursor="Hand"/>
-                            <Button Content="Mozo" 
-                                    Command="{Binding UsarMozoCommand}"
-                                    FontSize="11" Padding="8,4" Margin="2" CornerRadius="4" 
-                                    Background="#E2E8F0" Foreground="#1E293B" Cursor="Hand"/>
-                            <Button Content="Recepción" 
-                                    Command="{Binding UsarRecepcionCommand}"
-                                    FontSize="11" Padding="8,4" Margin="2" CornerRadius="4" 
-                                    Background="#E2E8F0" Foreground="#1E293B" Cursor="Hand"/>
-                        </WrapPanel>
-                    </StackPanel>
-                </Border>
 
             </StackPanel>
         </Border>
