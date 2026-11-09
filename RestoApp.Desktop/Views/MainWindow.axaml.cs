@@ -89,6 +89,10 @@ public partial class MainWindow : Window
 
     private void CerrarSesion(object? sender, RoutedEventArgs e)
     {
+        SesionGlobal.UsuarioActual = string.Empty;
+        SesionGlobal.NombreCompletoActual = string.Empty;
+        SesionGlobal.DniActual = null;
+
         var loginWindow = new LoginWindow();
         loginWindow.Show();
 

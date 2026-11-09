@@ -88,11 +88,21 @@
 
                 <!-- Tarjeta visual del Usuario -->
                 <Border Background="#34495E" CornerRadius="8" Padding="10">
-                    <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
-                        <Ellipse Width="26" Height="26" Fill="#3498DB"/>
+                    <StackPanel Spacing="6" HorizontalAlignment="Center">
+                        <StackPanel Orientation="Horizontal" Spacing="6" HorizontalAlignment="Center">
+                            <Ellipse Width="18" Height="18" Fill="#3498DB"/>
+                            <TextBlock Text="{Binding NombreUsuarioConectado}" 
+                                       Foreground="#ECF0F1" 
+                                       FontSize="12" 
+                                       FontWeight="Bold" 
+                                       MaxWidth="150"
+                                       TextTrimming="CharacterEllipsis"
+                                       VerticalAlignment="Center"/>
+                        </StackPanel>
                         <ComboBox SelectedIndex="{Binding IndiceRolSeleccionado}" 
                                   Background="Transparent" Foreground="White" 
-                                  BorderThickness="0" Width="120">
+                                  BorderThickness="0" Width="130"
+                                  HorizontalAlignment="Center">
                             <ComboBoxItem Content="Dueño"/>
                             <ComboBoxItem Content="Gerente"/>
                             <ComboBoxItem Content="Cajero"/>

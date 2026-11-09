@@ -3,28 +3,108 @@
         xmlns:vm="using:RestoApp.Desktop.ViewModels"
         x:Class="RestoApp.Desktop.Views.LoginWindow"
         x:DataType="vm:LoginViewModel"
-        Title="RestoApp - Login" Height="450" Width="400"
+        Title="RestoApp - Iniciar Sesión" Height="610" Width="440"
         WindowStartupLocation="CenterScreen"
         CanResize="False"
-        Background="#2C3E50">
+        Background="#1E293B"
+        KeyDown="OnWindowKeyDown">
 
-    <Border Background="White" CornerRadius="10" Margin="40" Padding="30">
-        <StackPanel Spacing="20" VerticalAlignment="Center">
-            
-            <TextBlock Text="Iniciar Sesión" FontSize="24" FontWeight="Bold" Foreground="#2C3E50" HorizontalAlignment="Center"/>
+    <Grid VerticalAlignment="Center" HorizontalAlignment="Center" Margin="20">
+        <Border Background="White" CornerRadius="12" Padding="30,25" Width="380"
+                BoxShadow="0 10 25 0 #40000000">
+            <StackPanel Spacing="16">
+                
+                <!-- Encabezado con icono y títulos -->
+                <StackPanel HorizontalAlignment="Center" Spacing="4">
+                    <Border Background="#3498DB" CornerRadius="24" Width="48" Height="48" HorizontalAlignment="Center" Margin="0,0,0,6">
+                        <TextBlock Text="🍽️" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <TextBlock Text="RestoApp" FontSize="24" FontWeight="Bold" Foreground="#1E293B" HorizontalAlignment="Center"/>
+                    <TextBlock Text="Sistema de Gestión Gastronómica" FontSize="12" Foreground="#64748B" HorizontalAlignment="Center"/>
+                </StackPanel>
 
-            <TextBox Text="{Binding NombreUsuario}" PlaceholderText="Usuario" FontSize="16" Padding="10"/>
-            
-            <TextBox Text="{Binding Password}" PlaceholderText="Contraseña" PasswordChar="*" FontSize="16" Padding="10"/>
+                <Separator Background="#E2E8F0" Margin="0,4"/>
 
-            <TextBlock Text="{Binding MensajeError}" Foreground="#E74C3C" HorizontalAlignment="Center" FontWeight="SemiBold"/>
+                <!-- Campo Usuario -->
+                <StackPanel Spacing="6">
+                    <TextBlock Text="Usuario" FontSize="12" FontWeight="SemiBold" Foreground="#334155"/>
+                    <TextBox Text="{Binding NombreUsuario}" 
+                             PlaceholderText="Usuario" 
+                             FontSize="14" Padding="12,10" 
+                             CornerRadius="6"/>
+                </StackPanel>
+                
+                <!-- Campo Contraseña -->
+                <StackPanel Spacing="6">
+                    <TextBlock Text="Contraseña:" FontSize="12" FontWeight="SemiBold" Foreground="#334155"/>
+                    <TextBox Text="{Binding Password}" 
+                             PlaceholderText="••••••" 
+                             PasswordChar="•" 
+                             FontSize="14" Padding="12,10" 
+                             CornerRadius="6"/>
+                </StackPanel>
 
-            <Button Content="Ingresar" 
-                    Click="BtnIngresar_Click"
-                    Background="#3498DB" Foreground="White" 
-                    FontSize="16" FontWeight="Bold" 
-                    HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" 
-                    Padding="10" CornerRadius="5" Cursor="Hand"/>
-        </StackPanel>
-    </Border>
+                <!-- Mensaje de Alerta / Error -->
+                <Border Background="#FDEDEC" BorderBrush="#E74C3C" BorderThickness="1" 
+                        CornerRadius="6" Padding="10,8"
+                        IsVisible="{Binding TieneError}">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Text="⚠️" FontSize="16" VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding MensajeError}" 
+                                   Foreground="#C0392B" 
+                                   FontSize="12" 
+                                   FontWeight="SemiBold" 
+                                   TextWrapping="Wrap"
+                                   VerticalAlignment="Center"
+                                   MaxWidth="270"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Botón de Ingreso -->
+                <Button x:Name="BtnIngresar"
+                        Click="BtnIngresar_Click"
+                        IsEnabled="{Binding !EstaCargando}"
+                        Background="#3498DB" Foreground="White" 
+                        FontSize="15" FontWeight="Bold" 
+                        HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" 
+                        Padding="12" CornerRadius="6" Cursor="Hand">
+                    <Panel>
+                        <TextBlock Text="Ingresar al Sistema" IsVisible="{Binding !EstaCargando}" HorizontalAlignment="Center"/>
+                        <TextBlock Text="Verificando..." IsVisible="{Binding EstaCargando}" HorizontalAlignment="Center"/>
+                    </Panel>
+                </Button>
+
+                <!-- Accesos directos de prueba por rol -->
+                <Border Background="#F8F9FA" CornerRadius="8" Padding="10,8" BorderBrush="#E2E8F0" BorderThickness="1">
+                    <StackPanel Spacing="6">
+                        <TextBlock Text="Accesos rápidos por rol (Clave: 123123):" 
+                                   FontSize="11" FontWeight="SemiBold" Foreground="#64748B" HorizontalAlignment="Center"/>
+                        <WrapPanel HorizontalAlignment="Center">
+                            <Button Content="Dueño" 
+                                    Command="{Binding UsarDuenoCommand}"
+                                    FontSize="11" Padding="8,4" Margin="2" CornerRadius="4" 
+                                    Background="#E2E8F0" Foreground="#1E293B" Cursor="Hand"/>
+                            <Button Content="Gerente" 
+                                    Command="{Binding UsarGerenteCommand}"
+                                    FontSize="11" Padding="8,4" Margin="2" CornerRadius="4" 
+                                    Background="#E2E8F0" Foreground="#1E293B" Cursor="Hand"/>
+                            <Button Content="Cajero" 
+                                    Command="{Binding UsarCajeroCommand}"
+                                    FontSize="11" Padding="8,4" Margin="2" CornerRadius="4" 
+                                    Background="#E2E8F0" Foreground="#1E293B" Cursor="Hand"/>
+                            <Button Content="Mozo" 
+                                    Command="{Binding UsarMozoCommand}"
+                                    FontSize="11" Padding="8,4" Margin="2" CornerRadius="4" 
+                                    Background="#E2E8F0" Foreground="#1E293B" Cursor="Hand"/>
+                            <Button Content="Recepción" 
+                                    Command="{Binding UsarRecepcionCommand}"
+                                    FontSize="11" Padding="8,4" Margin="2" CornerRadius="4" 
+                                    Background="#E2E8F0" Foreground="#1E293B" Cursor="Hand"/>
+                        </WrapPanel>
+                    </StackPanel>
+                </Border>
+
+            </StackPanel>
+        </Border>
+    </Grid>
 </Window>

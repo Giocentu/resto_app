@@ -11,8 +11,15 @@ GO
 --------------------------------------------------
 IF NOT EXISTS (SELECT 1 FROM persona)
 BEGIN
-insert into persona (dni, nombre, apellido, email, telefono, password) values (96079673, 'Giovanni', 'Centurion', 'giocen@gmail.org', 3795753983, 'SoyJefe123');
-insert into persona (dni, nombre, apellido, email, telefono, password) values (42739764, 'Hernan', 'Cespes', 'hcesped@gmail.org', 3795753988, 'SoyHernan123');
+insert into persona (dni, nombre, apellido, email, telefono, password) values (96079673, 'Giovanni', 'Centurion', 'giocen@gmail.org', 3795753983, '123123');
+insert into persona (dni, nombre, apellido, email, telefono, password) values (42739764, 'Hernan', 'Cespedes', 'hcesped@gmail.org', 3795753988, '123123');
+insert into persona (dni, nombre, apellido, email, telefono, password) values (11111111, 'Carlos', 'Cajero', 'cajero@restoapp.com', 3795000004, '123123');
+insert into persona (dni, nombre, apellido, email, telefono, password) values (22222222, 'Marcos', 'Mozo', 'mozo@restoapp.com', 3795000005, '123123');
+insert into persona (dni, nombre, apellido, email, telefono, password) values (33333333, 'Rocio', 'Recepcion', 'recepcion@restoapp.com', 3795000003, '123123');
+insert into persona (dni, nombre, apellido, email, telefono, password) values (44444444, 'Pablo', 'Cocinero', 'cocinero@restoapp.com', 3795000006, '123123');
+insert into persona (dni, nombre, apellido, email, telefono, password) values (55555555, 'Esteban', 'Bartender', 'bartender@restoapp.com', 3795000008, '123123');
+insert into persona (dni, nombre, apellido, email, telefono, password) values (66666666, 'Matias', 'Bachero', 'bachero@restoapp.com', 3795000007, '123123');
+insert into persona (dni, nombre, apellido, email, telefono, password) values (77777777, 'Gustavo', 'Seguridad', 'seguridad@restoapp.com', 3795000009, '123123');
 insert into persona (dni, nombre, apellido, email, telefono, password) values (46452703, 'Elena', 'Martinez', 'gjones0@unesco.org', 3795753991, 'password1');
 insert into persona (dni, nombre, apellido, email, telefono, password) values (79565748, 'Diego', 'Sanchez', 'shammerich1@nps.gov', 3796300823,'password1');
 insert into persona (dni, nombre, apellido, email, telefono, password) values (34527739, 'Luis', 'Garcia', 'fsheppey2@github.io', 3798665229, 'password1');
@@ -1109,15 +1116,45 @@ GO
 --------------------------------------------------
 --TABLA empleado
 --------------------------------------------------
--- Insercion de admins    
+-- Insercion de admins y roles clave
 DECLARE @TurnoDefecto INT;
 SELECT TOP 1 @TurnoDefecto = id_turno FROM turno_empleado ORDER BY id_turno ASC;
 
-IF NOT EXISTS (SELECT 1 FROM empleado WHERE dni_empleado = 42739764 AND id_rol = 1)
-    INSERT INTO empleado (dni_empleado, id_rol, id_turno, activo_en_rol) VALUES (42739764, 1, @TurnoDefecto, 1);
+-- Giovanni Centurion: Dueño (id_rol = 1)
+IF NOT EXISTS (SELECT 1 FROM empleado WHERE dni_empleado = 96079673 AND id_rol = 1)
+    INSERT INTO empleado (dni_empleado, id_rol, id_turno, activo_en_rol) VALUES (96079673, 1, @TurnoDefecto, 1);
 
-IF NOT EXISTS (SELECT 1 FROM empleado WHERE dni_empleado = 96079673 AND id_rol = 2)
-    INSERT INTO empleado (dni_empleado, id_rol, id_turno, activo_en_rol) VALUES (96079673, 2, @TurnoDefecto, 1);
+-- Hernan Cespedes: Gerente (id_rol = 2)
+IF NOT EXISTS (SELECT 1 FROM empleado WHERE dni_empleado = 42739764 AND id_rol = 2)
+    INSERT INTO empleado (dni_empleado, id_rol, id_turno, activo_en_rol) VALUES (42739764, 2, @TurnoDefecto, 1);
+
+-- Cajero (id_rol = 4)
+IF NOT EXISTS (SELECT 1 FROM empleado WHERE dni_empleado = 11111111 AND id_rol = 4)
+    INSERT INTO empleado (dni_empleado, id_rol, id_turno, activo_en_rol) VALUES (11111111, 4, @TurnoDefecto, 1);
+
+-- Mozo (id_rol = 5)
+IF NOT EXISTS (SELECT 1 FROM empleado WHERE dni_empleado = 22222222 AND id_rol = 5)
+    INSERT INTO empleado (dni_empleado, id_rol, id_turno, activo_en_rol) VALUES (22222222, 5, @TurnoDefecto, 1);
+
+-- Recepción (id_rol = 3)
+IF NOT EXISTS (SELECT 1 FROM empleado WHERE dni_empleado = 33333333 AND id_rol = 3)
+    INSERT INTO empleado (dni_empleado, id_rol, id_turno, activo_en_rol) VALUES (33333333, 3, @TurnoDefecto, 1);
+
+-- Cocinero (id_rol = 6)
+IF NOT EXISTS (SELECT 1 FROM empleado WHERE dni_empleado = 44444444 AND id_rol = 6)
+    INSERT INTO empleado (dni_empleado, id_rol, id_turno, activo_en_rol) VALUES (44444444, 6, @TurnoDefecto, 1);
+
+-- Bartender (id_rol = 8)
+IF NOT EXISTS (SELECT 1 FROM empleado WHERE dni_empleado = 55555555 AND id_rol = 8)
+    INSERT INTO empleado (dni_empleado, id_rol, id_turno, activo_en_rol) VALUES (55555555, 8, @TurnoDefecto, 1);
+
+-- Bachero (id_rol = 7)
+IF NOT EXISTS (SELECT 1 FROM empleado WHERE dni_empleado = 66666666 AND id_rol = 7)
+    INSERT INTO empleado (dni_empleado, id_rol, id_turno, activo_en_rol) VALUES (66666666, 7, @TurnoDefecto, 1);
+
+-- Seguridad (id_rol = 9)
+IF NOT EXISTS (SELECT 1 FROM empleado WHERE dni_empleado = 77777777 AND id_rol = 9)
+    INSERT INTO empleado (dni_empleado, id_rol, id_turno, activo_en_rol) VALUES (77777777, 9, @TurnoDefecto, 1);
 
 -- Insercion de empleados de demostración adicionales
 INSERT INTO empleado (dni_empleado, id_rol, id_turno, activo_en_rol)
@@ -1127,7 +1164,7 @@ SELECT TOP(18)
     (SELECT TOP 1 t.id_turno FROM turno_empleado t ORDER BY CHECKSUM(NEWID(), p.dni)),
     1
 FROM persona p
-WHERE p.dni NOT IN (42739764, 96079673)
+WHERE p.dni NOT IN (42739764, 96079673, 11111111, 22222222, 33333333, 44444444, 55555555, 66666666, 77777777)
   AND p.dni NOT IN (SELECT dni_empleado FROM empleado)
   AND p.dni NOT IN (SELECT dni_cliente FROM cliente)
 ORDER BY NEWID();
@@ -1327,5 +1364,63 @@ BEGIN
 END;
 GO
 
+---------------------------------------------------
+-- SINCRONIZACIÓN Y ACTUALIZACIÓN DE CONTRASEÑAS Y ROLES
+---------------------------------------------------
+UPDATE persona SET password = '123123', apellido = 'Cespedes' WHERE dni = 42739764;
+UPDATE persona SET password = '123123' WHERE dni = 96079673;
 
-    
+IF EXISTS (SELECT 1 FROM persona WHERE dni = 11111111)
+    UPDATE persona SET password = '123123' WHERE dni = 11111111;
+
+-- Asegurar rol de Dueño para Giovanni (id_rol = 1)
+IF EXISTS (SELECT 1 FROM empleado WHERE dni_empleado = 96079673)
+BEGIN
+    UPDATE empleado SET activo_en_rol = 0 WHERE dni_empleado = 96079673 AND id_rol <> 1;
+    IF NOT EXISTS (SELECT 1 FROM empleado WHERE dni_empleado = 96079673 AND id_rol = 1)
+        INSERT INTO empleado (dni_empleado, id_rol, id_turno, activo_en_rol) VALUES (96079673, 1, 1, 1);
+    ELSE
+        UPDATE empleado SET activo_en_rol = 1 WHERE dni_empleado = 96079673 AND id_rol = 1;
+END;
+
+-- Asegurar rol de Gerente para Hernan (id_rol = 2)
+IF EXISTS (SELECT 1 FROM empleado WHERE dni_empleado = 42739764)
+BEGIN
+    UPDATE empleado SET activo_en_rol = 0 WHERE dni_empleado = 42739764 AND id_rol <> 2;
+    IF NOT EXISTS (SELECT 1 FROM empleado WHERE dni_empleado = 42739764 AND id_rol = 2)
+        INSERT INTO empleado (dni_empleado, id_rol, id_turno, activo_en_rol) VALUES (42739764, 2, 1, 1);
+    ELSE
+        UPDATE empleado SET activo_en_rol = 1 WHERE dni_empleado = 42739764 AND id_rol = 2;
+END;
+
+-- Asegurar rol de Cajero para Carlos (id_rol = 4)
+IF EXISTS (SELECT 1 FROM empleado WHERE dni_empleado = 11111111)
+BEGIN
+    UPDATE empleado SET activo_en_rol = 0 WHERE dni_empleado = 11111111 AND id_rol <> 4;
+    IF NOT EXISTS (SELECT 1 FROM empleado WHERE dni_empleado = 11111111 AND id_rol = 4)
+        INSERT INTO empleado (dni_empleado, id_rol, id_turno, activo_en_rol) VALUES (11111111, 4, 1, 1);
+    ELSE
+        UPDATE empleado SET activo_en_rol = 1 WHERE dni_empleado = 11111111 AND id_rol = 4;
+END;
+
+-- Asegurar rol de Mozo (id_rol = 5)
+IF EXISTS (SELECT 1 FROM empleado WHERE dni_empleado = 22222222)
+BEGIN
+    UPDATE empleado SET activo_en_rol = 0 WHERE dni_empleado = 22222222 AND id_rol <> 5;
+    IF NOT EXISTS (SELECT 1 FROM empleado WHERE dni_empleado = 22222222 AND id_rol = 5)
+        INSERT INTO empleado (dni_empleado, id_rol, id_turno, activo_en_rol) VALUES (22222222, 5, 1, 1);
+    ELSE
+        UPDATE empleado SET activo_en_rol = 1 WHERE dni_empleado = 22222222 AND id_rol = 5;
+END;
+
+-- Asegurar rol de Recepción (id_rol = 3)
+IF EXISTS (SELECT 1 FROM empleado WHERE dni_empleado = 33333333)
+BEGIN
+    UPDATE empleado SET activo_en_rol = 0 WHERE dni_empleado = 33333333 AND id_rol <> 3;
+    IF NOT EXISTS (SELECT 1 FROM empleado WHERE dni_empleado = 33333333 AND id_rol = 3)
+        INSERT INTO empleado (dni_empleado, id_rol, id_turno, activo_en_rol) VALUES (33333333, 3, 1, 1);
+    ELSE
+        UPDATE empleado SET activo_en_rol = 1 WHERE dni_empleado = 33333333 AND id_rol = 3;
+END;
+GO
+

@@ -1,4 +1,5 @@
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 using RestoApp.Desktop.ViewModels;
 
@@ -16,6 +17,8 @@ public partial class LoginWindow : Window
     {
         if (DataContext is LoginViewModel vm)
         {
+            if (vm.EstaCargando) return;
+
             bool exito = await vm.IniciarSesionAsync();
             
             if (exito)
@@ -27,6 +30,15 @@ public partial class LoginWindow : Window
                 // Cerramos la ventana actual de login
                 this.Close();
             }
+        }
+    }
+
+    private void OnWindowKeyDown(object? sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Enter)
+        {
+            BtnIngresar_Click(sender, e);
+            e.Handled = true;
         }
     }
 }
