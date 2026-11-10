@@ -32,11 +32,11 @@
         </Style>
     </UserControl.Styles>
 
-    <Grid>
+    <Grid RowDefinitions="Auto, Auto, Auto, *">
         <!-- ========================================== -->
         <!-- CONTENIDO PRINCIPAL                        -->
         <!-- ========================================== -->
-        <Grid RowDefinitions="Auto, Auto, Auto, *">
+        
 
             <!-- FILA 0: ENCABEZADO -->
             <Grid Grid.Row="0" ColumnDefinitions="*, Auto" Margin="0,0,0,15">
@@ -47,7 +47,7 @@
 
                 <Button Grid.Column="1" 
                         Content="Nuevo Item" 
-                        Command="{Binding AbrirNuevoItemCommand}"
+                        Click="BtnNuevoItem_Click"
                         IsVisible="{Binding PuedeGestionar}"
                         Background="#27AE60" Foreground="White" 
                         FontWeight="Bold" Padding="16,8" CornerRadius="8" Cursor="Hand"/>
@@ -150,8 +150,7 @@
                                           IsVisible="{Binding $parent[UserControl].((vm:MenuViewModel)DataContext).PuedeGestionar}">
                                         
                                         <Button Grid.Column="0" Content="Editar" 
-                                                Command="{Binding $parent[UserControl].((vm:MenuViewModel)DataContext).AbrirEditarItemCommand}"
-                                                CommandParameter="{Binding}"
+                                                Click="BtnEditar_Click"
                                                 Background="#F1F5F9" Foreground="#334155" FontSize="12"
                                                 HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
                                                 Margin="0,0,4,0" CornerRadius="6" Cursor="Hand"/>
@@ -173,70 +172,4 @@
                 </ItemsControl>
             </ScrollViewer>
         </Grid>
-
-        <!-- ========================================== -->
-        <!-- MODAL OVERLAY: CREAR / EDITAR ITEM         -->
-        <!-- ========================================== -->
-        <Border Background="#80000000" IsVisible="{Binding MostrarModalEditor}" 
-                HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-            <Border Background="White" Width="440" CornerRadius="12" Padding="24"
-                    HorizontalAlignment="Center" VerticalAlignment="Center"
-                    BoxShadow="0 10 25 0 #40000000">
-                <StackPanel Spacing="14">
-                    <TextBlock Text="{Binding TituloEditor}" FontSize="18" FontWeight="Bold" Foreground="#2C3E50"/>
-                    <Separator Background="#E2E8F0" Margin="0,0,0,6"/>
-
-                    <!-- Mensaje de Error si hay -->
-                    <Border Background="#FEE2E2" CornerRadius="6" Padding="10" 
-                            IsVisible="{Binding MensajeError, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
-                        <TextBlock Text="{Binding MensajeError}" Foreground="#DC2626" FontSize="12" TextWrapping="Wrap"/>
-                    </Border>
-
-                    <!-- Descripción -->
-                    <StackPanel Spacing="4">
-                        <TextBlock Text="Descripcion / Nombre:" FontWeight="Bold" FontSize="12" Foreground="#334155"/>
-                        <TextBox Text="{Binding EditorDescripcion, Mode=TwoWay}" PlaceholderText="Ej. Bife de Chorizo 400g" Height="38"/>
-                    </StackPanel>
-
-                    <!-- Categoría -->
-                    <StackPanel Spacing="4">
-                        <TextBlock Text="Categoria:" FontWeight="Bold" FontSize="12" Foreground="#334155"/>
-                        <ComboBox ItemsSource="{Binding Categorias}"
-                                  SelectedItem="{Binding EditorCategoriaSeleccionada, Mode=TwoWay}"
-                                  HorizontalAlignment="Stretch" Height="38">
-                            <ComboBox.ItemTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding Nombre}"/>
-                                </DataTemplate>
-                            </ComboBox.ItemTemplate>
-                        </ComboBox>
-                    </StackPanel>
-
-                    <!-- Precio -->
-                    <StackPanel Spacing="4">
-                        <TextBlock Text="Precio ($):" FontWeight="Bold" FontSize="12" Foreground="#334155"/>
-                        <TextBox Text="{Binding EditorPrecio, Mode=TwoWay}" PlaceholderText="Ej. 12500" Height="38"/>
-                    </StackPanel>
-
-                    <!-- Activo Check -->
-                    <CheckBox IsChecked="{Binding EditorActivo, Mode=TwoWay}" Content="Disponible para comanda" Margin="0,4,0,0"/>
-
-                    <!-- Botones de Acción -->
-                    <Grid ColumnDefinitions="*, *" Margin="0,12,0,0">
-                        <Button Grid.Column="0" Content="Cancelar" 
-                                Command="{Binding CerrarModalCommand}"
-                                Background="#E2E8F0" Foreground="#475569" 
-                                Height="40" Margin="0,0,6,0" CornerRadius="8"
-                                HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
-
-                        <Button Grid.Column="1" Content="Guardar" 
-                                Command="{Binding GuardarItemCommand}"
-                                Background="#27AE60" Foreground="White" FontWeight="Bold"
-                                Height="40" Margin="6,0,0,0" CornerRadius="8"
-                                HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
-                    </Grid>
-                </StackPanel>
-            </Border>
-        </Border>
-    </Grid>
 </UserControl>

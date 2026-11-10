@@ -27,9 +27,9 @@
 
                 <!-- Campo Usuario -->
                 <StackPanel Spacing="6">
-                    <TextBlock Text="Usuario" FontSize="13" FontWeight="SemiBold" Foreground="#334155"/>
+                    <TextBlock Text="DNI" FontSize="13" FontWeight="SemiBold" Foreground="#334155"/>
                     <TextBox Text="{Binding NombreUsuario}" 
-                             PlaceholderText="Usuario" 
+                             PlaceholderText="Ingrese su DNI sin espacios y sin puntos" 
                              FontSize="14" Padding="12,10" 
                              CornerRadius="6"/>
                 </StackPanel>
@@ -38,7 +38,7 @@
                 <StackPanel Spacing="6">
                     <TextBlock Text="Contraseña" FontSize="13" FontWeight="SemiBold" Foreground="#334155"/>
                     <TextBox Text="{Binding Password}" 
-                             PlaceholderText="Contraseña" 
+                             PlaceholderText="Ingrese su contraseña" 
                              PasswordChar="•" 
                              FontSize="14" Padding="12,10" 
                              CornerRadius="6"/>

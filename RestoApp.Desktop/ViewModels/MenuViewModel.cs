@@ -45,30 +45,6 @@ public partial class MenuViewModel : ObservableObject
     [ObservableProperty]
     private bool _mostrarMensajeInformativo;
 
-    // Modal de Edición / Creación
-    [ObservableProperty]
-    private bool _mostrarModalEditor;
-
-    [ObservableProperty]
-    private int _editorIdItem;
-
-    [ObservableProperty]
-    private string _editorDescripcion = string.Empty;
-
-    [ObservableProperty]
-    private double _editorPrecio;
-
-    [ObservableProperty]
-    private CategoriaMenu? _editorCategoriaSeleccionada;
-
-    [ObservableProperty]
-    private bool _editorActivo = true;
-
-    [ObservableProperty]
-    private string _mensajeError = string.Empty;
-
-    public string TituloEditor => EditorIdItem == 0 ? "Nuevo Item del Menu" : "Editar Item del Menu";
-
     public MenuViewModel(MenuService? menuService)
     {
         _menuService = menuService;
@@ -179,48 +155,12 @@ public partial class MenuViewModel : ObservableObject
         }
     }
 
-    [RelayCommand]
-    private void AbrirNuevoItem()
+    // Método público invocado desde el code-behind después de que la ventana devuelve los datos
+    public async Task GuardarDesdeVentanaAsync(int idItem, string descripcion, double precio, int idCategoria, bool activo)
     {
-        if (!PuedeGestionar) return;
-        EditorIdItem = 0;
-        EditorDescripcion = string.Empty;
-        EditorPrecio = 0;
-        EditorCategoriaSeleccionada = Categorias.FirstOrDefault(c => c.IdCategoria > 0);
-        EditorActivo = true;
-        MensajeError = string.Empty;
-        OnPropertyChanged(nameof(TituloEditor));
-        MostrarModalEditor = true;
-    }
-
-    [RelayCommand]
-    private void AbrirEditarItem(MenuItemViewModel item)
-    {
-        if (!PuedeGestionar) return;
-        EditorIdItem = item.IdItem;
-        EditorDescripcion = item.Descripcion;
-        EditorPrecio = item.Precio;
-        EditorCategoriaSeleccionada = Categorias.FirstOrDefault(c => c.IdCategoria == item.IdCategoria);
-        EditorActivo = item.Activo;
-        MensajeError = string.Empty;
-        OnPropertyChanged(nameof(TituloEditor));
-        MostrarModalEditor = true;
-    }
-
-    [RelayCommand]
-    private async Task GuardarItemAsync()
-    {
-        if (_menuService == null || EditorCategoriaSeleccionada == null) return;
-        try
-        {
-            await _menuService.GuardarItemAsync(EditorIdItem, EditorDescripcion, EditorPrecio, EditorCategoriaSeleccionada.IdCategoria, EditorActivo);
-            MostrarModalEditor = false;
-            await CargarDatosAsync();
-        }
-        catch (Exception ex)
-        {
-            MensajeError = ex.Message;
-        }
+        if (_menuService == null) return;
+        await _menuService.GuardarItemAsync(idItem, descripcion, precio, idCategoria, activo);
+        await CargarDatosAsync();
     }
 
     [RelayCommand]
@@ -241,6 +181,4 @@ public partial class MenuViewModel : ObservableObject
         CambiarFiltroEstado("Activos");
     }
 
-    [RelayCommand]
-    private void CerrarModal() => MostrarModalEditor = false;
 }

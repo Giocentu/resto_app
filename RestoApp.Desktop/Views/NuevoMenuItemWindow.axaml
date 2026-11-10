@@ -1,0 +1,74 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ent="using:RestoApp.Entities"
+        x:Class="RestoApp.Desktop.Views.NuevoMenuItemWindow"
+        Title="RestoApp - Item del Menú" 
+        Height="520" Width="480"
+        WindowStartupLocation="CenterOwner"
+        CanResize="False"
+        Background="#2C3E50">
+
+    <Border Background="White" CornerRadius="12" Margin="20" Padding="25">
+        <Grid RowDefinitions="Auto, *, Auto">
+            
+            <!-- ENCABEZADO MODAL -->
+            <StackPanel Grid.Row="0" Margin="0,0,0,20">
+                <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                    <TextBlock Text="🍽️" FontSize="24" VerticalAlignment="Center"/>
+                    <TextBlock x:Name="TxtTituloModal" Text="Nuevo Item del Menú" FontSize="20" FontWeight="Bold" Foreground="#2C3E50" VerticalAlignment="Center"/>
+                </StackPanel>
+                <TextBlock Text="Complete la descripción, categoría, precio y disponibilidad del producto" FontSize="12" Foreground="#7F8C8D" Margin="34,2,0,0"/>
+                <Separator Background="#BDC3C7" Margin="0,15,0,0"/>
+            </StackPanel>
+
+            <!-- FORMULARIO DE CAMPOS -->
+            <StackPanel Grid.Row="1" Spacing="14">
+                
+                <!-- Mensaje de Error -->
+                <Border Background="#FDEDEC" BorderBrush="#E74C3C" BorderThickness="1" CornerRadius="6" Padding="10" Margin="0,0,0,5" IsVisible="{Binding #TxtError.IsVisible}">
+                    <TextBlock x:Name="TxtError" Foreground="#E74C3C" FontSize="12" FontWeight="Bold" IsVisible="False" TextWrapping="Wrap"/>
+                </Border>
+
+                <!-- Campo Descripción / Nombre -->
+                <StackPanel Spacing="6">
+                    <TextBlock Text="Descripción / Nombre del Producto:" Foreground="#34495E" FontWeight="Bold" FontSize="13"/>
+                    <TextBox x:Name="TxtDescripcion" PlaceholderText="Ej. Bife de Chorizo 400g" Height="38" VerticalContentAlignment="Center"/>
+                </StackPanel>
+
+                <!-- Campo Categoría -->
+                <StackPanel Spacing="6">
+                    <TextBlock Text="Categoría:" Foreground="#34495E" FontWeight="Bold" FontSize="13"/>
+                    <ComboBox x:Name="CboCategoria" HorizontalAlignment="Stretch" Height="38">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate x:DataType="ent:CategoriaMenu">
+                                <TextBlock Text="{Binding Nombre}"/>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                </StackPanel>
+
+                <!-- Campo Precio -->
+                <StackPanel Spacing="6">
+                    <TextBlock Text="Precio ($):" Foreground="#34495E" FontWeight="Bold" FontSize="13"/>
+                    <TextBox x:Name="TxtPrecio" PlaceholderText="Ej. 12500" Height="38" VerticalContentAlignment="Center"/>
+                </StackPanel>
+
+                <!-- Campo Disponible -->
+                <CheckBox x:Name="ChkActivo" Content="Disponible para comanda" IsChecked="True" Margin="0,4,0,0"/>
+
+            </StackPanel>
+
+            <!-- PIE CON BOTONES DE ACCIÓN -->
+            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="12" Margin="0,20,0,0">
+                <Button Content="Cancelar" Click="BtnCancelar_Click" 
+                        Background="#95A5A6" Foreground="White" 
+                        Padding="18,10" CornerRadius="6" Cursor="Hand" FontWeight="SemiBold"/>
+                
+                <Button Content="💾 Guardar Item" Click="BtnGuardar_Click" 
+                        Background="#27AE60" Foreground="White" 
+                        Padding="20,10" CornerRadius="6" Cursor="Hand" FontWeight="Bold"/>
+            </StackPanel>
+
+        </Grid>
+    </Border>
+</Window>
