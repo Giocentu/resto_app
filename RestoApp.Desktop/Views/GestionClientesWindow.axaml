@@ -3,7 +3,7 @@
         xmlns:vm="using:RestoApp.Desktop.ViewModels"
         x:Class="RestoApp.Desktop.Views.GestionClientesWindow"
         Title="RestoApp - Gestión de Clientes"
-        Height="600" Width="850"
+        Height="600" Width="1000"
         WindowStartupLocation="CenterOwner"
         CanResize="True"
         Background="#F8F9FA">

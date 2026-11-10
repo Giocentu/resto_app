@@ -14,10 +14,47 @@ namespace RestoApp.Desktop.ViewModels;
 public partial class CajaViewModel : ObservableObject
 {
     private readonly PagoService? _pagoService;
+    private readonly MesaService _mesaService;
+    private readonly MenuService _menuService;
 
+    [ObservableProperty]
+    private ObservableCollection<Mesa> _mesasLibres = new();
+
+    [ObservableProperty]
+    private ObservableCollection<MenuItem> _menuActivo = new();
+
+    [ObservableProperty]
+    private Mesa? _mesaNuevaSeleccionada;
+
+    [ObservableProperty]
+    private MenuItem? _itemInicialSeleccionado;
+
+    [ObservableProperty]
+    private int _cantidadInicial = 1;
+
+    [ObservableProperty]
+    private bool _mostrarModalNuevaCuenta;
+
+    [ObservableProperty]
+    private string _mensajeNuevaCuenta = string.Empty;
     // Selector de Vistas: "Pagos" o "Arqueo"
     [ObservableProperty]
     private string _vistaSeleccionada = "Pagos";
+
+    [ObservableProperty]
+    private bool _mostrarModalAgregarItem;
+
+    [ObservableProperty]
+    private CuentaPendienteViewModel? _cuentaParaAgregarItem;
+
+    [ObservableProperty]
+    private MenuItem? _itemParaAgregar;
+
+    [ObservableProperty]
+    private int _cantidadItemAgregar = 1;
+
+    [ObservableProperty]
+    private string _mensajeAgregarItem = string.Empty;
 
     public bool EsVistaPagos => VistaSeleccionada == "Pagos";
     public bool EsVistaArqueo => VistaSeleccionada == "Arqueo";
@@ -53,22 +90,16 @@ public partial class CajaViewModel : ObservableObject
     private CuentaPendienteViewModel? _cuentaSeleccionada;
 
     [ObservableProperty]
-    private ObservableCollection<string> _mediosPago = new()
-    {
-        "Efectivo",
-        "Tarjeta de Débito",
-        "Tarjeta de Crédito",
-        "Transferencia / QR"
-    };
+    private ObservableCollection<MetodoPago> _metodosPago = new();
 
     [ObservableProperty]
-    private string _medioPagoSeleccionado = "Efectivo";
+    private MetodoPago? _metodoPagoSeleccionado;
 
     [ObservableProperty]
-    private decimal _montoCobrar = 24500.00m;
+    private decimal _montoCobrar;
 
     public string MontoCobrarTexto => $"$ {MontoCobrar:N2}";
-    public string ClienteNombreModal => CuentaSeleccionada?.ClienteNombre ?? "Juan Pérez";
+    public string ClienteNombreModal => CuentaSeleccionada?.ClienteNombre ?? "Seleccione una Cuenta";
 
     // Balance y Arqueo de Turno
     [ObservableProperty]
@@ -98,10 +129,133 @@ public partial class CajaViewModel : ObservableObject
     [ObservableProperty]
     private string _mensajeCierre = string.Empty;
 
-    public CajaViewModel(PagoService? pagoService = null)
+    [ObservableProperty]
+    private string _mensajePago = string.Empty;
+
+    public CajaViewModel(
+        PagoService pagoService,
+        MesaService mesaService,
+        MenuService menuService)
     {
         _pagoService = pagoService;
+        _mesaService = mesaService;
+        _menuService = menuService;
         _ = CargarDatosAsync();
+    }
+    [RelayCommand]
+    private async Task AbrirModalAgregarItemAsync()
+    {
+        MensajeAgregarItem = string.Empty;
+    
+        if (_pagoService == null)
+        {
+            MensajeAgregarItem = "El servicio de pagos no está disponible.";
+            return;
+        }
+    
+        try
+        {
+            var cuentas = await _pagoService.ObtenerCuentasPendientesAsync();
+    
+            CuentasPendientes = new ObservableCollection<CuentaPendienteViewModel>(
+                cuentas.Select(c => new CuentaPendienteViewModel
+                {
+                    CuentaId = c.CuentaId,
+                    IdMesa = c.IdMesa,
+                    NroMesa = c.NroMesa,
+                    Sector = c.Sector,
+                    MontoConsumo = (decimal)c.MontoConsumo,
+                    ClienteNombre = c.ClienteNombre
+                }));
+    
+            var productos = await _menuService.ObtenerMenuAsync(soloActivos: true);
+            MenuActivo = new ObservableCollection<MenuItem>(
+                productos.Where(p => p.Activo));
+    
+            CuentaParaAgregarItem = CuentasPendientes.FirstOrDefault();
+            ItemParaAgregar = MenuActivo.FirstOrDefault();
+            CantidadItemAgregar = 1;
+            MostrarModalAgregarItem = true;
+    
+            if (CuentasPendientes.Count == 0)
+                MensajeAgregarItem = "No hay cuentas abiertas.";
+    
+            if (MenuActivo.Count == 0)
+                MensajeAgregarItem = "No hay productos activos.";
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[CAJA CARGAR CUENTAS/PRODUCTOS ERROR] {ex}");
+            MensajeAgregarItem = $"No se pudieron cargar cuentas o productos: {ex.Message}";
+            MostrarModalAgregarItem = true;
+        }
+    }
+    [RelayCommand]
+    private void CerrarModalAgregarItem()
+    {
+        MostrarModalAgregarItem = false;
+        MensajeAgregarItem = string.Empty;
+    }   
+
+    [RelayCommand]
+    private async Task AgregarItemACuentaAsync()
+    {
+        if (_pagoService == null)
+        {
+            MensajeAgregarItem = "El servicio de pagos no está disponible.";
+            return;
+        }
+
+        if (CuentaParaAgregarItem == null)
+        {
+            MensajeAgregarItem = "Seleccione una cuenta abierta.";
+            return;
+        }
+
+        if (ItemParaAgregar == null)
+        {
+            MensajeAgregarItem = "Seleccione un producto.";
+            return;
+        }
+
+        if (CantidadItemAgregar <= 0)
+        {
+            MensajeAgregarItem = "La cantidad debe ser mayor que cero.";
+            return;
+        }
+
+        var cuentaId = CuentaParaAgregarItem.CuentaId;
+
+        try
+        {
+            await _pagoService.AgregarItemACuentaAsync(
+                cuentaId,
+                ItemParaAgregar.IdItem,
+                CantidadItemAgregar);
+
+            var cuentas = await _pagoService.ObtenerCuentasPendientesAsync();
+
+            CuentasPendientes = new ObservableCollection<CuentaPendienteViewModel>(
+                cuentas.Select(c => new CuentaPendienteViewModel
+                {
+                    CuentaId = c.CuentaId,
+                    IdMesa = c.IdMesa,
+                    NroMesa = c.NroMesa,
+                    Sector = c.Sector,
+                    MontoConsumo = (decimal)c.MontoConsumo,
+                    ClienteNombre = c.ClienteNombre
+                }));
+
+            CuentaParaAgregarItem =
+                CuentasPendientes.FirstOrDefault(c => c.CuentaId == cuentaId);
+
+            MensajeAgregarItem = $"Producto agregado a la cuenta #{cuentaId}.";
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[CAJA AGREGAR ITEM ERROR] {ex}");
+            MensajeAgregarItem = $"No se pudo agregar el producto: {ex.Message}";
+        }
     }
 
     public async Task CargarDatosAsync()
@@ -153,7 +307,26 @@ public partial class CajaViewModel : ObservableObject
         AplicarFiltro();
         RecalcularTotalesTurno();
 
-        CuentasPendientes = new ObservableCollection<CuentaPendienteViewModel>();
+        var cuentas = await _pagoService.ObtenerCuentasPendientesAsync();
+
+        CuentasPendientes = new ObservableCollection<CuentaPendienteViewModel>(
+            cuentas.Select(c => new CuentaPendienteViewModel
+            {
+                CuentaId = c.CuentaId,
+                IdMesa = c.IdMesa,
+                NroMesa = c.NroMesa,
+                Sector = c.Sector,
+                MontoConsumo = (decimal)c.MontoConsumo,
+                ClienteNombre = c.ClienteNombre
+            }));
+
+        var metodos = await _pagoService.ObtenerMetodosPagoAsync();
+        MetodosPago = new ObservableCollection<MetodoPago>(metodos);
+
+        MetodoPagoSeleccionado = MetodosPago.FirstOrDefault(
+            m => m.FormaPago.Contains("Efectivo", StringComparison.OrdinalIgnoreCase))
+            ?? MetodosPago.FirstOrDefault();
+
         CuentaSeleccionada = null;
     }
 
@@ -193,12 +366,9 @@ public partial class CajaViewModel : ObservableObject
 
     partial void OnCuentaSeleccionadaChanged(CuentaPendienteViewModel? value)
     {
-        if (value != null)
-        {
-            MontoCobrar = value.MontoConsumo;
-            OnPropertyChanged(nameof(MontoCobrarTexto));
-            OnPropertyChanged(nameof(ClienteNombreModal));
-        }
+        MontoCobrar = value?.MontoConsumo ?? 0m;
+        OnPropertyChanged(nameof(MontoCobrarTexto));
+        OnPropertyChanged(nameof(ClienteNombreModal));
     }
 
     partial void OnMontoCobrarChanged(decimal value)
@@ -251,40 +421,48 @@ public partial class CajaViewModel : ObservableObject
     [RelayCommand]
     private async Task ProcesarPagoYLiquidarAsync()
     {
-        string medio = MedioPagoSeleccionado?.ToLower() ?? "";
-        int idMetodo = medio switch
-        {
-            var s when s.Contains("crédito") || s.Contains("credito") => 1,
-            var s when s.Contains("débito") || s.Contains("debito") => 2,
-            var s when s.Contains("efectivo") => 3,
-            _ => 3
-        };
+        MensajePago = string.Empty;
 
-        if (_pagoService != null)
+        if (CuentaSeleccionada == null)
         {
-            try
-            {
-                var pagoEntity = new Pago
-                {
-                    Monto = (double)MontoCobrar,
-                    FechaPago = DateTime.Now,
-                    IdMetodo = idMetodo,
-                    IdReserva = null
-                };
-                await _pagoService.RegistrarPagoAsync(pagoEntity);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"[CAJA REGISTRAR PAGO DB ERROR] {ex.Message}");
-                _ = AlertaService.MostrarAlertaConexionAsync();
-            }
+            MensajePago = "Seleccione una cuenta pendiente.";
+            return;
         }
 
-        await CargarDatosAsync();
-        MostrarModalProcesarPago = false;
+        if (MetodoPagoSeleccionado == null)
+        {
+            MensajePago = "Seleccione un medio de pago.";
+            return;
+        }
 
-        ComprobantePago = Pagos.FirstOrDefault();
-        MostrarModalComprobante = true;
+        if (_pagoService == null)
+        {
+            MensajePago = "El servicio de pagos no está disponible.";
+            return;
+        }
+
+        try
+        {
+            var nuevoPagoId = await _pagoService.CerrarCuentaAsync(
+                CuentaSeleccionada.CuentaId,
+                MetodoPagoSeleccionado.IdMetodo);
+
+            await CargarDatosAsync();
+            MostrarModalProcesarPago = false;
+
+            ComprobantePago = Pagos.FirstOrDefault(p => p.IdPago == nuevoPagoId);
+            MostrarModalComprobante = ComprobantePago != null;
+
+            if (ComprobantePago == null)
+            {
+                MensajePago = $"La cuenta se cerró, pero no se encontró el comprobante del pago #{nuevoPagoId}.";
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[CAJA CERRAR CUENTA ERROR] {ex}");
+            MensajePago = $"No se pudo cerrar la cuenta: {ex.Message}";
+        }
     }
 
     [RelayCommand]
@@ -337,5 +515,94 @@ public partial class CajaViewModel : ObservableObject
     {
         CalcularArqueo();
         MensajeCierre = "🔒 Caja del turno cerrada correctamente. Balance guardado.";
+    }
+
+    [RelayCommand]
+    private async Task AbrirModalNuevaCuentaAsync()
+    {
+        MensajeNuevaCuenta = string.Empty;
+
+        try
+        {
+            var mesas = await _mesaService.ObtenerMesasAsync();
+
+            MesasLibres = new ObservableCollection<Mesa>(
+                mesas.Where(m =>
+                    m.EsActivo &&
+                    string.Equals(
+                        m.Estado,
+                        "LIBRE",
+                        StringComparison.OrdinalIgnoreCase)));
+
+            var productos = await _menuService.ObtenerMenuAsync(soloActivos: true);
+
+            MenuActivo = new ObservableCollection<MenuItem>(
+                productos.Where(p => p.Activo));
+
+            MesaNuevaSeleccionada = MesasLibres.FirstOrDefault();
+            ItemInicialSeleccionado = MenuActivo.FirstOrDefault();
+            CantidadInicial = 1;
+            MostrarModalNuevaCuenta = true;
+
+            if (MesasLibres.Count == 0)
+                MensajeNuevaCuenta = "No hay mesas libres.";
+
+            if (MenuActivo.Count == 0)
+                MensajeNuevaCuenta = "No hay productos activos en el menú.";
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[CAJA ABRIR CUENTA ERROR] {ex}");
+            MensajeNuevaCuenta = $"No se pudieron cargar mesas o productos: {ex.Message}";
+            MostrarModalNuevaCuenta = true;
+        }
+    }
+    [RelayCommand]
+    private void CerrarModalNuevaCuenta()
+    {
+        MostrarModalNuevaCuenta = false;
+        MensajeNuevaCuenta = string.Empty;
+    }
+
+    [RelayCommand]
+    private async Task CrearCuentaConItemAsync()
+    {
+        if (MesaNuevaSeleccionada == null)
+        {
+            MensajeNuevaCuenta = "Seleccione una mesa libre.";
+            return;
+        }
+
+        if (ItemInicialSeleccionado == null)
+        {
+            MensajeNuevaCuenta = "Seleccione un producto.";
+            return;
+        }
+
+        if (CantidadInicial <= 0)
+        {
+            MensajeNuevaCuenta = "La cantidad debe ser mayor que cero.";
+            return;
+        }
+
+        try
+        {
+            var cuentaId = await _pagoService.CrearCuentaConItemAsync(
+                MesaNuevaSeleccionada.IdMesa,
+                ItemInicialSeleccionado.IdItem,
+                CantidadInicial);
+
+            await CargarDatosAsync();
+
+            MensajeNuevaCuenta =
+                $"Cuenta #{cuentaId} abierta y producto agregado.";
+
+            MostrarModalNuevaCuenta = false;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[CAJA CREAR CUENTA ERROR] {ex}");
+            MensajeNuevaCuenta = $"No se pudo abrir la cuenta: {ex.Message}";
+        }
     }
 }

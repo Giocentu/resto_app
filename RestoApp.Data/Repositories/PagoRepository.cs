@@ -27,6 +27,48 @@ public class PagoRepository : Repository<Pago>, IPagoRepository
             .OrderByDescending(p => p.FechaPago)
             .ToListAsync();
     }
+    public async Task AgregarItemACuentaSpAsync(
+        int cuentaId,
+        int idItem,
+        int cantidad)
+    {
+        await _context.Database.ExecuteSqlRawAsync(
+            "EXEC sp_Cuenta_AgregarItem " +
+            "@CuentaId = {0}, @IdItem = {1}, @Cantidad = {2}",
+            cuentaId,
+            idItem,
+            cantidad);
+    }
+    public async Task<int> CrearCuentaConItemSpAsync(
+    int idMesa,
+    int idItem,
+    int cantidad)
+{
+    var nuevaCuentaIdParam = new SqlParameter(
+        "@NuevaCuentaId",
+        SqlDbType.Int)
+    {
+        Direction = ParameterDirection.Output
+    };
+
+    await _context.Database.ExecuteSqlRawAsync(
+        "EXEC sp_Cuenta_CrearConItem " +
+        "@IdMesa = {0}, @IdItem = {1}, @Cantidad = {2}, " +
+        "@NuevaCuentaId = {3} OUTPUT",
+        idMesa,
+        idItem,
+        cantidad,
+        nuevaCuentaIdParam);
+
+    if (nuevaCuentaIdParam.Value is null ||
+        nuevaCuentaIdParam.Value == DBNull.Value)
+    {
+        throw new InvalidOperationException(
+            "La base de datos no devolvió el ID de la cuenta.");
+    }
+
+    return Convert.ToInt32(nuevaCuentaIdParam.Value);
+}
 
     public async Task<IEnumerable<MetodoPago>> GetMetodosPagoAsync()
     {
@@ -45,6 +87,28 @@ public class PagoRepository : Repository<Pago>, IPagoRepository
 
         return (int)(nuevoIdParam.Value ?? 0);
     }
+    public async Task<List<CuentaPendienteDto>> ObtenerCuentasPendientesAsync()
+{
+    return await _context.Database
+        .SqlQueryRaw<CuentaPendienteDto>("EXEC sp_Cuenta_ObtenerTodasPendientes")
+        .ToListAsync();
+}
+
+public async Task<int> CerrarCuentaAsync(int cuentaId, int idMetodo)
+{
+    var nuevoPagoIdParam = new SqlParameter("@NuevoPagoId", SqlDbType.Int)
+    {
+        Direction = ParameterDirection.Output
+    };
+
+    await _context.Database.ExecuteSqlRawAsync(
+        "EXEC sp_Cuenta_Cerrar @CuentaId = {0}, @IdMetodo = {1}, @NuevoPagoId = {2} OUTPUT",
+        cuentaId,
+        idMetodo,
+        nuevoPagoIdParam);
+
+    return Convert.ToInt32(nuevoPagoIdParam.Value);
+}
 
 }
 

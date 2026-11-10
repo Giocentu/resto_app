@@ -427,13 +427,10 @@ public partial class MainViewModel : ObservableObject
     [RelayCommand]
     private void IrACaja()
     {
-        PagoService? pagoService = null;
-        try
-        {
-            pagoService = CreatePagoService();
-        }
-        catch { }
-        CurrentView = new CajaViewModel(pagoService);
+        CurrentView = new CajaViewModel(
+            CreatePagoService(),
+            CreateMesaService(),
+            CreateMenuService());
     }
 
     [RelayCommand]

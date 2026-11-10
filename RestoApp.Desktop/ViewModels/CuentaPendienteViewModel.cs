@@ -9,6 +9,7 @@ public partial class CuentaPendienteViewModel : ObservableObject
     public string Sector { get; set; } = "Salón Principal";
     public string ClienteNombre { get; set; } = "Cliente Particular";
     public decimal MontoConsumo { get; set; }
+    public int CuentaId { get; set; }
 
     public string DisplayCombo => $"Mesa #{NroMesa} ({Sector}) - {ClienteNombre} - $ {MontoConsumo:N2}";
 }

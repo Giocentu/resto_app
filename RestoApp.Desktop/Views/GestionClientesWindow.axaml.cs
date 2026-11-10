@@ -39,8 +39,7 @@ public partial class GestionClientesWindow : Window
                 Nombre = c.PersonaInfo?.Nombre ?? "",
                 Apellido = c.PersonaInfo?.Apellido ?? "",
                 Email = c.PersonaInfo?.Email ?? "",
-                Telefono = c.PersonaInfo?.Telefono ?? 0,
-                EsActivo = true
+                Telefono = c.PersonaInfo?.Telefono ?? 0
             }).ToList();
 
             AplicarFiltro();

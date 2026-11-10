@@ -3,7 +3,7 @@
         xmlns:vm="using:RestoApp.Desktop.ViewModels"
         x:Class="RestoApp.Desktop.Views.GestionTurnosWindow"
         Title="RestoApp - Gestión de Turnos Laborales" 
-        Height="580" Width="720"
+        Height="580" Width="1000"
         WindowStartupLocation="CenterOwner"
         CanResize="False"
         Background="#2C3E50">
@@ -43,8 +43,8 @@
                         </StackPanel>
 
                         <Button Grid.Column="2" Content="➕ Crear" Click="BtnCrearTurno_Click"
-                                Background="#27AE60" Foreground="White" 
-                                Padding="16,0" Height="38" CornerRadius="6" 
+                                Background="#27AE60" Foreground="White"
+                                Padding="16,8" Height="38" CornerRadius="6" 
                                 FontWeight="Bold" Cursor="Hand" VerticalAlignment="Bottom" HorizontalAlignment="Left"/>
                     </Grid>
                 </Border>

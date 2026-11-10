@@ -987,6 +987,71 @@ BEGIN
 END;
 GO
 
+-- 7.9 Abrir una Cuenta con un Item a ella
+CREATE OR ALTER PROCEDURE sp_Cuenta_CrearConItem
+    @IdMesa INT,
+    @IdItem INT,
+    @Cantidad INT,
+    @NuevaCuentaId INT OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SET XACT_ABORT ON;
+
+    BEGIN TRY
+        BEGIN TRANSACTION;
+
+        IF @Cantidad <= 0
+            THROW 50001, 'La cantidad debe ser mayor que cero.', 1;
+
+        DECLARE @MesaActiva BIT;
+        SELECT @MesaActiva = es_activo
+        FROM mesa WITH (UPDLOCK, HOLDLOCK)
+        WHERE id_mesa = @IdMesa;
+
+        IF @MesaActiva IS NULL OR @MesaActiva = 0
+            THROW 50002, 'La mesa no existe o no está activa.', 1;
+
+        IF EXISTS (
+            SELECT 1
+            FROM cuenta_head
+            WHERE id_mesa = @IdMesa
+              AND estado = 'ABIERTA'
+        )
+            THROW 50003, 'La mesa ya tiene una cuenta abierta.', 1;
+
+        DECLARE @Precio FLOAT;
+        SELECT @Precio = precio
+        FROM menu
+        WHERE id_item = @IdItem
+          AND activo = 1;
+
+        IF @Precio IS NULL
+            THROW 50004, 'El producto no existe o no está activo.', 1;
+
+        INSERT INTO cuenta_head (id_mesa, total, estado, fecha_apertura)
+        VALUES (@IdMesa, 0, 'ABIERTA', GETDATE());
+
+        SET @NuevaCuentaId = CONVERT(INT, SCOPE_IDENTITY());
+
+        INSERT INTO cuenta_body (cuenta_id, id_item, cantidad, precio_unitario)
+        VALUES (@NuevaCuentaId, @IdItem, @Cantidad, @Precio);
+
+        UPDATE mesa
+        SET estado = 'OCUPADA'
+        WHERE id_mesa = @IdMesa;
+
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRANSACTION;
+
+        THROW;
+    END CATCH
+END;
+GO
+
 
 
 -- =================================================================================

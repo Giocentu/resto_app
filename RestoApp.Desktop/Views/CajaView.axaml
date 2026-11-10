@@ -41,7 +41,9 @@
                 <Border Background="White" BorderBrush="#BDC3C7" BorderThickness="1" CornerRadius="10" Padding="18">
                     <Grid RowDefinitions="Auto, *">
                         <!-- Barra Superior de Acciones del CRUD -->
-                        <Grid Grid.Row="0" ColumnDefinitions="Auto, *, Auto, Auto" Margin="0,0,0,15">
+                        <Grid Grid.Row="0"
+                                    ColumnDefinitions="Auto, *, Auto, Auto, Auto, Auto"
+                                    Margin="0,0,0,15">
                             <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
                                 <TextBlock Text="Historial de Cobros del Turno" FontSize="18" FontWeight="Bold" Foreground="#2C3E50"/>
                                 <Border Background="#EFF6FF" CornerRadius="12" Padding="8,2">
@@ -67,6 +69,24 @@
                                     <TextBlock Text="Procesar Pago" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button>
+                            <Button Grid.Column="4"
+                                Content="➕ Abrir cuenta"
+                                Command="{Binding AbrirModalNuevaCuentaCommand}"
+                                Background="#27AE60"
+                                Foreground="White"
+                                CornerRadius="6"
+                                Padding="14,9"
+                                FontWeight="Bold"
+                                Cursor="Hand"/>
+                            <Button Grid.Column="5"
+                                Content="➕ Agregar producto"
+                                Command="{Binding AbrirModalAgregarItemCommand}"
+                                Background="#2980B9"
+                                Foreground="White"
+                                CornerRadius="6"
+                                Padding="14,9"
+                                FontWeight="Bold"
+                                Cursor="Hand"/>
                         </Grid>
 
                         <!-- DataGrid de Historial de Pagos -->
@@ -260,9 +280,11 @@
                     <!-- Selección Medio de Pago -->
                     <StackPanel Spacing="6">
                         <TextBlock Text="Medio de Pago:" Foreground="#34495E" FontWeight="Bold" FontSize="13"/>
-                        <ComboBox ItemsSource="{Binding MediosPago}"
-                                  SelectedItem="{Binding MedioPagoSeleccionado}"
-                                  HorizontalAlignment="Stretch" Height="40"/>
+                        <ComboBox ItemsSource="{Binding MetodosPago}"
+                                  SelectedItem="{Binding MetodoPagoSeleccionado}"
+                                  DisplayMemberBinding="{Binding FormaPago}"
+                                  HorizontalAlignment="Stretch"
+                                  Height="40"/>
                     </StackPanel>
 
                     <!-- Monto Total a Cobrar -->
@@ -278,7 +300,7 @@
                         <StackPanel Spacing="4">
                             <TextBlock Text="📜 Comprobante RestoApp" Foreground="#3498DB" FontWeight="Bold" FontSize="13"/>
                             <TextBlock Text="{Binding ClienteNombreModal, StringFormat='Cliente: {0}'}" Foreground="#2C3E50" FontSize="12"/>
-                            <TextBlock Text="{Binding MedioPagoSeleccionado, StringFormat='Método: {0}'}" Foreground="#7F8C8D" FontSize="12"/>
+                            <TextBlock Text="{Binding MetodoPagoSeleccionado.FormaPago, StringFormat='Método: {0}'}" Foreground="#2C3E50" FontSize="12"/>
                         </StackPanel>
                     </Border>
 
@@ -308,7 +330,117 @@
         </Grid>
 
         <!-- ========================================== -->
-        <!-- MODAL 2: VISTA DE COMPROBANTE DIGITAL      -->
+        <!-- MODAL 2: Crear Nueva Cuenta                -->
+        <!-- ========================================== -->
+        <Grid Grid.RowSpan="2"
+              Background="#80000000"
+              IsVisible="{Binding MostrarModalNuevaCuenta}">
+            <Border Background="White"
+                    CornerRadius="12"
+                    Padding="24"
+                    Width="460"
+                    VerticalAlignment="Center"
+                    HorizontalAlignment="Center">
+                <StackPanel Spacing="14">
+                    <Grid ColumnDefinitions="*, Auto">
+                        <TextBlock Text="Abrir cuenta"
+                                   FontSize="20"
+                                   FontWeight="Bold"/>
+                        <Button Grid.Column="1"
+                                Content="✕"
+                                Command="{Binding CerrarModalNuevaCuentaCommand}"/>
+                    </Grid>
+                
+                    <TextBlock Text="Mesa libre:"/>
+                    <ComboBox ItemsSource="{Binding MesasLibres}"
+                              SelectedItem="{Binding MesaNuevaSeleccionada}"
+                              DisplayMemberBinding="{Binding NroMesa}"
+                              PlaceholderText="Seleccione una mesa"/>
+                
+                    <TextBlock Text="Producto inicial:"/>
+                    <ComboBox ItemsSource="{Binding MenuActivo}"
+                              SelectedItem="{Binding ItemInicialSeleccionado}"
+                              DisplayMemberBinding="{Binding Descripcion}"
+                              PlaceholderText="Seleccione un producto"/>
+                
+                    <TextBlock Text="Cantidad:"/>
+                    <NumericUpDown Minimum="1"
+                                    Maximum="999"
+                                    Increment="1"
+                                    FormatString="0"
+                                    Value="{Binding CantidadInicial}"/>
+                
+                    <TextBlock Text="{Binding MensajeNuevaCuenta}"
+                               Foreground="#E74C3C"
+                               TextWrapping="Wrap"
+                               IsVisible="{Binding MensajeNuevaCuenta,
+                                   Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                
+                    <Button Content="Abrir cuenta y agregar producto"
+                            Command="{Binding CrearCuentaConItemCommand}"
+                            Background="#27AE60"
+                            Foreground="White"
+                            Height="44"
+                            CornerRadius="8"
+                            FontWeight="Bold"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+        <!-- ========================================== -->
+        <!-- MODAL 3: Agregar Producto a Cuenta existente                -->
+        <!-- ========================================== -->
+        <Grid Grid.RowSpan="2"
+              Background="#80000000"
+              IsVisible="{Binding MostrarModalAgregarItem}">
+            <Border Background="White"
+                    CornerRadius="12"
+                    Padding="24"
+                    Width="460"
+                    VerticalAlignment="Center"
+                    HorizontalAlignment="Center">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Agregar producto a cuenta abierta"
+                               FontSize="20"
+                               FontWeight="Bold"/>
+            
+                    <TextBlock Text="Cuenta:"/>
+                    <ComboBox ItemsSource="{Binding CuentasPendientes}"
+                              SelectedItem="{Binding CuentaParaAgregarItem}"
+                              DisplayMemberBinding="{Binding DisplayCombo}"/>
+            
+                    <TextBlock Text="Producto:"/>
+                    <ComboBox ItemsSource="{Binding MenuActivo}"
+                              SelectedItem="{Binding ItemParaAgregar}"
+                              DisplayMemberBinding="{Binding Descripcion}"/>
+            
+                    <TextBlock Text="Cantidad:"/>
+                    <NumericUpDown Minimum="1"
+                                   Maximum="999"
+                                   Increment="1"
+                                   FormatString="0"
+                                   Value="{Binding CantidadItemAgregar}"/>
+            
+                    <TextBlock Text="{Binding MensajeAgregarItem}"
+                               Foreground="#E74C3C"
+                               TextWrapping="Wrap"
+                               IsVisible="{Binding MensajeAgregarItem,
+                                   Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+            
+                    <Button Content="Agregar producto"
+                            Command="{Binding AgregarItemACuentaCommand}"
+                            Background="#2980B9"
+                            Foreground="White"
+                            Height="44"
+                            CornerRadius="8"
+                            FontWeight="Bold"/>
+            
+                    <Button Content="Cerrar"
+                            Command="{Binding CerrarModalAgregarItemCommand}"/>
+                </StackPanel>
+            </Border>
+        </Grid>        
+        <!-- ========================================== -->
+        <!-- MODAL 4: VISTA DE COMPROBANTE DIGITAL      -->
         <!-- ========================================== -->
         <Grid Grid.RowSpan="2" Background="#80000000" IsVisible="{Binding MostrarModalComprobante}">
             <Border Background="White" CornerRadius="12" Padding="24" Width="400" VerticalAlignment="Center" HorizontalAlignment="Center" BorderBrush="#BDC3C7" BorderThickness="1">
@@ -346,6 +478,13 @@
                 </StackPanel>
             </Border>
         </Grid>
+
+        <!-- Mensaje de Error o Éxito al Procesar Pago -->
+        <TextBlock Text="{Binding MensajePago}"
+                   Foreground="#E74C3C"
+                   FontSize="12"
+                   TextWrapping="Wrap"
+                   IsVisible="{Binding MensajePago, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
 
     </Grid>
 

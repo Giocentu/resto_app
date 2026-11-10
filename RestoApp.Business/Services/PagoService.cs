@@ -24,7 +24,26 @@ public class PagoService
     {
         return await _pagoRepository.GetMetodosPagoAsync();
     }
-
+    public Task<int> CrearCuentaConItemAsync(
+        int idMesa,
+        int idItem,
+        int cantidad)
+    {
+        return _pagoRepository.CrearCuentaConItemSpAsync(
+            idMesa,
+            idItem,
+            cantidad);
+    }
+    public Task AgregarItemACuentaAsync(
+        int cuentaId,
+        int idItem,
+        int cantidad)
+    {
+        return _pagoRepository.AgregarItemACuentaSpAsync(
+            cuentaId,
+            idItem,
+            cantidad);
+    }
     public async Task<int> RegistrarPagoAsync(Pago pago, int? idMesa = null)
     {
         try
@@ -47,6 +66,15 @@ public class PagoService
             _pagoRepository.Delete(pago);
             await _pagoRepository.SaveChangesAsync();
         }
+    }
+    public Task<List<CuentaPendienteDto>> ObtenerCuentasPendientesAsync()
+    {
+        return _pagoRepository.ObtenerCuentasPendientesAsync();
+    }
+
+    public Task<int> CerrarCuentaAsync(int cuentaId, int idMetodo)
+    {
+        return _pagoRepository.CerrarCuentaAsync(cuentaId, idMetodo);
     }
 }
 
