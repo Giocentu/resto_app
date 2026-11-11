@@ -1,23 +1,24 @@
+USE master;
+GO
+
+IF EXISTS (SELECT name FROM sys.databases WHERE name = N'resto_DB')
+BEGIN
+    ALTER DATABASE [resto_DB] SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+    DROP DATABASE [resto_DB];
+END
+GO
+
 CREATE DATABASE resto_DB;
-
-
 GO
+
 USE resto_DB;
-
-
 GO
+
 SET ANSI_NULLS ON;
+GO
 
 SET QUOTED_IDENTIFIER ON;
-
-
 GO
-/* Cancela todas las conexiones activas a la base de datos y la elimina
-ALTER DATABASE [resto_DB] 
-SET SINGLE_USER 
-WITH ROLLBACK IMMEDIATE;
-GO
-drop database resto_DB*/
 -- =================================================================================
 -- CREACION DE TABLAS
 -- =================================================================================

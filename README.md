@@ -61,15 +61,12 @@ Desarrollado como proyecto para la cátedra **Taller de Programación II** de la
 - **Regla de 48 horas:** Columna calculada `fecha_max_cancelacion` para control de penalizaciones de cancelación.
 - Historial de reservas activas y panel de auditoría de bajas/cancelaciones.
 
-### 6. 💵 Caja, Facturación y Arqueo de Turno
-- Cobro multimedio: *Efectivo*, *Tarjeta de Débito*, *Tarjeta de Crédito*, *Transferencia Bancaria / QR*.
-- Liquidación definitiva de cuentas de salón con cambio automático de estado de mesa.
-- **Arqueo y balance continuo:**
-  - Registro de fondo de caja inicial.
-  - Desglose de ingresos discriminados por método de cobro.
-  - Cálculo de efectivo esperado vs. efectivo recontado.
-  - Detección automática de discrepancias (sobrante/faltante) y resumen de cierre.
-- Previsualización y emisión de tickets/comprobantes de pago.
+### 6. 💵 Caja, Facturación e Historial de Cobros
+- Cobro multimedio: *Efectivo* (con cálculo automático de vuelto), *Tarjeta de Débito*, *Tarjeta de Crédito*, *Transferencia Bancaria / QR*.
+- Liquidación definitiva de cuentas de salón con cambio automático de estado de mesa a *EN LIMPIEZA*.
+- Historial y auditoría de pagos en tiempo real con filtros inmediatos (*Solo Hoy* / *Todos*) y buscador por mesa, comanda o mozo.
+- Previsualización y emisión de tickets/comprobantes digitales de pago detallados.
+- Anulación y reversión de cobros erróneos con reasignación de mesa.
 
 ### 7. 🎪 Eventos Especiales
 - Programación de fechas conmemorativas, cenas show, eventos privados o degustaciones.
@@ -112,7 +109,7 @@ El sistema provee control de acceso granular según la función del colaborador:
 | **Reservas y Clientes** | ✅ | ✅ | ❌ | ✅ | ❌ |
 | **Eventos Especiales** | ✅ | ✅ | ❌ | ✅ | ❌ |
 | **Personal y Turnos** | ✅ | ✅ Excepto Admins | ❌ | ❌ | ❌ |
-| **Caja, Cobranzas y Arqueo** | ✅ | ✅ | ✅ | ❌ | ❌ |
+| **Caja, Facturación y Cobros** | ✅ | ✅ | ✅ | ❌ | ❌ |
 | **Reportes Analíticos (BI)** | ✅ | ✅ | ❌ | ❌ | ❌ |
 | **Crear Copia de Seguridad** | ✅ | ❌ | ❌ | ❌ | ❌ |
 | **Restaurar Base de Datos** | ✅ Requiere 2 Admins | ✅ Como 2do Autorizante | ❌ | ❌ | ❌ |
@@ -126,10 +123,19 @@ Para agilizar pruebas y evaluación funcional, la base de datos incluye los sigu
 | Rol | Nombre y Apellido | Usuario / Alias / DNI | Contraseña | Permisos Destacados |
 | :--- | :--- | :--- | :---: | :--- |
 | **Dueño** | Giovanni Centurion | `giovanni` / `dueño` / `96079673` | `123123` | Acceso irrestricto, Backups, Restauración, Personal, Reportes. |
-| **Gerente** | Hernan Cespedes | `hernan` / `gerente` / `42739764` | `123123` | Administración de salón, Menú, Personal, Caja, 2do autorizante de Restore. |
-| **Cajero** | Carlos Cajero | `cajero` / `11111111` | `123123` | Cobro de cuentas, Arqueo de caja, Emisión de comprobantes. |
-| **Mozo** | Marcos Mozo | `mozo` / `22222222` | `123123` | Consulta de carta, asignación y estado operativo de mesas. |
-| **Recepción** | Rocio Recepcion | `recepcion` / `33333333` | `123123` | Agenda de reservas, eventos, padrón de clientes y disponibilidad. |
+| **Gerente** | Hernan Cespedes | `hernan` / `gerente` / `42739764` | `123123` | Supervisión de salón, Menú, Personal, Restore. |
+| **Cajero (1/3)** | Carlos Cajero | `cajero` / `carlos` / `11111111` | `123123` | Cobro de comandas, cálculo de vuelto, facturación y tickets. |
+| **Cajero (2/3)** | Laura Cajera | `laura` / `11111112` | `123123` | Operación de caja, cobro de cuentas y liquidación de turno. |
+| **Cajero (3/3)** | Martin Cajero | `martin` / `11111113` | `123123` | Operación de caja, cobro de cuentas y liquidación de turno. |
+| **Mozo (1/3)** | Marcos Mozo | `mozo` / `marcos` / `22222222` | `123123` | Consulta de carta, atención de salón y asignación a mesas. |
+| **Mozo (2/3)** | Sofia Moza | `sofia` / `22222223` | `123123` | Consulta de carta, atención de salón y asignación a mesas. |
+| **Mozo (3/3)** | Lucas Mozo | `lucas` / `22222224` | `123123` | Consulta de carta, atención de salón y asignación a mesas. |
+| **Recepción (1/2)**| Rocio Recepcion | `recepcion` / `rocio` / `33333333` | `123123` | Agenda de reservas, eventos, padrón de clientes y disponibilidad. |
+| **Recepción (2/2)**| Camila Recepcion | `camila` / `33333334` | `123123` | Agenda de reservas, eventos, padrón de clientes y disponibilidad. |
+| **Cocinero** | Pablo Cocinero | `cocinero` / `44444444` | `123123` | Operación de cocina y visualización de carta. |
+| **Bartender** | Esteban Bartender | `bartender` / `55555555` | `123123` | Servicio de barra y coctelería. |
+| **Bachero** | Matias Bachero | `bachero` / `66666666` | `123123` | Mantenimiento y soporte de vajilla. |
+| **Seguridad** | Gustavo Seguridad | `seguridad` / `77777777` | `123123` | Control de accesos y seguridad del local. |
 
 > **Nota:** La contraseña por defecto para todos los usuarios del lote de prueba es `123123` (también se admite `123` en el login rápido).
 
@@ -229,6 +235,15 @@ dotnet run --project RestoApp.Desktop
 > ```bash
 > env DOTNET_CLI_TELEMETRY_OPTOUT=1 AVALONIA_TELEMETRY_OPTOUT=1 dotnet run --project RestoApp.Desktop
 > ```
+
+---
+
+## 🔮 Líneas de Trabajo Futuras (Próximas Versiones)
+
+1. **📱 Comandera Móvil para Mozos:** Aplicación liviana adaptada a tabletas/smartphones para toma de comandas directamente en las mesas.
+2. **🍳 KDS de Cocina (Kitchen Display System):** Monitor de despacho en cocina con tiempos de espera y priorización de comandas.
+3. **📦 Módulo de Stock e Inventario:** Control de existencias e insumos con descuento automático de recetas por plato facturado.
+4. **📊 Módulo Integral de Arqueo y Sesiones de Caja:** Control de turnos con fondo fijo de apertura obligatorio, recuento físico de efectivo al cierre, cálculo de discrepancias (faltante/sobrante) y auditoría de cajas por cajero.
 
 ---
 

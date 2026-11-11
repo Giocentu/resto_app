@@ -392,23 +392,6 @@ BEGIN
 END;
 GO
 
--- 5.2 Obtener Arqueo de Caja del Turno / Día
-CREATE OR ALTER PROCEDURE sp_Pago_ObtenerArqueoTurno
-    @Fecha DATE
-AS
-BEGIN
-    SET NOCOUNT ON;
-    SELECT 
-        mp.forma_pago AS MedioPago,
-        ISNULL(SUM(p.monto), 0) AS TotalCobrado,
-        COUNT(p.id_pago) AS CantidadTransacciones
-    FROM metodo_pago mp
-    LEFT JOIN pagos p ON mp.id_metodo = p.id_metodo AND p.fecha_pago = @Fecha
-    GROUP BY mp.id_metodo, mp.forma_pago
-    ORDER BY mp.id_metodo;
-END;
-GO
-
 
 -- =================================================================================
 -- 6. GESTIÓN DE CARTA (CATEGORÍAS Y MENÚ)

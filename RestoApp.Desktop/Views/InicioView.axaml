@@ -157,8 +157,25 @@
 
                         <Separator Background="#BDC3C7" Margin="0,10,0,5"/>
 
+                        <!-- Acciones Operativas de Mesa -->
+                        <TextBlock Text="Acciones de Mesa:" FontSize="13" FontWeight="Bold" Foreground="#34495E" Margin="0,5,0,0"/>
+
+                        <!-- Botón Agregar Producto al Carrito (Visible al seleccionar una mesa OCUPADA) -->
+                        <Button Click="BtnAgregarProducto_Click"
+                                IsVisible="{Binding $parent[UserControl].((vm:InicioViewModel)DataContext).EsMesaOcupada}"
+                                Background="#E67E22" Foreground="White"
+                                FontWeight="Bold" FontSize="13" Height="44"
+                                CornerRadius="8" Cursor="Hand"
+                                HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+                                Margin="0,4,0,8">
+                            <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <TextBlock Text="🛒" FontSize="15" VerticalAlignment="Center"/>
+                                <TextBlock Text="Agregar Producto al Carrito" FontWeight="Bold" FontSize="13" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+
                         <!-- Cambiar Estado de la Mesa: Solo Libre y Reservada según reglas de negocio -->
-                        <TextBlock Text="Cambiar Estado de la Mesa:" FontSize="13" FontWeight="Bold" Foreground="#34495E" Margin="0,5,0,0"/>
+                        <TextBlock Text="Cambiar Estado de la Mesa:" FontSize="12" FontWeight="SemiBold" Foreground="#7F8C8D" Margin="0,2,0,0"/>
 
                         <UniformGrid Columns="2" HorizontalAlignment="Stretch" Margin="0,6,0,0">
                             <Button Content="LIBRE" 

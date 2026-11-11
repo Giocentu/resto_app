@@ -11,9 +11,12 @@ public partial class VisualMesaItemViewModel : ObservableObject
     public int Capacidad { get; set; }
     public int IdUbicacion { get; set; }
     public string UbicacionDescripcion { get; set; } = string.Empty;
+    public int? CuentaId { get; set; }
 
     [ObservableProperty]
     private string _estado = "LIBRE"; // LIBRE, OCUPADA, RESERVADA, EN LIMPIEZA
+
+    public bool EsOcupada => string.Equals(Estado, "OCUPADA", System.StringComparison.OrdinalIgnoreCase);
 
     [ObservableProperty]
     private string _clienteNombre = string.Empty;

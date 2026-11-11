@@ -188,13 +188,18 @@ public partial class LoginViewModel : ObservableObject
         var u = usuario.Trim().ToLower();
         return u is "dueño" or "dueno" or "giovanni" or "giovanni centurion" or "giocen" or "giocen@gmail.org" or "96079673"
                  or "gerente" or "hernan" or "hernan cespedes" or "hernan cespes" or "hcesped" or "hcesped@gmail.org" or "42739764"
-                 or "cajero" or "cajero@restoapp.com" or "11111111"
-                 or "mozo" or "mozo@restoapp.com" or "22222222"
-                 or "recepcion" or "recepción" or "recepcion@restoapp.com" or "33333333" or "cm"
-                 or "cocinero" or "cocinero@restoapp.com" or "44444444"
-                 or "bartender" or "bartender@restoapp.com" or "55555555"
-                 or "bachero" or "bachero@restoapp.com" or "66666666"
-                 or "seguridad" or "seguridad@restoapp.com" or "77777777";
+                 or "cajero" or "cajero@restoapp.com" or "11111111" or "carlos cajero"
+                 or "laura" or "laura cajera" or "laura.cajera@restoapp.com" or "11111112"
+                 or "martin" or "martin cajero" or "martin.cajero@restoapp.com" or "11111113"
+                 or "mozo" or "mozo@restoapp.com" or "22222222" or "marcos mozo"
+                 or "sofia" or "sofia moza" or "sofia.moza@restoapp.com" or "22222223"
+                 or "lucas" or "lucas mozo" or "lucas.mozo@restoapp.com" or "22222224"
+                 or "recepcion" or "recepción" or "recepcion@restoapp.com" or "33333333" or "cm" or "rocio recepcion"
+                 or "camila" or "camila recepcion" or "camila.recepcion@restoapp.com" or "33333334"
+                 or "cocinero" or "cocinero@restoapp.com" or "44444444" or "pablo cocinero"
+                 or "bartender" or "bartender@restoapp.com" or "55555555" or "esteban bartender"
+                 or "bachero" or "bachero@restoapp.com" or "66666666" or "matias bachero"
+                 or "seguridad" or "seguridad@restoapp.com" or "77777777" or "gustavo seguridad";
     }
 
     private static (RolUsuario Rol, string Usuario, string Nombre, long Dni)? ValidarCredencialDemo(string usuario, string pass)
@@ -207,56 +212,77 @@ public partial class LoginViewModel : ObservableObject
             return null;
         }
 
-        // Dueño (Giovanni)
+        // 1 Dueño (Giovanni)
         if (u is "dueño" or "dueno" or "giovanni" or "giovanni centurion" or "giocen" or "giocen@gmail.org" or "96079673")
         {
             return (RolUsuario.Dueno, "dueño", "Giovanni Centurion", 96079673);
         }
 
-        // Gerente (Hernan)
+        // 1 Gerente (Hernan)
         if (u is "gerente" or "hernan" or "hernan cespedes" or "hernan cespes" or "hcesped" or "hcesped@gmail.org" or "42739764")
         {
             return (RolUsuario.Gerente, "gerente", "Hernan Cespedes", 42739764);
         }
 
-        // Cajero
-        if (u is "cajero" or "cajero@restoapp.com" or "11111111" or "carlos cajero")
+        // 3 Cajeros
+        if (u is "cajero" or "cajero@restoapp.com" or "11111111" or "carlos cajero" or "carlos")
         {
             return (RolUsuario.Cajero, "cajero", "Carlos Cajero", 11111111);
         }
+        if (u is "laura" or "laura cajera" or "laura.cajera@restoapp.com" or "11111112")
+        {
+            return (RolUsuario.Cajero, "laura", "Laura Cajera", 11111112);
+        }
+        if (u is "martin" or "martin cajero" or "martin.cajero@restoapp.com" or "11111113")
+        {
+            return (RolUsuario.Cajero, "martin", "Martin Cajero", 11111113);
+        }
 
-        // Mozo
-        if (u is "mozo" or "mozo@restoapp.com" or "22222222" or "marcos mozo")
+        // 3 Mozos
+        if (u is "mozo" or "mozo@restoapp.com" or "22222222" or "marcos mozo" or "marcos")
         {
             return (RolUsuario.Mozo, "mozo", "Marcos Mozo", 22222222);
         }
+        if (u is "sofia" or "sofia moza" or "sofia.moza@restoapp.com" or "22222223")
+        {
+            return (RolUsuario.Mozo, "sofia", "Sofia Moza", 22222223);
+        }
+        if (u is "lucas" or "lucas mozo" or "lucas.mozo@restoapp.com" or "22222224")
+        {
+            return (RolUsuario.Mozo, "lucas", "Lucas Mozo", 22222224);
+        }
 
-        // Recepción / CM
-        if (u is "recepcion" or "recepción" or "recepcion@restoapp.com" or "33333333" or "cm" or "rocio recepcion")
+        // 2 Recepcionistas
+        if (u is "recepcion" or "recepción" or "recepcion@restoapp.com" or "33333333" or "cm" or "rocio recepcion" or "rocio")
         {
             return (RolUsuario.Recepcion, "recepcion", "Rocio Recepcion", 33333333);
         }
+        if (u is "camila" or "camila recepcion" or "camila.recepcion@restoapp.com" or "33333334")
+        {
+            return (RolUsuario.Recepcion, "camila", "Camila Recepcion", 33333334);
+        }
 
+        // Resto: 1 por rol
         // Cocinero
-        if (u is "cocinero" or "cocinero@restoapp.com" or "44444444" or "pablo cocinero")
+        if (u is "cocinero" or "cocinero@restoapp.com" or "44444444" or "pablo cocinero" or "pablo")
         {
             return (RolUsuario.Mozo, "cocinero", "Pablo Cocinero", 44444444);
         }
 
         // Bartender
-        if (u is "bartender" or "bartender@restoapp.com" or "55555555" or "esteban bartender")
+        if (u is "bartender" or "bartender@restoapp.com" or "55555555" or "esteban bartender" or "esteban")
         {
             return (RolUsuario.Mozo, "bartender", "Esteban Bartender", 55555555);
         }
 
         // Bachero
-        if (u is "bachero" or "bachero@restoapp.com" or "66666666" or "matias bachero")
+        if (u is "bachero" or "bachero@restoapp.com" or "66666666" or "matias bachero" or "matias")
         {
             return (RolUsuario.Mozo, "bachero", "Matias Bachero", 66666666);
         }
 
         // Seguridad
-        if (u is "seguridad" or "seguridad@restoapp.com" or "77777777" or "gustavo seguridad")
+        if (u is "seguridad" or "seguridad@restoapp.com" or "77777777" or "gustavo seguridad" or "gustavo")
         {
             return (RolUsuario.Mozo, "seguridad", "Gustavo Seguridad", 77777777);
         }
