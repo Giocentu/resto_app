@@ -20,13 +20,12 @@ public partial class CajaViewModel : ObservableObject
     private readonly MesaService? _mesaService;
     private readonly MenuService? _menuService;
 
-    // Selector de Vistas: "Cuentas", "Pagos", "Arqueo"
+    // Selector de Vistas: "Cuentas" (Mesas) y "Pagos" (Historial)
     [ObservableProperty]
     private string _vistaSeleccionada = "Cuentas";
 
     public bool EsVistaCuentas => VistaSeleccionada == "Cuentas";
     public bool EsVistaPagos => VistaSeleccionada == "Pagos";
-    public bool EsVistaArqueo => VistaSeleccionada == "Arqueo";
 
     // ========================================================
     // SECCIÓN 1: CUENTAS DE MESA Y COMANDAS (COBRO DIRECTO)
@@ -108,36 +107,6 @@ public partial class CajaViewModel : ObservableObject
     private PagoItemViewModel? _pagoSeleccionado;
 
     // ========================================================
-    // SECCIÓN 3: ARQUEO Y BALANCE DE TURNO
-    // ========================================================
-    [ObservableProperty]
-    private decimal _fondoInicial = 15000.00m;
-
-    [ObservableProperty]
-    private decimal _cobradoEfectivo;
-
-    [ObservableProperty]
-    private decimal _cobradoTarjetas;
-
-    [ObservableProperty]
-    private decimal _cobradoTransferenciaQR;
-
-    [ObservableProperty]
-    private decimal _totalIngresosTurno;
-
-    [ObservableProperty]
-    private decimal _efectivoEsperado;
-
-    [ObservableProperty]
-    private decimal _efectivoRecontado = 15000.00m;
-
-    [ObservableProperty]
-    private decimal _diferenciaArqueo;
-
-    [ObservableProperty]
-    private string _mensajeCierre = string.Empty;
-
-    // ========================================================
     // MODALES Y DIÁLOGOS
     // ========================================================
     [ObservableProperty]
@@ -195,6 +164,7 @@ public partial class CajaViewModel : ObservableObject
         _pagoService = pagoService;
         _mesaService = mesaService;
         _menuService = menuService;
+        _vistaSeleccionada = "Cuentas";
         _ = CargarDatosAsync();
     }
 
@@ -204,7 +174,6 @@ public partial class CajaViewModel : ObservableObject
         await CargarCuentasPendientesAsync();
         await CargarPagosAsync();
         await CargarMetodosPagoAsync();
-        RecalcularTotalesTurno();
     }
 
     public async Task CargarMozosDisponiblesAsync()
@@ -262,7 +231,6 @@ public partial class CajaViewModel : ObservableObject
 
         try
         {
-            // Guardar ID de cuenta seleccionada para restaurar la selección tras refrescar
             int? cuentaIdPrevia = CuentaSeleccionada?.CuentaId;
 
             var cuentas = await _pagoService.ObtenerCuentasPendientesAsync();
@@ -281,7 +249,6 @@ public partial class CajaViewModel : ObservableObject
 
             CuentasPendientes = new ObservableCollection<CuentaPendienteViewModel>(lista);
 
-            // Re-seleccionar la cuenta que estaba previamente activa (ej. Mesa 6)
             CuentaPendienteViewModel? cuentaRestaurar = null;
             if (cuentaIdPrevia.HasValue)
             {
@@ -392,16 +359,13 @@ public partial class CajaViewModel : ObservableObject
             Console.WriteLine($"[CAJA DB ERROR] {ex.Message}");
         }
 
-        // Si la carga fue exitosa, actualizamos siempre
         if (cargoExitoso)
         {
             Pagos = new ObservableCollection<PagoItemViewModel>(listaPagos);
             AplicarFiltro();
-            RecalcularTotalesTurno();
         }
         else if (Pagos.Count == 0)
         {
-            // Si no teníamos nada y falló, reintentamos una vez con contexto aislado
             try
             {
                 await Task.Delay(250);
@@ -435,7 +399,6 @@ public partial class CajaViewModel : ObservableObject
 
                 Pagos = new ObservableCollection<PagoItemViewModel>(listaPagos);
                 AplicarFiltro();
-                RecalcularTotalesTurno();
             }
             catch (Exception exFallback)
             {
@@ -488,7 +451,6 @@ public partial class CajaViewModel : ObservableObject
             var items = await _pagoService.ObtenerDetalleCuentaAsync(cuenta.CuentaId);
             DetalleItemsCuenta = new ObservableCollection<CuentaItemDetalleDto>(items);
 
-            // Sincronizar el selector de mozo con el mozo asignado a esta cuenta
             if (MozosDisponibles.Count > 0)
             {
                 MozoAsignadoSeleccionado = MozosDisponibles.FirstOrDefault(m =>
@@ -532,7 +494,6 @@ public partial class CajaViewModel : ObservableObject
             CuentaSeleccionada.AtendidoPor = MozoAsignadoSeleccionado.NombreCompleto;
             MensajeCaja = $"✓ Mozo actualizado: {MozoAsignadoSeleccionado.NombreCompleto} asignado a Mesa #{CuentaSeleccionada.NroMesa}.";
 
-            // Actualizar columna en la lista de cuentas
             var itemLista = CuentasPendientes.FirstOrDefault(c => c.CuentaId == CuentaSeleccionada.CuentaId);
             if (itemLista != null)
             {
@@ -625,8 +586,6 @@ public partial class CajaViewModel : ObservableObject
         {
             await _pagoService.QuitarItemDeCuentaAsync(CuentaSeleccionada.CuentaId, item.IdItem, 1);
             MensajeCaja = $"Se quitó 1 unidad de {item.DescripcionItem}.";
-
-            // Refrescar cuentas y detalle
             await CargarCuentasPendientesAsync();
         }
         catch (Exception ex)
@@ -671,7 +630,6 @@ public partial class CajaViewModel : ObservableObject
 
             await CargarDatosAsync();
 
-            // Preparar comprobante
             var comprobante = Pagos.FirstOrDefault(p => p.IdPago == nuevoPagoId)
                 ?? new PagoItemViewModel
                 {
@@ -925,39 +883,12 @@ public partial class CajaViewModel : ObservableObject
         }
     }
 
-    // ========================================================
-    // SECCIÓN ARQUEO
-    // ========================================================
-    private void RecalcularTotalesTurno()
-    {
-        CobradoEfectivo = Pagos
-            .Where(p => p.MedioPago.Contains("Efectivo", StringComparison.OrdinalIgnoreCase))
-            .Sum(p => p.Monto);
-
-        CobradoTarjetas = Pagos
-            .Where(p => p.MedioPago.Contains("Tarjeta", StringComparison.OrdinalIgnoreCase) ||
-                        p.MedioPago.Contains("Débito", StringComparison.OrdinalIgnoreCase) ||
-                        p.MedioPago.Contains("Crédito", StringComparison.OrdinalIgnoreCase))
-            .Sum(p => p.Monto);
-
-        CobradoTransferenciaQR = Pagos
-            .Where(p => p.MedioPago.Contains("Transf", StringComparison.OrdinalIgnoreCase) ||
-                        p.MedioPago.Contains("QR", StringComparison.OrdinalIgnoreCase) ||
-                        p.MedioPago.Contains("Mercado", StringComparison.OrdinalIgnoreCase))
-            .Sum(p => p.Monto);
-
-        TotalIngresosTurno = Pagos.Sum(p => p.Monto);
-        EfectivoEsperado = FondoInicial + CobradoEfectivo;
-        DiferenciaArqueo = EfectivoRecontado - EfectivoEsperado;
-    }
-
     partial void OnVistaSeleccionadaChanged(string value)
     {
         OnPropertyChanged(nameof(EsVistaCuentas));
         OnPropertyChanged(nameof(EsVistaPagos));
-        OnPropertyChanged(nameof(EsVistaArqueo));
 
-        if (value == "Pagos" || value == "Arqueo")
+        if (value == "Pagos")
         {
             _ = CargarPagosAsync();
         }
@@ -970,11 +901,6 @@ public partial class CajaViewModel : ObservableObject
     partial void OnTextoBusquedaChanged(string value)
     {
         AplicarFiltro();
-    }
-
-    partial void OnEfectivoRecontadoChanged(decimal value)
-    {
-        DiferenciaArqueo = value - EfectivoEsperado;
     }
 
     private void AplicarFiltro()
@@ -1004,21 +930,5 @@ public partial class CajaViewModel : ObservableObject
     private void CambiarVista(string vista)
     {
         VistaSeleccionada = vista;
-    }
-
-    [RelayCommand]
-    private void CalcularArqueo()
-    {
-        DiferenciaArqueo = EfectivoRecontado - EfectivoEsperado;
-        MensajeCierre = DiferenciaArqueo == 0
-            ? "Arqueo de caja perfecto. Sin diferencias detectadas."
-            : $"Diferencia de caja detectada: $ {DiferenciaArqueo:N2}";
-    }
-
-    [RelayCommand]
-    private void FinalizarYCerrarCaja()
-    {
-        CalcularArqueo();
-        MensajeCierre = "🔒 Caja del turno cerrada correctamente. Arqueo completado.";
     }
 }

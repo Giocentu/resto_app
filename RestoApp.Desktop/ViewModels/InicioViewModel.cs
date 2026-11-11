@@ -15,6 +15,7 @@ public partial class InicioViewModel : ObservableObject
 {
     private readonly MesaService? _mesaService;
     private readonly UbicacionService? _ubicacionService;
+    private readonly PagoService? _pagoService;
     private readonly Action? _navigateAMesasAction;
 
     [ObservableProperty]
@@ -41,10 +42,15 @@ public partial class InicioViewModel : ObservableObject
         SelectedMesa != null &&
         SelectedMesa.Estado.Equals("LIBRE", StringComparison.OrdinalIgnoreCase);
 
+    public bool EsMesaOcupada =>
+        SelectedMesa != null &&
+        SelectedMesa.Estado.Equals("OCUPADA", StringComparison.OrdinalIgnoreCase);
+
     partial void OnSelectedMesaChanged(VisualMesaItemViewModel? value)
     {
         OnPropertyChanged(nameof(PuedeLiberarMesa));
         OnPropertyChanged(nameof(PuedeReservarMesa));
+        OnPropertyChanged(nameof(EsMesaOcupada));
     }
 
     [ObservableProperty]
@@ -65,11 +71,16 @@ public partial class InicioViewModel : ObservableObject
     [ObservableProperty]
     private int _limpiezaCount;
 
-    public InicioViewModel(MesaService? mesaService = null, Action? navigateAMesasAction = null, UbicacionService? ubicacionService = null)
+    public InicioViewModel(
+        MesaService? mesaService = null,
+        Action? navigateAMesasAction = null,
+        UbicacionService? ubicacionService = null,
+        PagoService? pagoService = null)
     {
         _mesaService = mesaService;
         _navigateAMesasAction = navigateAMesasAction;
         _ubicacionService = ubicacionService ?? App.Services?.GetService(typeof(UbicacionService)) as UbicacionService;
+        _pagoService = pagoService ?? App.Services?.GetService(typeof(PagoService)) as PagoService;
         _ = CargarMesasAsync();
     }
 
@@ -82,8 +93,28 @@ public partial class InicioViewModel : ObservableObject
             try
             {
                 var entidades = await _mesaService.ObtenerMesasAsync(soloActivas: true);
+
+                Dictionary<int, CuentaPendienteDto> cuentasPorMesa = new();
+                if (_pagoService != null)
+                {
+                    try
+                    {
+                        var cuentas = await _pagoService.ObtenerCuentasPendientesAsync();
+                        foreach (var c in cuentas)
+                        {
+                            cuentasPorMesa[c.IdMesa] = c;
+                        }
+                    }
+                    catch (Exception exCuentas)
+                    {
+                        Console.WriteLine($"[INICIO CUENTAS ERROR] {exCuentas.Message}");
+                    }
+                }
+
                 foreach (var m in entidades)
                 {
+                    cuentasPorMesa.TryGetValue(m.IdMesa, out var cta);
+
                     lista.Add(new VisualMesaItemViewModel
                     {
                         IdMesa = m.IdMesa,
@@ -91,7 +122,11 @@ public partial class InicioViewModel : ObservableObject
                         Capacidad = m.Capacidad,
                         IdUbicacion = m.IdUbicacion,
                         UbicacionDescripcion = m.Ubicacion?.Ubicacion ?? "Salón Principal",
-                        Estado = string.IsNullOrWhiteSpace(m.Estado) ? "LIBRE" : m.Estado
+                        Estado = string.IsNullOrWhiteSpace(m.Estado) ? "LIBRE" : m.Estado,
+                        CuentaId = cta?.CuentaId,
+                        ConsumoActual = cta != null ? (decimal)cta.MontoConsumo : 0m,
+                        MozoNombre = cta?.AtendidoPor ?? string.Empty,
+                        ClienteNombre = cta?.ClienteNombre ?? string.Empty
                     });
                 }
             }
@@ -235,5 +270,60 @@ public partial class InicioViewModel : ObservableObject
     private void IrAMesas()
     {
         _navigateAMesasAction?.Invoke();
+    }
+
+    public async Task<CuentaPendienteViewModel?> ObtenerOCrearCuentaParaMesaSeleccionadaAsync()
+    {
+        if (SelectedMesa == null) return null;
+        if (_pagoService == null) return null;
+
+        try
+        {
+            int cuentaId = 0;
+            if (SelectedMesa.CuentaId.HasValue && SelectedMesa.CuentaId.Value > 0)
+            {
+                cuentaId = SelectedMesa.CuentaId.Value;
+            }
+            else
+            {
+                // Buscar si existe una cuenta abierta para esta mesa
+                var cuentas = await _pagoService.ObtenerCuentasPendientesAsync();
+                var ctaExistente = cuentas.FirstOrDefault(c => c.IdMesa == SelectedMesa.IdMesa);
+                if (ctaExistente != null)
+                {
+                    cuentaId = ctaExistente.CuentaId;
+                }
+                else
+                {
+                    // Si la mesa está ocupada pero aún no tenía comanda registrada, abrirla
+                    long dni = SesionGlobal.DniActual ?? 22222222;
+                    int idRol = SesionGlobal.RolActual switch
+                    {
+                        RolUsuario.Dueno => 1,
+                        RolUsuario.Gerente => 2,
+                        RolUsuario.Cajero => 4,
+                        RolUsuario.Mozo => 5,
+                        _ => 5
+                    };
+                    cuentaId = await _pagoService.CrearCuentaAsync(SelectedMesa.IdMesa, dni, idRol);
+                }
+            }
+
+            return new CuentaPendienteViewModel
+            {
+                CuentaId = cuentaId,
+                IdMesa = SelectedMesa.IdMesa,
+                NroMesa = SelectedMesa.NroMesa,
+                Sector = SelectedMesa.UbicacionDescripcion,
+                MontoConsumo = SelectedMesa.ConsumoActual,
+                AtendidoPor = string.IsNullOrWhiteSpace(SelectedMesa.MozoNombre) ? "Mozo de Turno" : SelectedMesa.MozoNombre,
+                ClienteNombre = string.IsNullOrWhiteSpace(SelectedMesa.ClienteNombre) ? "Cliente Particular" : SelectedMesa.ClienteNombre
+            };
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[INICIO OBTENER CUENTA ERROR] {ex.Message}");
+            return null;
+        }
     }
 }

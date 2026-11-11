@@ -371,14 +371,20 @@ public partial class MainViewModel : ObservableObject
         {
             MesaService? mesaService = null;
             UbicacionService? ubicacionService = null;
+            PagoService? pagoService = null;
             try
             {
                 mesaService = CreateMesaService();
                 ubicacionService = App.Services?.GetService(typeof(UbicacionService)) as UbicacionService
                     ?? new UbicacionService(new UbicacionRepository(new RestoAppDbContext()));
+                pagoService = CreatePagoService();
             }
             catch { }
-            _inicioViewModelCache = new InicioViewModel(mesaService, navigateAMesasAction: IrAMesas, ubicacionService: ubicacionService);
+            _inicioViewModelCache = new InicioViewModel(
+                mesaService, 
+                navigateAMesasAction: IrAMesas, 
+                ubicacionService: ubicacionService,
+                pagoService: pagoService);
         }
         else
         {

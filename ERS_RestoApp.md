@@ -13,7 +13,7 @@ El propósito de este documento es formalizar de forma exhaustiva, estandarizada
 - **Administración de Reservas y Clientes:** Registro de reservas individuales y grupales, verificación de aforo, control de duplicados de clientes y política de cancelación automática (48 horas).
 - **Catálogo de Menú y Carta Gastronómica:** Clasificación por categorías, gestión de precios, control de disponibilidad con soporte de baja lógica y reactivación inmediata.
 - **Gestión de Cuentas y Comandas:** Registro de comandas vinculadas a mesas con cálculo dinámico del total mediante triggers transaccionales en base de datos.
-- **Facturación, Medios de Pago y Arqueo de Caja:** Soporte multimoneda/multimedio (Efectivo, Débito, Crédito, Transferencia/QR), liquidación de cuentas, control de fondo inicial y balance de cierre de turno.
+- **Facturación, Medios de Pago y Cobranzas:** Soporte multimedio (Efectivo con cálculo automático de cambio/vuelto, Débito, Crédito, Transferencia/QR), liquidación directa de cuentas de mesa e historial de pagos.
 - **Gestión de Personal y Turnos:** Ficha del empleado, vinculación de roles activos únicos e historiales de franjas horarias.
 - **Gestión de Eventos Especiales:** Planificación de eventos (cumpleaños, shows, cenas corporativas) vinculables a las reservas.
 - **Reportes Analíticos y Business Intelligence (BI):** Tablero con KPIs de ventas, ticket promedio, comensales, ranking Top 10 de platos más vendidos, facturación por método de pago y productividad de mozos.
@@ -78,7 +78,7 @@ El propósito de este documento es formalizar de forma exhaustiva, estandarizada
 3. **Gestión de Carta y Precios:** Catálogo categorizado de artículos gastronómicos con soporte de alta, baja lógica, edición de precios y restauración.
 4. **Comandas y Cuentas de Mesa:** Registro de consumos asociados a mesas con cálculo automatizado del importe total mediante trigger de integridad.
 5. **Recepción y Reservas:** Registro de reservas por fecha, hora y comensales, con validación de capacidad física de mesas e historial de cancelaciones.
-6. **Facturación y Caja:** Registro de pagos en múltiples medios (Efectivo, Débito, Crédito, Transferencia/QR), arqueo continuo y emisión de comprobantes.
+6. **Facturación y Caja:** Registro de pagos en múltiples medios (Efectivo, Débito, Crédito, Transferencia/QR), auditoría de transacciones y emisión de comprobantes fiscales/comerciales.
 7. **Gestión de Personal:** Padrón de colaboradores con asignación de turnos y restricción estricta de un solo rol activo simultáneo.
 8. **Planificación de Eventos:** Vinculación de reservas con celebraciones, espectáculos o fechas especiales.
 9. **Inteligencia de Negocio y Reportes:** Métricas ejecutivas (Facturación total, Ticket promedio, Platos más vendidos, Rendimiento por mozo) con selector de rangos de fecha.
@@ -97,7 +97,7 @@ La interfaz se adapta dinámicamente según el rol del usuario autenticado:
 | **Reservas y Clientes (Crear / Modificar / Bajas)** | ✅ Total | ✅ Total | ❌ | ✅ Total | ❌ |
 | **Eventos Especiales** | ✅ Total | ✅ Total | ❌ | ✅ Total | ❌ |
 | **Personal y Turnos (Alta / Asignación de Roles)** | ✅ Total | ✅ Excepto Admins | ❌ | ❌ | ❌ |
-| **Caja, Cobros y Arqueo de Turno** | ✅ Total | ✅ Total | ✅ Total | ❌ | ❌ |
+| **Caja, Facturación e Historial de Cobros** | ✅ Total | ✅ Total | ✅ Total | ❌ | ❌ |
 | **Reportes y Estadísticas (BI)** | ✅ Total | ✅ Total | ❌ | ❌ | ❌ |
 | **Crear Copia de Seguridad (.bak)** | ✅ Total | ❌ | ❌ | ❌ | ❌ |
 | **Restaurar Base de Datos (Doble Autorización)** | ✅ Requiere 2 Admins | ✅ Como 2do Autorizante | ❌ | ❌ | ❌ |
@@ -216,18 +216,14 @@ El módulo de reservas debe incorporar una pestaña o vista dedicada para inspec
 #### RF-06.1: Procesamiento y Liquidación de Cuentas
 El Cajero o Administrador puede seleccionar una comanda abierta, corroborar el detalle de ítems y procesar el cobro total.
 
-#### RF-06.2: Registro Multimedio de Pago
-El cobro admite los métodos oficiales homologados en `metodo_pago` (Efectivo, Tarjeta de Débito, Tarjeta de Crédito, Transferencia Bancaria / QR), vinculando el monto liquidado con la cuenta (`id_cuenta`) o reserva (`id_reserva`).
+#### RF-06.2: Registro Multimedio de Pago y Cálculo de Vuelto
+El cobro admite los métodos oficiales homologados en `metodo_pago` (Efectivo, Tarjeta de Débito, Tarjeta de Crédito, Transferencia Bancaria / QR), vinculando el monto liquidado con la cuenta (`id_cuenta`) o reserva (`id_reserva`). En cobros en efectivo, el sistema calcula y exhibe en tiempo real el vuelto a entregar según el importe abonado por el cliente.
 
-#### RF-06.3: Arqueo y Balance de Turno
-El sistema debe llevar el balance continuo de la caja registradora:
-- Registro de fondo de apertura inicial en efectivo.
-- Sumatoria de cobranzas discriminadas por cada método de pago durante el turno.
-- Cálculo de efectivo teórico esperado en caja (`Fondo Inicial + Cobranzas en Efectivo`).
-- Campo para registro de efectivo físico recontado y determinación automática de sobrantes o faltantes.
+#### RF-06.3: Historial y Auditoría de Pagos Realizados
+El módulo dispone de una vista dedicada para consultar todos los cobros procesados, con filtros rápidos (*Solo Hoy* / *Todos*), buscador por comanda o mozo, y soporte de anulación/rollback de cobros erróneos.
 
-#### RF-06.4: Cierre de Turno y Emisión de Comprobantes
-El sistema debe permitir cerrar el turno de caja generando un resumen de arqueo inmutable e imprimir/visualizar el comprobante fiscal/comercial detallado de cada operación.
+#### RF-06.4: Emisión y Consulta de Comprobantes Digitales (Tickets)
+El sistema genera el comprobante fiscal/comercial detallado de cada operación con desglose de productos consumidos, subtotales, método de pago e importe total facturado.
 
 ---
 
@@ -349,3 +345,4 @@ La restauración debe poner la base de datos en modo exclusivo forzado (`SET SIN
 1. **Comandera Móvil para Mozos:** Interfaz ligera táctil optimizada para tabletas o dispositivos móviles de salón que permita cargar órdenes directo al pie de la mesa.
 2. **KDS de Cocina (Kitchen Display System):** Pantalla interactiva en el sector cocina/elaboración para despachar comandas en orden cronológico según tiempo de espera.
 3. **Módulo de Gestión de Inventario e Insumos:** Registro de recetas por plato con descuento automático de stock de ingredientes (kilos de carne, verduras, bebidas) ante cada venta.
+4. **Módulo de Arqueo y Control de Sesiones de Caja:** Incorporación de apertura obligatoria de caja con fondo fijo inicial, declaración de efectivo físico recontado por turno, conciliación automática de diferencias (sobrantes/faltantes) y auditoría histórica de cierres de caja por cajero.
