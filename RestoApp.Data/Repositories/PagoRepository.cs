@@ -17,15 +17,34 @@ public class PagoRepository : Repository<Pago>, IPagoRepository
 
     public async Task<IEnumerable<Pago>> GetPagosConDetallesAsync()
     {
-        return await _dbSet
-            .Include(p => p.MetodoPago)
-            .Include(p => p.Reserva)
-                .ThenInclude(r => r!.Cliente)
-                    .ThenInclude(c => c!.PersonaInfo)
-            .Include(p => p.Reserva)
-                .ThenInclude(r => r!.Mesas)
-            .OrderByDescending(p => p.FechaPago)
-            .ToListAsync();
+        try
+        {
+            return await _dbSet
+                .AsNoTracking()
+                .Include(p => p.MetodoPago)
+                .Include(p => p.Reserva)
+                    .ThenInclude(r => r!.Cliente)
+                        .ThenInclude(c => c!.PersonaInfo)
+                .Include(p => p.Reserva)
+                    .ThenInclude(r => r!.Mesas)
+                .OrderByDescending(p => p.IdPago)
+                .ToListAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[PAGO REPOSITORY] Conexión primaria falló: {ex.Message}. Reintentando con contexto limpio...");
+            using var cleanContext = new RestoAppDbContext();
+            return await cleanContext.Pagos
+                .AsNoTracking()
+                .Include(p => p.MetodoPago)
+                .Include(p => p.Reserva)
+                    .ThenInclude(r => r!.Cliente)
+                        .ThenInclude(c => c!.PersonaInfo)
+                .Include(p => p.Reserva)
+                    .ThenInclude(r => r!.Mesas)
+                .OrderByDescending(p => p.IdPago)
+                .ToListAsync();
+        }
     }
     public async Task AgregarItemACuentaSpAsync(
         int cuentaId,
@@ -39,6 +58,22 @@ public class PagoRepository : Repository<Pago>, IPagoRepository
             idItem,
             cantidad);
     }
+    public async Task<int> CrearCuentaSpAsync(int idMesa, long? dniEmpleado = null, int? idRol = null)
+    {
+        var nuevaCuentaIdParam = new SqlParameter("@NuevaCuentaId", SqlDbType.Int)
+        {
+            Direction = ParameterDirection.Output
+        };
+        var dniParam = dniEmpleado.HasValue ? (object)dniEmpleado.Value : DBNull.Value;
+        var rolParam = idRol.HasValue ? (object)idRol.Value : DBNull.Value;
+
+        await _context.Database.ExecuteSqlRawAsync(
+            "EXEC sp_Cuenta_Crear @IdMesa = {0}, @DniEmpleado = {1}, @IdRol = {2}, @NuevaCuentaId = {3} OUTPUT",
+            idMesa, dniParam, rolParam, nuevaCuentaIdParam);
+
+        return Convert.ToInt32(nuevaCuentaIdParam.Value ?? 0);
+    }
+
     public async Task<int> CrearCuentaConItemSpAsync(
     int idMesa,
     int idItem,
@@ -110,5 +145,114 @@ public async Task<int> CerrarCuentaAsync(int cuentaId, int idMetodo)
     return Convert.ToInt32(nuevoPagoIdParam.Value);
 }
 
+    public async Task QuitarItemDeCuentaSpAsync(int cuentaId, int idItem, int cantidad = 1)
+    {
+        await _context.Database.ExecuteSqlRawAsync(
+            "EXEC sp_Cuenta_QuitarItem @CuentaId = {0}, @IdItem = {1}, @Cantidad = {2}",
+            cuentaId,
+            idItem,
+            cantidad);
+    }
+
+    public async Task<List<CuentaItemDetalleDto>> ObtenerDetalleCuentaAsync(int cuentaId)
+    {
+        return await _context.Database
+            .SqlQueryRaw<CuentaItemDetalleDto>(
+                @"SELECT 
+                    cb.id_cuenta_body AS IdCuentaBody,
+                    cb.cuenta_id AS CuentaId,
+                    cb.id_item AS IdItem,
+                    m.descripcion AS Descripcion,
+                    m.descripcion AS DescripcionItem,
+                    cm.nombre AS Categoria,
+                    cb.precio_unitario AS PrecioUnitario,
+                    cb.cantidad AS Cantidad,
+                    (cb.cantidad * cb.precio_unitario) AS Subtotal
+                FROM cuenta_body cb
+                INNER JOIN menu m ON cb.id_item = m.id_item
+                INNER JOIN categoria_menu cm ON m.id_categoria = cm.id_categoria
+                WHERE cb.cuenta_id = {0}
+                ORDER BY cm.nombre ASC, m.descripcion ASC",
+                cuentaId)
+            .ToListAsync();
+    }
+
+    public async Task CambiarMozoCuentaAsync(int cuentaId, long dniEmpleado, int idRol)
+    {
+        await _context.Database.ExecuteSqlRawAsync(
+            "UPDATE cuenta_head SET dni_empleado = {0}, id_rol = {1} WHERE cuenta_id = {2} AND estado = 'ABIERTA'",
+            dniEmpleado,
+            idRol,
+            cuentaId);
+    }
+
+    public async Task CancelarCuentaAsync(int cuentaId)
+    {
+        await _context.Database.ExecuteSqlRawAsync(
+            "EXEC sp_Cuenta_Cancelar @CuentaId = {0}",
+            cuentaId);
+    }
+
+    public async Task<Dictionary<int, CuentaPagoInfoDto>> ObtenerInfoCuentasPagosAsync()
+    {
+        var dict = new Dictionary<int, CuentaPagoInfoDto>();
+        try
+        {
+            using var isolatedContext = new RestoAppDbContext();
+            var conn = isolatedContext.Database.GetDbConnection();
+            if (conn.State != ConnectionState.Open)
+            {
+                await conn.OpenAsync();
+            }
+
+            try
+            {
+                using var cmd = conn.CreateCommand();
+                cmd.CommandText = @"
+                    SELECT 
+                        ch.cuenta_id AS CuentaId,
+                        ch.id_mesa AS IdMesa,
+                        m.nro_mesa AS NroMesa,
+                        ch.fecha_cierre AS FechaCierre,
+                        ISNULL(pMozo.nombre + ' ' + pMozo.apellido, 'Mozo de Turno') AS AtendidoPor
+                    FROM cuenta_head ch
+                    INNER JOIN mesa m ON ch.id_mesa = m.id_mesa
+                    LEFT JOIN empleado e ON ch.dni_empleado = e.dni_empleado AND ch.id_rol = e.id_rol
+                    LEFT JOIN persona pMozo ON e.dni_empleado = pMozo.dni";
+
+                using var reader = await cmd.ExecuteReaderAsync();
+                while (await reader.ReadAsync())
+                {
+                    int ctaId = reader.GetInt32(0);
+                    int idMesa = reader.GetInt32(1);
+                    int nroMesa = reader.GetInt32(2);
+                    DateTime? fechaCierre = reader.IsDBNull(3) ? null : reader.GetDateTime(3);
+                    string mozo = reader.IsDBNull(4) ? "Mozo de Turno" : reader.GetString(4);
+
+                    dict[ctaId] = new CuentaPagoInfoDto
+                    {
+                        CuentaId = ctaId,
+                        IdMesa = idMesa,
+                        NroMesa = nroMesa,
+                        FechaCierre = fechaCierre,
+                        AtendidoPor = mozo
+                    };
+                }
+            }
+            finally
+            {
+                if (conn.State == ConnectionState.Open)
+                {
+                    await conn.CloseAsync();
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[OBTENER INFO CUENTAS SQL ERROR] {ex.Message}");
+        }
+
+        return dict;
+    }
 }
 

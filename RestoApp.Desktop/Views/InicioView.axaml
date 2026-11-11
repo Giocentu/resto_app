@@ -157,18 +157,20 @@
 
                         <Separator Background="#BDC3C7" Margin="0,10,0,5"/>
 
-                        <!-- Cambiar Estado de la Mesa -->
+                        <!-- Cambiar Estado de la Mesa: Solo Libre y Reservada según reglas de negocio -->
                         <TextBlock Text="Cambiar Estado de la Mesa:" FontSize="13" FontWeight="Bold" Foreground="#34495E" Margin="0,5,0,0"/>
 
-                        <UniformGrid Columns="2" Rows="2" HorizontalAlignment="Stretch" Margin="0,6,0,0">
-                            <Button Content="LIBRE" Command="{Binding $parent[UserControl].((vm:InicioViewModel)DataContext).CambiarEstadoCommand}" CommandParameter="LIBRE"
+                        <UniformGrid Columns="2" HorizontalAlignment="Stretch" Margin="0,6,0,0">
+                            <Button Content="LIBRE" 
+                                    Command="{Binding $parent[UserControl].((vm:InicioViewModel)DataContext).CambiarEstadoCommand}" 
+                                    CommandParameter="LIBRE"
+                                    IsEnabled="{Binding $parent[UserControl].((vm:InicioViewModel)DataContext).PuedeLiberarMesa}"
                                     Classes="stateBtn" Background="#2ECC71"/>
-                            <Button Content="RESERVADA" Command="{Binding $parent[UserControl].((vm:InicioViewModel)DataContext).CambiarEstadoCommand}" CommandParameter="RESERVADA"
+                            <Button Content="RESERVADA" 
+                                    Command="{Binding $parent[UserControl].((vm:InicioViewModel)DataContext).CambiarEstadoCommand}" 
+                                    CommandParameter="RESERVADA"
+                                    IsEnabled="{Binding $parent[UserControl].((vm:InicioViewModel)DataContext).PuedeReservarMesa}"
                                     Classes="stateBtn" Background="#3498DB"/>
-                            <Button Content="OCUPADA" Command="{Binding $parent[UserControl].((vm:InicioViewModel)DataContext).CambiarEstadoCommand}" CommandParameter="OCUPADA"
-                                    Classes="stateBtn" Background="#F39C12"/>
-                            <Button Content="EN LIMPIEZA" Command="{Binding $parent[UserControl].((vm:InicioViewModel)DataContext).CambiarEstadoCommand}" CommandParameter="EN LIMPIEZA"
-                                    Classes="stateBtn" Background="#E74C3C"/>
                         </UniformGrid>
                     </StackPanel>
                 </ScrollViewer>
@@ -210,6 +212,10 @@
         <Style Selector="Button.stateBtn /template/ ContentPresenter">
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+        <Style Selector="Button.stateBtn:disabled /template/ ContentPresenter">
+            <Setter Property="Background" Value="#BDC3C7"/>
+            <Setter Property="Foreground" Value="#7F8C8D"/>
         </Style>
     </UserControl.Styles>
 </UserControl>

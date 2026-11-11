@@ -1,8 +1,9 @@
 <UserControl xmlns="https://github.com/avaloniaui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:vm="using:RestoApp.Desktop.ViewModels"
-             x:Class="RestoApp.Desktop.Views.CajaView"
-             x:DataType="vm:CajaViewModel">
+              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+              xmlns:vm="using:RestoApp.Desktop.ViewModels"
+              xmlns:ent="using:RestoApp.Entities"
+              x:Class="RestoApp.Desktop.Views.CajaView"
+              x:DataType="vm:CajaViewModel">
 
     <Grid RowDefinitions="Auto, *">
         <!-- ========================================== -->
@@ -11,18 +12,23 @@
         <Grid Grid.Row="0" ColumnDefinitions="Auto, *, Auto" Margin="0,0,0,15">
             <!-- Título y Subtítulo del Módulo -->
             <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                <TextBlock Text="Módulo de Caja, Pagos y Balance de Turno" FontSize="22" FontWeight="Bold" Foreground="#2C3E50"/>
-                <TextBlock Text="Registro de cobros por múltiples medios de pago, apertura, arqueo y cierre de caja" FontSize="12" Foreground="#7F8C8D"/>
+                <TextBlock Text="💳 Módulo de Caja, Facturación y Salón" FontSize="22" FontWeight="Bold" Foreground="#2C3E50"/>
+                <TextBlock Text="Cobro de comandas de mesa, desglose de menú, arqueo de turno y registro de pagos" FontSize="12" Foreground="#7F8C8D"/>
             </StackPanel>
 
-            <!-- Selector de Vistas / Pestañas (Pagos vs Arqueo) -->
+            <!-- Selector de Vistas / Pestañas (3 Pestañas) -->
             <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                <Button Content="💳 Registrar Pagos y Cuentas"
+                <Button Content="🍽️ Mesas (Cobros)"
+                        Command="{Binding CambiarVistaCommand}" CommandParameter="Cuentas"
+                        Classes.activeTab="{Binding EsVistaCuentas}"
+                        Classes="tabBtn"/>
+
+                <Button Content="📜 Historial de Pagos"
                         Command="{Binding CambiarVistaCommand}" CommandParameter="Pagos"
                         Classes.activeTab="{Binding EsVistaPagos}"
                         Classes="tabBtn"/>
 
-                <Button Content="📊 Control de Caja y Arqueo"
+                <Button Content="📊 Arqueo y Balance de Turno"
                         Command="{Binding CambiarVistaCommand}" CommandParameter="Arqueo"
                         Classes.activeTab="{Binding EsVistaArqueo}"
                         Classes="tabBtn"/>
@@ -35,75 +41,266 @@
         <Grid Grid.Row="1">
 
             <!-- ========================================== -->
-            <!-- VISTA 1: REGISTRAR PAGOS E HISTORIAL (CRUD)-->
+            <!-- VISTA 1: CUENTAS DE MESA Y COMANDAS       -->
             <!-- ========================================== -->
-            <Grid IsVisible="{Binding EsVistaPagos}">
-                <Border Background="White" BorderBrush="#BDC3C7" BorderThickness="1" CornerRadius="10" Padding="18">
+            <Grid IsVisible="{Binding EsVistaCuentas}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1.1*" MinWidth="260" MaxWidth="700"/>
+                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="1.9*" MinWidth="420"/>
+                </Grid.ColumnDefinitions>
+                
+                <!-- PANEL IZQUIERDO: Listado de Mesas con Cuentas Abiertas -->
+                <Border Grid.Column="0" Background="White" BorderBrush="#BDC3C7" BorderThickness="1" CornerRadius="10" Padding="15">
                     <Grid RowDefinitions="Auto, *">
-                        <!-- Barra Superior de Acciones del CRUD -->
-                        <Grid Grid.Row="0"
-                                    ColumnDefinitions="Auto, *, Auto, Auto, Auto, Auto"
-                                    Margin="0,0,0,15">
-                            <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                                <TextBlock Text="Historial de Cobros del Turno" FontSize="18" FontWeight="Bold" Foreground="#2C3E50"/>
-                                <Border Background="#EFF6FF" CornerRadius="12" Padding="8,2">
-                                    <TextBlock Text="{Binding PagosFiltrados.Count, StringFormat='{}{0} registros'}" Foreground="#3498DB" FontSize="11" FontWeight="Bold"/>
+                        <Grid Grid.Row="0" ColumnDefinitions="*, Auto" Margin="0,0,0,12">
+                            <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                                <TextBlock Text="Mesas Abiertas" FontSize="16" FontWeight="Bold" Foreground="#2C3E50"/>
+                                <Border Background="#EBF5FB" CornerRadius="12" Padding="8,2">
+                                    <TextBlock Text="{Binding CuentasPendientes.Count, StringFormat='{}{0}'}" Foreground="#2980B9" FontSize="11" FontWeight="Bold"/>
                                 </Border>
                             </StackPanel>
 
-                            <!-- Buscador en Tiempo Real -->
-                            <TextBox Grid.Column="2" 
-                                     Text="{Binding TextoBusqueda, Mode=TwoWay}"
-                                     PlaceholderText="🔍 Buscar por mesa, cliente o medio..." 
-                                     Width="280" Height="38"
-                                     Margin="0,0,12,0" VerticalContentAlignment="Center"/>
-
-                            <!-- Botón Principal "Procesar Pago" -->
-                            <Button Grid.Column="3" 
-                                    Command="{Binding AbrirModalProcesarPagoCommand}"
-                                    Background="#3498DB" Foreground="White" 
-                                    CornerRadius="6" Padding="16,9"
-                                    FontWeight="Bold" FontSize="13" Cursor="Hand">
-                                <StackPanel Orientation="Horizontal" Spacing="6">
-                                    <TextBlock Text="💳" FontSize="14" VerticalAlignment="Center"/>
-                                    <TextBlock Text="Procesar Pago" VerticalAlignment="Center"/>
+                            <Button Grid.Column="1" 
+                                    Click="BtnAbrirMesa_Click"
+                                    Background="#27AE60" Foreground="White" 
+                                    Padding="10,6" CornerRadius="6" Cursor="Hand" FontWeight="Bold" FontSize="12">
+                                <StackPanel Orientation="Horizontal" Spacing="4">
+                                    <TextBlock Text="➕" FontSize="11"/>
+                                    <TextBlock Text="Abrir Mesa"/>
                                 </StackPanel>
                             </Button>
-                            <Button Grid.Column="4"
-                                Content="➕ Abrir cuenta"
-                                Command="{Binding AbrirModalNuevaCuentaCommand}"
-                                Background="#27AE60"
-                                Foreground="White"
-                                CornerRadius="6"
-                                Padding="14,9"
-                                FontWeight="Bold"
-                                Cursor="Hand"/>
-                            <Button Grid.Column="5"
-                                Content="➕ Agregar producto"
-                                Command="{Binding AbrirModalAgregarItemCommand}"
-                                Background="#2980B9"
-                                Foreground="White"
-                                CornerRadius="6"
-                                Padding="14,9"
-                                FontWeight="Bold"
-                                Cursor="Hand"/>
                         </Grid>
 
-                        <!-- DataGrid de Historial de Pagos -->
-                        <DataGrid Grid.Row="1" 
-                                  ItemsSource="{Binding PagosFiltrados}"
-                                  SelectedItem="{Binding PagoSeleccionado}"
-                                  AutoGenerateColumns="False" 
+                        <!-- DataGrid de Cuentas Abiertas -->
+                        <DataGrid Grid.Row="1"
+                                  ItemsSource="{Binding CuentasPendientes}"
+                                  SelectedItem="{Binding CuentaSeleccionada, Mode=TwoWay}"
+                                  AutoGenerateColumns="False"
                                   IsReadOnly="True"
                                   GridLinesVisibility="Horizontal"
                                   HeadersVisibility="Column"
                                   BorderThickness="1" BorderBrush="#E0E6ED"
                                   CornerRadius="6">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="#" Binding="{Binding IdPago}" Width="60"/>
-                                <DataGridTextColumn Header="Hora" Binding="{Binding Hora}" Width="100"/>
+                                <DataGridTextColumn Header="Mesa" Binding="{Binding NroMesa}" Width="65"/>
+                                <DataGridTextColumn Header="Sector" Binding="{Binding Sector}" Width="100"/>
+                                <DataGridTextColumn Header="Mozo" Binding="{Binding AtendidoPor}" Width="*"/>
+                                <DataGridTextColumn Header="Total" Binding="{Binding MontoConsumoTexto}" Width="110"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+                </Border>
+
+                <!-- SEPARADOR DESLIZABLE ENTRE MESAS Y COMANDA -->
+                <GridSplitter Grid.Column="1" Width="10" Background="Transparent" 
+                              ResizeDirection="Columns" Cursor="SizeWestEast"
+                              HorizontalAlignment="Stretch">
+                    <GridSplitter.Template>
+                        <ControlTemplate>
+                            <Border Background="Transparent" Width="10" HorizontalAlignment="Stretch">
+                                <Border Background="#CBD5E1" Width="4" CornerRadius="2" 
+                                        VerticalAlignment="Stretch" HorizontalAlignment="Center"/>
+                            </Border>
+                        </ControlTemplate>
+                    </GridSplitter.Template>
+                </GridSplitter>
+
+                <!-- PANEL DERECHO: Detalle de Consumos y Cobro de la Mesa Seleccionada -->
+                <Border Grid.Column="2" Background="White" BorderBrush="#BDC3C7" BorderThickness="1" CornerRadius="10" Padding="18">
+                    <Panel>
+                        <!-- Caso: Hay Cuenta Seleccionada -->
+                        <Grid RowDefinitions="Auto, *, Auto" IsVisible="{Binding TieneCuentaSeleccionada}">
+                            
+                            <!-- Encabezado de la Mesa -->
+                            <Grid Grid.Row="0" ColumnDefinitions="*, Auto" Margin="0,0,0,14">
+                                <StackPanel Grid.Column="0" Spacing="6">
+                                    <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding CuentaSeleccionada.NroMesa, StringFormat='Comanda Mesa #{0}'}" FontSize="18" FontWeight="Bold" Foreground="#2C3E50"/>
+                                        <Border Background="#E8F8F5" CornerRadius="10" Padding="8,2">
+                                            <TextBlock Text="{Binding CuentaSeleccionada.Sector}" Foreground="#27AE60" FontSize="11" FontWeight="Bold"/>
+                                        </Border>
+                                    </StackPanel>
+
+                                    <!-- Selector y Cambio de Mozo a Cargo -->
+                                    <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                                        <TextBlock Text="Mozo:" FontSize="12" FontWeight="SemiBold" Foreground="#7F8C8D" VerticalAlignment="Center"/>
+                                        <ComboBox ItemsSource="{Binding MozosDisponibles}"
+                                                  SelectedItem="{Binding MozoAsignadoSeleccionado, Mode=TwoWay}"
+                                                  DisplayMemberBinding="{Binding NombreCompleto}"
+                                                  Height="30" FontSize="12" Padding="8,2"
+                                                  CornerRadius="6" VerticalAlignment="Center" Width="180"/>
+                                        <Button Content="Cambiar"
+                                                Command="{Binding CambiarMozoCuentaCommand}"
+                                                Background="#2980B9" Foreground="White"
+                                                Padding="10,5" CornerRadius="6" FontSize="11" FontWeight="Bold"
+                                                VerticalAlignment="Center" Cursor="Hand"/>
+                                    </StackPanel>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                                    <!-- Botón Cerrar Mesa (Exclusivo Dueño / Gerente para rollback de mesas vacías) -->
+                                    <Button Content="Cerrar Mesa"
+                                            Command="{Binding CancelarMesaVaciaCommand}"
+                                            IsVisible="{Binding EsDuenoOGerente}"
+                                            Background="#E74C3C" Foreground="White"
+                                            Padding="12,7" CornerRadius="6" Cursor="Hand" FontWeight="Bold" FontSize="12"/>
+
+                                    <Button Click="BtnAgregarProducto_Click"
+                                            Background="#2980B9" Foreground="White" 
+                                            Padding="12,7" CornerRadius="6" Cursor="Hand" FontWeight="Bold" FontSize="12">
+                                        <StackPanel Orientation="Horizontal" Spacing="5">
+                                            <TextBlock Text="➕" FontSize="11"/>
+                                            <TextBlock Text="Agregar Producto"/>
+                                        </StackPanel>
+                                    </Button>
+                                </StackPanel>
+                            </Grid>
+
+                            <!-- DataGrid de Ítems del Menú Consumidos -->
+                            <Border Grid.Row="1" Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="8" Padding="4" Margin="0,0,0,14">
+                                <DataGrid ItemsSource="{Binding DetalleItemsCuenta}"
+                                          AutoGenerateColumns="False"
+                                          IsReadOnly="True"
+                                          GridLinesVisibility="Horizontal"
+                                          HeadersVisibility="Column"
+                                          BorderThickness="0">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="Cant." Binding="{Binding Cantidad}" Width="60"/>
+                                        <DataGridTextColumn Header="Descripción del Producto" Binding="{Binding NombreProducto}" Width="*"/>
+                                        <DataGridTextColumn Header="Categoría" Binding="{Binding Categoria}" Width="130"/>
+                                        <DataGridTextColumn Header="P. Unit." Binding="{Binding PrecioUnitarioTexto}" Width="100"/>
+                                        <DataGridTextColumn Header="Subtotal" Binding="{Binding SubtotalTexto}" Width="110"/>
+                                        
+                                        <!-- Botón para retirar 1 ítem -->
+                                        <DataGridTemplateColumn Header="Quitar" Width="65">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate DataType="ent:CuentaItemDetalleDto">
+                                                    <Button Command="{Binding $parent[UserControl].((vm:CajaViewModel)DataContext).QuitarItemDeCuentaCommand}"
+                                                            CommandParameter="{Binding}"
+                                                            Background="#FDEDEC" Foreground="#E74C3C" 
+                                                            Padding="6,3" CornerRadius="4" Cursor="Hand" HorizontalAlignment="Center">
+                                                        <TextBlock Text="🗑️" FontSize="11"/>
+                                                    </Button>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </Border>
+
+                            <!-- Panel Inferior: Facturación y Cobro Inmediato -->
+                            <Border Grid.Row="2" Background="#F1F5F9" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="10" Padding="16">
+                                <Grid ColumnDefinitions="1.2*, 1*, 1.3*" ColumnSpacing="15">
+                                    
+                                    <!-- Columna 1: Total a Cobrar -->
+                                    <StackPanel Grid.Column="0" Spacing="4" VerticalAlignment="Center">
+                                        <TextBlock Text="TOTAL A COBRAR:" FontSize="12" FontWeight="Bold" Foreground="#64748B"/>
+                                        <TextBlock Text="{Binding MontoCobrarTexto}" FontSize="24" FontWeight="Bold" Foreground="#27AE60"/>
+                                    </StackPanel>
+
+                                    <!-- Columna 2: Medio de Pago y Vuelto -->
+                                    <StackPanel Grid.Column="1" Spacing="6" VerticalAlignment="Center">
+                                        <TextBlock Text="Medio de Pago:" FontSize="11" FontWeight="SemiBold" Foreground="#475569"/>
+                                        <ComboBox ItemsSource="{Binding MetodosPago}"
+                                                  SelectedItem="{Binding MetodoPagoSeleccionado}"
+                                                  DisplayMemberBinding="{Binding FormaPago}"
+                                                  HorizontalAlignment="Stretch" Height="34"/>
+
+                                        <!-- Cálculo de vuelto si es efectivo -->
+                                        <StackPanel Orientation="Horizontal" Spacing="8" IsVisible="{Binding EsPagoEfectivo}" Margin="0,4,0,0">
+                                            <StackPanel Spacing="2">
+                                                <TextBlock Text="Paga con:" FontSize="10" Foreground="#64748B"/>
+                                                <TextBox Text="{Binding MontoRecibido, Mode=TwoWay}" Width="85" Height="28" FontSize="12" FontWeight="Bold" VerticalContentAlignment="Center"/>
+                                            </StackPanel>
+                                            <StackPanel Spacing="2">
+                                                <TextBlock Text="Vuelto:" FontSize="10" Foreground="#64748B"/>
+                                                <TextBlock Text="{Binding VueltoCalculadoTexto}" FontSize="13" FontWeight="Bold" Foreground="#2980B9" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </StackPanel>
+
+                                    <!-- Columna 3: Botón de Cobro Definitivo -->
+                                    <Button Grid.Column="2" 
+                                            Command="{Binding ProcesarPagoYLiquidarCommand}"
+                                            Background="#27AE60" Foreground="White" 
+                                            Height="50" CornerRadius="8" Cursor="Hand" FontWeight="Bold"
+                                            HorizontalAlignment="Stretch" VerticalAlignment="Center">
+                                        <TextBlock Text="Cobrar Mesa" FontSize="14" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Button>
+                                </Grid>
+                            </Border>
+
+                        </Grid>
+
+                        <!-- Caso: Sin Cuenta Seleccionada -->
+                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="10" IsVisible="{Binding !TieneCuentaSeleccionada}">
+                            <TextBlock Text="🍽️" FontSize="42" HorizontalAlignment="Center"/>
+                            <TextBlock Text="No hay ninguna mesa seleccionada" FontSize="16" FontWeight="Bold" Foreground="#2C3E50" HorizontalAlignment="Center"/>
+                            <TextBlock Text="Seleccione una cuenta abierta de la lista de la izquierda para ver su detalle de menú y liquidar el cobro." FontSize="12" Foreground="#7F8C8D" HorizontalAlignment="Center" TextWrapping="Wrap" MaxWidth="380" TextAlignment="Center"/>
+                        </StackPanel>
+                    </Panel>
+                </Border>
+
+            </Grid>
+
+            <!-- ========================================== -->
+            <!-- VISTA 2: HISTORIAL DE PAGOS               -->
+            <!-- ========================================== -->
+            <Grid IsVisible="{Binding EsVistaPagos}">
+                <Border Background="White" BorderBrush="#BDC3C7" BorderThickness="1" CornerRadius="10" Padding="18">
+                    <Grid RowDefinitions="Auto, *">
+                        <!-- Barra Superior del Historial -->
+                        <Grid Grid.Row="0" ColumnDefinitions="Auto, *, Auto" Margin="0,0,0,15">
+                            <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                                <TextBlock Text="Historial de Cobros Liquidados" FontSize="18" FontWeight="Bold" Foreground="#2C3E50"/>
+                                <Border Background="#EFF6FF" CornerRadius="12" Padding="8,2">
+                                    <TextBlock Text="{Binding PagosFiltrados.Count, StringFormat='{}{0} cobros'}" Foreground="#3498DB" FontSize="11" FontWeight="Bold"/>
+                                </Border>
+                            </StackPanel>
+
+                            <!-- Filtros de Período y Buscador -->
+                            <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                                <Button Content="🔄 Actualizar" 
+                                        Command="{Binding CargarPagosCommand}"
+                                        Background="#F1F5F9" Foreground="#34495E" 
+                                        Height="38" Padding="14,0" CornerRadius="6" FontSize="12" FontWeight="SemiBold"
+                                        Cursor="Hand" VerticalAlignment="Center"/>
+
+                                <StackPanel Orientation="Horizontal" Spacing="4">
+                                    <Button Content="Solo Hoy" 
+                                            Command="{Binding CambiarFiltroPeriodoCommand}" CommandParameter="Hoy"
+                                            Classes.activePeriodo="{Binding EsFiltroHoy}"
+                                            Classes="periodoBtn"/>
+                                    <Button Content="Todos" 
+                                            Command="{Binding CambiarFiltroPeriodoCommand}" CommandParameter="Todos"
+                                            Classes.activePeriodo="{Binding EsFiltroTodos}"
+                                            Classes="periodoBtn"/>
+                                </StackPanel>
+
+                                <TextBox Text="{Binding TextoBusqueda, Mode=TwoWay}"
+                                         PlaceholderText="🔍 Buscar por mesa, comanda o mozo..." 
+                                         Width="260" Height="38"
+                                         VerticalContentAlignment="Center"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- DataGrid de Historial de Pagos (SIN COLUMNA #) -->
+                        <DataGrid Grid.Row="1" 
+                                  ItemsSource="{Binding PagosFiltrados}"
+                                  SelectedItem="{Binding PagoSeleccionado}"
+                                  AutoGenerateColumns="False" 
+                                  IsReadOnly="True" 
+                                  GridLinesVisibility="Horizontal"
+                                  HeadersVisibility="Column"
+                                  BorderThickness="1" BorderBrush="#E0E6ED"
+                                  CornerRadius="6">
+                            <DataGrid.Columns>
+                                <!-- SIN LA COLUMNA # SEGÚN SOLICITUD -->
+                                <DataGridTextColumn Header="Fecha" Binding="{Binding FechaTexto}" Width="95"/>
+                                <DataGridTextColumn Header="Hora" Binding="{Binding Hora}" Width="85"/>
                                 <DataGridTextColumn Header="Descripción / Mesa" Binding="{Binding Descripcion}" Width="*"/>
-                                <DataGridTextColumn Header="Cliente" Binding="{Binding ClienteNombre}" Width="180"/>
+                                <DataGridTextColumn Header="Cliente / Detalle" Binding="{Binding ClienteNombre}" Width="200"/>
                                 
                                 <!-- Columna Medio de Pago con Badge Coloreado -->
                                 <DataGridTemplateColumn Header="Medio de Pago" Width="160">
@@ -122,7 +319,7 @@
 
                                 <DataGridTextColumn Header="Monto Total" Binding="{Binding MontoTexto}" Width="140"/>
 
-                                <!-- Acciones CRUD: Ver Comprobante / Eliminar -->
+                                <!-- Acciones: Ver Ticket / Eliminar -->
                                 <DataGridTemplateColumn Header="Acciones" Width="170">
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate DataType="vm:PagoItemViewModel">
@@ -149,7 +346,7 @@
             </Grid>
 
             <!-- ========================================== -->
-            <!-- VISTA 2: CONTROL DE CAJA Y ARQUEO          -->
+            <!-- VISTA 3: CONTROL DE CAJA Y ARQUEO          -->
             <!-- ========================================== -->
             <Grid IsVisible="{Binding EsVistaArqueo}">
                 <Grid ColumnDefinitions="*, *">
@@ -157,7 +354,14 @@
                     <!-- COLUMNA IZQUIERDA: Balance y Totales del Turno -->
                     <Border Grid.Column="0" Background="White" BorderBrush="#BDC3C7" BorderThickness="1" CornerRadius="10" Padding="18" Margin="0,0,10,0">
                         <Grid RowDefinitions="Auto, *, Auto">
-                            <TextBlock Grid.Row="0" Text="Balance y Totales del Turno" FontSize="18" FontWeight="Bold" Foreground="#2C3E50" Margin="0,0,0,15"/>
+                            <Grid Grid.Row="0" ColumnDefinitions="*, Auto" Margin="0,0,0,15">
+                                <TextBlock Grid.Column="0" Text="Balance y Totales del Turno" FontSize="18" FontWeight="Bold" Foreground="#2C3E50" VerticalAlignment="Center"/>
+                                <Button Grid.Column="1" Content="🔄 Actualizar" 
+                                        Command="{Binding CargarPagosCommand}"
+                                        Background="#F1F5F9" Foreground="#34495E" 
+                                        Height="34" Padding="14,0" CornerRadius="6" FontSize="12" FontWeight="SemiBold"
+                                        Cursor="Hand" VerticalAlignment="Center"/>
+                            </Grid>
                             
                             <!-- Grilla 2x2 de Tarjetas KPI -->
                             <UniformGrid Grid.Row="1" Columns="2" Rows="2" Margin="0,0,0,15">
@@ -226,10 +430,10 @@
 
                             <!-- Botón Calcular Arqueo -->
                             <Button Content="📊 Calcular Arqueo" 
-                                    Command="{Binding CalcularArqueoCommand}"
-                                    Background="#34495E" Foreground="White" 
-                                    Height="40" CornerRadius="6" FontWeight="Bold"
-                                    HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Cursor="Hand"/>
+                                     Command="{Binding CalcularArqueoCommand}"
+                                     Background="#34495E" Foreground="White" 
+                                     Height="40" CornerRadius="6" FontWeight="Bold"
+                                     HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Cursor="Hand"/>
 
                             <!-- Box Diferencia de Arqueo -->
                             <Border Background="#F8FAFC" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="8" Padding="14">
@@ -255,236 +459,68 @@
 
         </Grid>
 
-        <!-- ========================================== -->
-        <!-- MODAL 1: PROCESAR COBRO                    -->
-        <!-- ========================================== -->
-        <Grid Grid.RowSpan="2" Background="#80000000" IsVisible="{Binding MostrarModalProcesarPago}">
-            <Border Background="White" CornerRadius="12" Padding="24" Width="460" VerticalAlignment="Center" HorizontalAlignment="Center" BorderBrush="#BDC3C7" BorderThickness="1">
-                <StackPanel Spacing="16">
-                    <Grid ColumnDefinitions="*, Auto">
-                        <TextBlock Grid.Column="0" Text="Procesar Cobro" FontSize="20" FontWeight="Bold" Foreground="#2C3E50"/>
-                        <Button Grid.Column="1" Content="✕" Command="{Binding CerrarModalProcesarPagoCommand}" Background="Transparent" Foreground="#7F8C8D" FontSize="16" FontWeight="Bold" Cursor="Hand"/>
-                    </Grid>
 
-                    <Separator Background="#E2E8F0"/>
-
-                    <!-- Selección Mesa / Cuenta Pendiente -->
-                    <StackPanel Spacing="6">
-                        <TextBlock Text="Seleccionar Mesa / Cuenta Pendiente:" Foreground="#34495E" FontWeight="Bold" FontSize="13"/>
-                        <ComboBox ItemsSource="{Binding CuentasPendientes}"
-                                  SelectedItem="{Binding CuentaSeleccionada}"
-                                  DisplayMemberBinding="{Binding DisplayCombo}"
-                                  HorizontalAlignment="Stretch" Height="40"/>
-                    </StackPanel>
-
-                    <!-- Selección Medio de Pago -->
-                    <StackPanel Spacing="6">
-                        <TextBlock Text="Medio de Pago:" Foreground="#34495E" FontWeight="Bold" FontSize="13"/>
-                        <ComboBox ItemsSource="{Binding MetodosPago}"
-                                  SelectedItem="{Binding MetodoPagoSeleccionado}"
-                                  DisplayMemberBinding="{Binding FormaPago}"
-                                  HorizontalAlignment="Stretch"
-                                  Height="40"/>
-                    </StackPanel>
-
-                    <!-- Monto Total a Cobrar -->
-                    <StackPanel Spacing="6">
-                        <TextBlock Text="Monto Total a Cobrar:" Foreground="#34495E" FontWeight="Bold" FontSize="13"/>
-                        <Border Background="#F0FDF4" BorderBrush="#2ECC71" BorderThickness="1.5" CornerRadius="6" Padding="12,8">
-                            <TextBlock Text="{Binding MontoCobrarTexto}" Foreground="#27AE60" FontSize="22" FontWeight="Bold"/>
-                        </Border>
-                    </StackPanel>
-
-                    <!-- Vista previa comprobante -->
-                    <Border Background="#F8FAFC" BorderBrush="#3498DB" BorderThickness="1" CornerRadius="8" Padding="12">
-                        <StackPanel Spacing="4">
-                            <TextBlock Text="📜 Comprobante RestoApp" Foreground="#3498DB" FontWeight="Bold" FontSize="13"/>
-                            <TextBlock Text="{Binding ClienteNombreModal, StringFormat='Cliente: {0}'}" Foreground="#2C3E50" FontSize="12"/>
-                            <TextBlock Text="{Binding MetodoPagoSeleccionado.FormaPago, StringFormat='Método: {0}'}" Foreground="#2C3E50" FontSize="12"/>
-                        </StackPanel>
-                    </Border>
-
-                    <!-- Botones de Acción -->
-                    <Grid ColumnDefinitions="*, *" ColumnSpacing="12" Margin="0,15,0,0">
-                        <Button Grid.Column="0" Content="Cancelar" 
-                                Command="{Binding CerrarModalProcesarPagoCommand}" 
-                                Background="#95A5A6" Foreground="White" 
-                                Height="44" CornerRadius="8" FontSize="14" FontWeight="Bold" 
-                                HorizontalContentAlignment="Center" VerticalContentAlignment="Center" 
-                                Cursor="Hand"/>
-                        
-                        <Button Grid.Column="1" 
-                                Command="{Binding ProcesarPagoYLiquidarCommand}" 
-                                Background="#3498DB" Foreground="White" 
-                                Height="44" CornerRadius="8" FontSize="14" FontWeight="Bold" 
-                                HorizontalContentAlignment="Center" VerticalContentAlignment="Center" 
-                                Cursor="Hand">
-                            <StackPanel Orientation="Horizontal" Spacing="6" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                <TextBlock Text="💳" FontSize="14" VerticalAlignment="Center"/>
-                                <TextBlock Text="Procesar Pago" VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </Button>
-                    </Grid>
-                </StackPanel>
-            </Border>
-        </Grid>
 
         <!-- ========================================== -->
-        <!-- MODAL 2: Crear Nueva Cuenta                -->
-        <!-- ========================================== -->
-        <Grid Grid.RowSpan="2"
-              Background="#80000000"
-              IsVisible="{Binding MostrarModalNuevaCuenta}">
-            <Border Background="White"
-                    CornerRadius="12"
-                    Padding="24"
-                    Width="460"
-                    VerticalAlignment="Center"
-                    HorizontalAlignment="Center">
-                <StackPanel Spacing="14">
-                    <Grid ColumnDefinitions="*, Auto">
-                        <TextBlock Text="Abrir cuenta"
-                                   FontSize="20"
-                                   FontWeight="Bold"/>
-                        <Button Grid.Column="1"
-                                Content="✕"
-                                Command="{Binding CerrarModalNuevaCuentaCommand}"/>
-                    </Grid>
-                
-                    <TextBlock Text="Mesa libre:"/>
-                    <ComboBox ItemsSource="{Binding MesasLibres}"
-                              SelectedItem="{Binding MesaNuevaSeleccionada}"
-                              DisplayMemberBinding="{Binding NroMesa}"
-                              PlaceholderText="Seleccione una mesa"/>
-                
-                    <TextBlock Text="Producto inicial:"/>
-                    <ComboBox ItemsSource="{Binding MenuActivo}"
-                              SelectedItem="{Binding ItemInicialSeleccionado}"
-                              DisplayMemberBinding="{Binding Descripcion}"
-                              PlaceholderText="Seleccione un producto"/>
-                
-                    <TextBlock Text="Cantidad:"/>
-                    <NumericUpDown Minimum="1"
-                                    Maximum="999"
-                                    Increment="1"
-                                    FormatString="0"
-                                    Value="{Binding CantidadInicial}"/>
-                
-                    <TextBlock Text="{Binding MensajeNuevaCuenta}"
-                               Foreground="#E74C3C"
-                               TextWrapping="Wrap"
-                               IsVisible="{Binding MensajeNuevaCuenta,
-                                   Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
-                
-                    <Button Content="Abrir cuenta y agregar producto"
-                            Command="{Binding CrearCuentaConItemCommand}"
-                            Background="#27AE60"
-                            Foreground="White"
-                            Height="44"
-                            CornerRadius="8"
-                            FontWeight="Bold"/>
-                </StackPanel>
-            </Border>
-        </Grid>
-        <!-- ========================================== -->
-        <!-- MODAL 3: Agregar Producto a Cuenta existente                -->
-        <!-- ========================================== -->
-        <Grid Grid.RowSpan="2"
-              Background="#80000000"
-              IsVisible="{Binding MostrarModalAgregarItem}">
-            <Border Background="White"
-                    CornerRadius="12"
-                    Padding="24"
-                    Width="460"
-                    VerticalAlignment="Center"
-                    HorizontalAlignment="Center">
-                <StackPanel Spacing="12">
-                    <TextBlock Text="Agregar producto a cuenta abierta"
-                               FontSize="20"
-                               FontWeight="Bold"/>
-            
-                    <TextBlock Text="Cuenta:"/>
-                    <ComboBox ItemsSource="{Binding CuentasPendientes}"
-                              SelectedItem="{Binding CuentaParaAgregarItem}"
-                              DisplayMemberBinding="{Binding DisplayCombo}"/>
-            
-                    <TextBlock Text="Producto:"/>
-                    <ComboBox ItemsSource="{Binding MenuActivo}"
-                              SelectedItem="{Binding ItemParaAgregar}"
-                              DisplayMemberBinding="{Binding Descripcion}"/>
-            
-                    <TextBlock Text="Cantidad:"/>
-                    <NumericUpDown Minimum="1"
-                                   Maximum="999"
-                                   Increment="1"
-                                   FormatString="0"
-                                   Value="{Binding CantidadItemAgregar}"/>
-            
-                    <TextBlock Text="{Binding MensajeAgregarItem}"
-                               Foreground="#E74C3C"
-                               TextWrapping="Wrap"
-                               IsVisible="{Binding MensajeAgregarItem,
-                                   Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
-            
-                    <Button Content="Agregar producto"
-                            Command="{Binding AgregarItemACuentaCommand}"
-                            Background="#2980B9"
-                            Foreground="White"
-                            Height="44"
-                            CornerRadius="8"
-                            FontWeight="Bold"/>
-            
-                    <Button Content="Cerrar"
-                            Command="{Binding CerrarModalAgregarItemCommand}"/>
-                </StackPanel>
-            </Border>
-        </Grid>        
-        <!-- ========================================== -->
-        <!-- MODAL 4: VISTA DE COMPROBANTE DIGITAL      -->
+        <!-- MODAL 3: TICKET DIGITAL DETALLADO          -->
         <!-- ========================================== -->
         <Grid Grid.RowSpan="2" Background="#80000000" IsVisible="{Binding MostrarModalComprobante}">
-            <Border Background="White" CornerRadius="12" Padding="24" Width="400" VerticalAlignment="Center" HorizontalAlignment="Center" BorderBrush="#BDC3C7" BorderThickness="1">
-                <StackPanel Spacing="14" DataContext="{Binding ComprobantePago}">
-                    <TextBlock Text="📜 Ticket de Comprobante" FontSize="18" FontWeight="Bold" Foreground="#2C3E50" HorizontalAlignment="Center"/>
-                    <TextBlock Text="RestoApp Gastronómico POS" FontSize="12" Foreground="#7F8C8D" HorizontalAlignment="Center"/>
+            <Border Background="White" CornerRadius="12" Padding="24" Width="480" VerticalAlignment="Center" HorizontalAlignment="Center" BorderBrush="#BDC3C7" BorderThickness="1">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="📜 Ticket de Comprobante Fiscal / Comercial" FontSize="18" FontWeight="Bold" Foreground="#2C3E50" HorizontalAlignment="Center"/>
+                    <TextBlock Text="RestoApp - Sistema Gastronómico POS" FontSize="12" Foreground="#7F8C8D" HorizontalAlignment="Center"/>
 
                     <Separator Background="#CBD5E1"/>
 
-                    <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto" ColumnDefinitions="120, *" RowSpacing="8">
-                        <TextBlock Grid.Row="0" Grid.Column="0" Text="N° Pago:" Foreground="#7F8C8D" FontWeight="SemiBold"/>
-                        <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding IdPago, StringFormat='#000{0}'}" FontWeight="Bold" Foreground="#2C3E50"/>
+                    <!-- Cabecera del Ticket -->
+                    <Grid RowDefinitions="Auto, Auto, Auto" ColumnDefinitions="Auto, *" RowSpacing="6">
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Comprobante:" Foreground="#64748B" FontWeight="SemiBold" Margin="0,0,12,0"/>
+                        <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding ComprobantePago.Descripcion}" FontWeight="Bold" Foreground="#2C3E50"/>
 
-                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Fecha y Hora:" Foreground="#7F8C8D" FontWeight="SemiBold"/>
-                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding FechaPago, StringFormat='{}{0:dd/MM/yyyy HH:mm}'}" Foreground="#2C3E50"/>
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Fecha y Hora:" Foreground="#64748B" FontWeight="SemiBold" Margin="0,0,12,0"/>
+                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding ComprobantePago.FechaPago, StringFormat='{}{0:dd/MM/yyyy HH:mm}'}" Foreground="#2C3E50"/>
 
-                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Cliente:" Foreground="#7F8C8D" FontWeight="SemiBold"/>
-                        <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding ClienteNombre}" Foreground="#2C3E50"/>
-
-                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Medio de Pago:" Foreground="#7F8C8D" FontWeight="SemiBold"/>
-                        <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding MedioPago}" FontWeight="Bold" Foreground="#3498DB"/>
-
-                        <TextBlock Grid.Row="4" Grid.Column="0" Text="Monto Total:" Foreground="#7F8C8D" FontWeight="SemiBold"/>
-                        <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding MontoTexto}" FontWeight="Bold" Foreground="#27AE60" FontSize="18"/>
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Medio de Pago:" Foreground="#64748B" FontWeight="SemiBold" Margin="0,0,12,0"/>
+                        <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding ComprobantePago.MedioPago}" FontWeight="Bold" Foreground="#2980B9"/>
                     </Grid>
 
                     <Separator Background="#CBD5E1"/>
 
-                    <Button Content="Cerrar Ticket" 
-                            Command="{Binding $parent[UserControl].((vm:CajaViewModel)DataContext).CerrarModalComprobanteCommand}" 
+                    <!-- Detalle de Productos Consumidos -->
+                    <TextBlock Text="Detalle de Consumos:" FontSize="13" FontWeight="Bold" Foreground="#34495E"/>
+                    <Border Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="6" MaxHeight="180">
+                        <ScrollViewer>
+                            <ItemsControl ItemsSource="{Binding ItemsComprobante}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate DataType="ent:CuentaItemDetalleDto">
+                                        <Grid ColumnDefinitions="30, *, Auto" Margin="10,4">
+                                            <TextBlock Grid.Column="0" Text="{Binding Cantidad, StringFormat='{}{0}x'}" FontWeight="Bold" Foreground="#2C3E50"/>
+                                            <TextBlock Grid.Column="1" Text="{Binding NombreProducto}" Foreground="#2C3E50"/>
+                                            <TextBlock Grid.Column="2" Text="{Binding SubtotalTexto}" FontWeight="SemiBold" Foreground="#2C3E50"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </Border>
+
+                    <Separator Background="#CBD5E1"/>
+
+                    <!-- Total Facturado -->
+                    <Grid ColumnDefinitions="*, Auto" Margin="0,4">
+                        <TextBlock Grid.Column="0" Text="TOTAL FACTURADO:" FontSize="16" FontWeight="Bold" Foreground="#2C3E50" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="1" Text="{Binding ComprobantePago.MontoTexto}" FontSize="22" FontWeight="Bold" Foreground="#27AE60" VerticalAlignment="Center"/>
+                    </Grid>
+
+                    <Button Content="Cerrar" 
+                            Command="{Binding CerrarModalComprobanteCommand}" 
                             Background="#2C3E50" Foreground="White" 
                             Height="42" CornerRadius="6" FontWeight="Bold" HorizontalAlignment="Stretch" 
                             HorizontalContentAlignment="Center" VerticalContentAlignment="Center" 
-                            Cursor="Hand" Margin="0,10,0,0"/>
+                            Cursor="Hand" Margin="0,8,0,0"/>
                 </StackPanel>
             </Border>
         </Grid>
-
-        <!-- Mensaje de Error o Éxito al Procesar Pago -->
-        <TextBlock Text="{Binding MensajePago}"
-                   Foreground="#E74C3C"
-                   FontSize="12"
-                   TextWrapping="Wrap"
-                   IsVisible="{Binding MensajePago, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
 
     </Grid>
 
@@ -515,6 +551,33 @@
         </Style>
         <Style Selector="Button.tabBtn.activeTab /template/ ContentPresenter">
             <Setter Property="Background" Value="#2C3E50"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+
+        <!-- Filtros de Período Historial -->
+        <Style Selector="Button.periodoBtn">
+            <Setter Property="Background" Value="#F8FAFC"/>
+            <Setter Property="Foreground" Value="#64748B"/>
+            <Setter Property="BorderBrush" Value="#CBD5E1"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="Padding" Value="12,6"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+        <Style Selector="Button.periodoBtn:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#E2E8F0"/>
+            <Setter Property="Foreground" Value="#1E293B"/>
+        </Style>
+        <Style Selector="Button.periodoBtn.activePeriodo">
+            <Setter Property="Background" Value="#2980B9"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="#2980B9"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+        </Style>
+        <Style Selector="Button.periodoBtn.activePeriodo /template/ ContentPresenter">
+            <Setter Property="Background" Value="#2980B9"/>
             <Setter Property="Foreground" Value="White"/>
         </Style>
     </UserControl.Styles>

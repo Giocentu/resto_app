@@ -792,8 +792,10 @@ BEGIN
     SET NOCOUNT ON;
     SELECT 
         cb.id_cuenta_body AS IdCuentaBody,
+        cb.cuenta_id AS CuentaId,
         cb.id_item AS IdItem,
         m.descripcion AS Descripcion,
+        m.descripcion AS DescripcionItem,
         cm.nombre AS Categoria,
         cb.precio_unitario AS PrecioUnitario,
         cb.cantidad AS Cantidad,
@@ -803,6 +805,21 @@ BEGIN
     INNER JOIN categoria_menu cm ON m.id_categoria = cm.id_categoria
     WHERE cb.cuenta_id = @CuentaId
     ORDER BY cm.nombre ASC, m.descripcion ASC;
+END;
+GO
+
+-- 7.4.1 Cambiar Mozo / Empleado a Cargo de una Cuenta Abierta
+CREATE OR ALTER PROCEDURE sp_Cuenta_CambiarMozo
+    @CuentaId INT,
+    @DniEmpleado BIGINT,
+    @IdRol INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    UPDATE cuenta_head
+    SET dni_empleado = @DniEmpleado,
+        id_rol = @IdRol
+    WHERE cuenta_id = @CuentaId AND estado = 'ABIERTA';
 END;
 GO
 

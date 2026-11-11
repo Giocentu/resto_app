@@ -27,4 +27,7 @@ public class Pago
 
     [ForeignKey("IdReserva")]
     public Reserva? Reserva { get; set; }
+
+    [Column("id_cuenta")]
+    public int? IdCuenta { get; set; }
 }

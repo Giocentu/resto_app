@@ -20,6 +20,19 @@ public class ClienteRepository : Repository<Cliente>, IClienteRepository
             .ToListAsync();
     }
 
+    public async Task<IEnumerable<Persona>> GetClientesInactivosAsync()
+    {
+        var clientesDnis = await _context.Clientes.Select(c => c.DniCliente).ToListAsync();
+        var empleadosDnis = await _context.Empleados.Select(e => e.DniEmpleado).ToListAsync();
+
+        return await _context.Personas
+            .AsNoTracking()
+            .Where(p => !clientesDnis.Contains(p.Dni) && !empleadosDnis.Contains(p.Dni))
+            .OrderBy(p => p.Apellido)
+            .ThenBy(p => p.Nombre)
+            .ToListAsync();
+    }
+
     public async Task<Persona?> BuscarPersonaPorDniAsync(long dni)
     {
         return await _context.Personas
