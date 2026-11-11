@@ -32,6 +32,21 @@ public partial class InicioViewModel : ObservableObject
     [ObservableProperty]
     private VisualMesaItemViewModel? _selectedMesa;
 
+    public bool PuedeLiberarMesa =>
+        SelectedMesa != null &&
+        (SelectedMesa.Estado.Equals("RESERVADA", StringComparison.OrdinalIgnoreCase) ||
+         SelectedMesa.Estado.Equals("EN LIMPIEZA", StringComparison.OrdinalIgnoreCase));
+
+    public bool PuedeReservarMesa =>
+        SelectedMesa != null &&
+        SelectedMesa.Estado.Equals("LIBRE", StringComparison.OrdinalIgnoreCase);
+
+    partial void OnSelectedMesaChanged(VisualMesaItemViewModel? value)
+    {
+        OnPropertyChanged(nameof(PuedeLiberarMesa));
+        OnPropertyChanged(nameof(PuedeReservarMesa));
+    }
+
     [ObservableProperty]
     private string _ubicacionSeleccionada = "Todas";
 
@@ -211,6 +226,8 @@ public partial class InicioViewModel : ObservableObject
 
             ActualizarConteos();
             OnPropertyChanged(nameof(SelectedMesa));
+            OnPropertyChanged(nameof(PuedeLiberarMesa));
+            OnPropertyChanged(nameof(PuedeReservarMesa));
         }
     }
 

@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Avalonia;
 using Avalonia.Media;
 
 namespace RestoApp.Desktop.ViewModels;
@@ -26,9 +27,18 @@ public partial class VisualMesaItemViewModel : ObservableObject
     [ObservableProperty]
     private bool _isSelected = false;
 
+    partial void OnIsSelectedChanged(bool value)
+    {
+        OnPropertyChanged(nameof(CurrentBorderBrush));
+        OnPropertyChanged(nameof(CurrentBorderThickness));
+    }
+
     public string ConsumoTexto => $"$ {ConsumoActual:N2}";
 
     public string BannerText => Estado.ToUpper();
+
+    public IBrush CurrentBorderBrush => IsSelected ? SolidColorBrush.Parse("#2563EB") : EstadoCardBorder;
+    public Thickness CurrentBorderThickness => IsSelected ? new Thickness(2.5) : new Thickness(1.5);
 
     // Paleta de colores claros legibles
     public IBrush EstadoHeaderBackground => Estado.ToUpper() switch
@@ -64,5 +74,6 @@ public partial class VisualMesaItemViewModel : ObservableObject
         OnPropertyChanged(nameof(EstadoHeaderBackground));
         OnPropertyChanged(nameof(EstadoCardBorder));
         OnPropertyChanged(nameof(EstadoLightBackground));
+        OnPropertyChanged(nameof(CurrentBorderBrush));
     }
 }

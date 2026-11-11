@@ -28,6 +28,42 @@ public partial class EventosViewModel : ObservableObject
     [ObservableProperty]
     private string _nuevaDescripcion = string.Empty;
 
+    private List<EventoItemViewModel> _todosLosEventos = new();
+
+    [ObservableProperty]
+    private string _filtroEstado = "Todos";
+
+    public bool EsFiltroTodos => FiltroEstado == "Todos";
+    public bool EsFiltroActivos => FiltroEstado == "Activos";
+    public bool EsFiltroDesactivados => FiltroEstado == "Desactivados";
+
+    [RelayCommand]
+    private void CambiarFiltroEstado(string nuevoFiltro)
+    {
+        if (FiltroEstado == nuevoFiltro) return;
+        FiltroEstado = nuevoFiltro;
+        OnPropertyChanged(nameof(EsFiltroTodos));
+        OnPropertyChanged(nameof(EsFiltroActivos));
+        OnPropertyChanged(nameof(EsFiltroDesactivados));
+        AplicarFiltro();
+    }
+
+    private void AplicarFiltro()
+    {
+        var query = _todosLosEventos.AsEnumerable();
+
+        if (FiltroEstado == "Activos")
+        {
+            query = query.Where(e => e.EsActivo);
+        }
+        else if (FiltroEstado == "Desactivados")
+        {
+            query = query.Where(e => !e.EsActivo);
+        }
+
+        Eventos = new ObservableCollection<EventoItemViewModel>(query);
+    }
+
     public EventosViewModel(EventoService? eventoService = null)
     {
         _eventoService = eventoService;
@@ -42,7 +78,7 @@ public partial class EventosViewModel : ObservableObject
         {
             try
             {
-                var entidades = await _eventoService.ObtenerEventosAsync(soloActivos: true);
+                var entidades = await _eventoService.ObtenerEventosAsync(soloActivos: false);
                 foreach (var e in entidades)
                 {
                     lista.Add(new EventoItemViewModel
@@ -67,7 +103,8 @@ public partial class EventosViewModel : ObservableObject
             _ = AlertaService.MostrarAlertaConexionAsync();
         }
 
-        Eventos = new ObservableCollection<EventoItemViewModel>(lista);
+        _todosLosEventos = lista;
+        AplicarFiltro();
     }
 
     [RelayCommand]
@@ -117,6 +154,10 @@ public partial class EventosViewModel : ObservableObject
         {
             await _eventoService.CambiarEstadoEventoAsync(item.IdEvento, nuevoEstado);
             item.EsActivo = nuevoEstado;
+            if (FiltroEstado != "Todos")
+            {
+                AplicarFiltro();
+            }
         }
         catch (Exception ex)
         {

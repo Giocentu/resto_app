@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
+using RestoApp.Entities;
 
 namespace RestoApp.Desktop.ViewModels;
 
@@ -8,11 +10,14 @@ public partial class PagoItemViewModel : ObservableObject
 {
     public int IdPago { get; set; }
     public DateTime FechaPago { get; set; }
-    public string Hora => FechaPago.ToString("HH:mm:ss");
+    public string FechaTexto => FechaPago.ToString("dd/MM/yyyy");
+    public string Hora => FechaPago.TimeOfDay != TimeSpan.Zero ? FechaPago.ToString("HH:mm:ss") : "--:--";
     public string Descripcion { get; set; } = string.Empty;
     public string ClienteNombre { get; set; } = string.Empty;
     public string MedioPago { get; set; } = "Efectivo";
     public decimal Monto { get; set; }
+    public int? IdCuenta { get; set; }
+    public List<CuentaItemDetalleDto> ItemsDetalle { get; set; } = new();
 
     public string MontoTexto => $"$ {Monto:N2}";
 

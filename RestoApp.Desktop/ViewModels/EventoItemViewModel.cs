@@ -21,7 +21,7 @@ public partial class EventoItemViewModel : ObservableObject
     public string FechaTexto => $"Fecha: {FechaEvento:dd/MM/yyyy}";
     public string ReservasVinculadasTexto => $"{CantReservasVinculadas} reservas";
 
-    public string EstadoBadgeText => EsActivo ? "Activo" : "Inactivo";
+    public string EstadoBadgeText => EsActivo ? "Activo" : "Desactivado";
 
     public IBrush EstadoBadgeBackground => EsActivo 
         ? SolidColorBrush.Parse("#2ECC71") 
@@ -29,11 +29,19 @@ public partial class EventoItemViewModel : ObservableObject
 
     public IBrush EstadoBadgeForeground => SolidColorBrush.Parse("#FFFFFF");
 
+    public string BotonEstadoTexto => EsActivo ? "Activo" : "Desactivado";
+
+    public IBrush BotonEstadoBackground => EsActivo 
+        ? SolidColorBrush.Parse("#27AE60") 
+        : SolidColorBrush.Parse("#E74C3C");
+
     partial void OnEsActivoChanged(bool value)
     {
         OnPropertyChanged(nameof(EstadoBadgeText));
         OnPropertyChanged(nameof(EstadoBadgeBackground));
         OnPropertyChanged(nameof(EstadoBadgeForeground));
+        OnPropertyChanged(nameof(BotonEstadoTexto));
+        OnPropertyChanged(nameof(BotonEstadoBackground));
     }
 
     [RelayCommand]

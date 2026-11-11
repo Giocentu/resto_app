@@ -19,6 +19,11 @@ public class ClienteService
         return await _clienteRepository.GetClientesConPersonaAsync(soloActivos);
     }
 
+    public async Task<IEnumerable<Persona>> ObtenerClientesInactivosAsync()
+    {
+        return await _clienteRepository.GetClientesInactivosAsync();
+    }
+
     public async Task<Persona?> BuscarPersonaPorDniAsync(long dni)
     {
         return await _clienteRepository.BuscarPersonaPorDniAsync(dni);

@@ -1,0 +1,296 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:RestoApp.Desktop.ViewModels"
+        x:Class="RestoApp.Desktop.Views.AgregarProductosWindow"
+        x:DataType="vm:AgregarProductosViewModel"
+        Title="RestoApp - Agregar Productos a la Comanda"
+        Height="720" Width="1120"
+        WindowStartupLocation="CenterOwner"
+        CanResize="True"
+        Background="#F8F9FA">
+
+    <Grid RowDefinitions="Auto, *">
+
+        <!-- ========================================== -->
+        <!-- FILA 0: ENCABEZADO SUPERIOR                -->
+        <!-- ========================================== -->
+        <Border Grid.Row="0" Background="White" BorderBrush="#E2E8F0" BorderThickness="0,0,0,1" Padding="20,14">
+            <Grid ColumnDefinitions="Auto, *, Auto">
+                <StackPanel Grid.Column="0" Spacing="2">
+                    <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                        <TextBlock Text="🍽️" FontSize="20" VerticalAlignment="Center"/>
+                        <TextBlock Text="Agregar Productos a Comanda" FontSize="20" FontWeight="Bold" Foreground="#2C3E50" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <TextBlock Text="{Binding TituloMesa}" FontSize="13" FontWeight="SemiBold" Foreground="#2980B9"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                    <Border Background="#EBF5FB" CornerRadius="6" Padding="10,6">
+                        <TextBlock Text="{Binding MozoMesaTexto}" FontSize="12" FontWeight="SemiBold" Foreground="#2C3E50"/>
+                    </Border>
+                    <Button Content="✕" Command="{Binding CancelarVentanaCommand}" 
+                            Background="Transparent" Foreground="#7F8C8D" FontSize="18" FontWeight="Bold" Cursor="Hand"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- ========================================== -->
+        <!-- FILA 1: CUERPO PRINCIPAL (CATÁLOGO + CARRITO) -->
+        <!-- ========================================== -->
+        <Grid Grid.Row="1" ColumnDefinitions="1.9*, 1.1*" Margin="20" ColumnSpacing="18">
+
+            <!-- COLUMNA IZQUIERDA: CATÁLOGO CON BÚSQUEDA Y SELECTOR DE FILTRO -->
+            <Border Grid.Column="0" Background="White" BorderBrush="#BDC3C7" BorderThickness="1" CornerRadius="10" Padding="16">
+                <Grid RowDefinitions="Auto, *">
+
+                    <!-- Buscador por Texto y Selector de Filtros (ComboBox) -->
+                    <Grid Grid.Row="0" ColumnDefinitions="*, 210" ColumnSpacing="12" Margin="0,0,0,14">
+                        <!-- Buscador por Texto -->
+                        <TextBox Grid.Column="0"
+                                 Text="{Binding TextoBusqueda, Mode=TwoWay}"
+                                 PlaceholderText="🔍 Buscar producto por nombre..."
+                                 Height="38" CornerRadius="8" Padding="12,0"
+                                 VerticalContentAlignment="Center" FontSize="13"/>
+
+                        <!-- Selector de Filtros de Categoría -->
+                        <ComboBox Grid.Column="1"
+                                  ItemsSource="{Binding Categorias}"
+                                  SelectedItem="{Binding CategoriaSeleccionada, Mode=TwoWay}"
+                                  HorizontalAlignment="Stretch"
+                                  Height="38" CornerRadius="8" FontSize="13"
+                                  PlaceholderText="Categoría"/>
+                    </Grid>
+
+                    <!-- Cuadrícula / Catálogo de Productos -->
+                    <Border Grid.Row="1" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="8" Padding="6">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <ItemsControl ItemsSource="{Binding ItemsFiltrados}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel Orientation="Horizontal"/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:MenuItemViewModel">
+                                        <Button Command="{Binding $parent[Window].((vm:AgregarProductosViewModel)DataContext).SeleccionarProductoCommand}"
+                                                CommandParameter="{Binding}"
+                                                Background="Transparent" BorderThickness="0" Padding="0" Margin="5"
+                                                Cursor="Hand">
+                                            
+                                            <Border Background="White" BorderBrush="#E2E8F0" BorderThickness="1.5" 
+                                                    CornerRadius="8" Width="190" Height="110" Padding="10"
+                                                    ClipToBounds="True">
+                                                <Grid RowDefinitions="Auto, *, Auto">
+                                                    <!-- Categoría Badge -->
+                                                    <Border Grid.Row="0" Background="{Binding ColorFondoCategoria}" 
+                                                            CornerRadius="4" Padding="6,2" HorizontalAlignment="Left">
+                                                        <TextBlock Text="{Binding CategoriaNombre}" Foreground="{Binding ColorTextoCategoria}" 
+                                                                   FontSize="10" FontWeight="Bold"/>
+                                                    </Border>
+
+                                                    <!-- Nombre / Descripción -->
+                                                    <TextBlock Grid.Row="1" Text="{Binding Descripcion}" 
+                                                               FontSize="13" FontWeight="Bold" Foreground="#2C3E50" 
+                                                               TextWrapping="Wrap" VerticalAlignment="Center" Margin="0,4"/>
+
+                                                    <!-- Precio y Botón Elegir -->
+                                                    <Grid Grid.Row="2" ColumnDefinitions="*, Auto" VerticalAlignment="Bottom">
+                                                        <TextBlock Grid.Column="0" Text="{Binding PrecioFormateado}" 
+                                                                   FontSize="14" FontWeight="Bold" Foreground="#27AE60" VerticalAlignment="Center"/>
+                                                        <Border Grid.Column="1" Background="#EBF5FB" CornerRadius="4" Padding="6,3">
+                                                            <TextBlock Text="➕ Elegir" Foreground="#2980B9" FontSize="11" FontWeight="Bold"/>
+                                                        </Border>
+                                                    </Grid>
+                                                </Grid>
+                                            </Border>
+                                        </Button>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </Border>
+                </Grid>
+            </Border>
+
+            <!-- COLUMNA DERECHA: PEDIDO A AGREGAR -->
+            <Border Grid.Column="1" Background="White" BorderBrush="#BDC3C7" BorderThickness="1" CornerRadius="10" Padding="16">
+                <Grid RowDefinitions="Auto, *, Auto">
+
+                    <!-- Encabezado de Pedido a Agregar -->
+                    <Grid Grid.Row="0" ColumnDefinitions="*, Auto" Margin="0,0,0,12">
+                        <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                            <TextBlock Text="Pedido a Agregar" FontSize="16" FontWeight="Bold" Foreground="#2C3E50"/>
+                            <Border Background="#EBF5FB" CornerRadius="10" Padding="8,2" IsVisible="{Binding TieneItems}">
+                                <TextBlock Text="{Binding TotalArticulosCarrito, StringFormat='{}{0} ítems'}" 
+                                           Foreground="#2980B9" FontSize="11" FontWeight="Bold"/>
+                            </Border>
+                        </StackPanel>
+
+                        <Button Grid.Column="1" Content="Vaciar" Command="{Binding VaciarCarritoCommand}"
+                                Background="Transparent" Foreground="#E74C3C" FontSize="11" FontWeight="SemiBold"
+                                IsVisible="{Binding TieneItems}" Cursor="Hand"/>
+                    </Grid>
+
+                    <!-- Lista de Ítems en Pedido -->
+                    <Border Grid.Row="1" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="8" Padding="6" Margin="0,0,0,12">
+                        <Panel>
+                            <!-- Estado Vacío -->
+                            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="8" 
+                                        IsVisible="{Binding EstaVacio}" Margin="16">
+                                <TextBlock Text="Sin productos en el pedido" FontSize="14" FontWeight="Bold" Foreground="#7F8C8D" HorizontalAlignment="Center"/>
+                                <TextBlock Text="Haga clic en cualquier producto del catálogo para agregarlo." FontSize="11" Foreground="#BDC3C7" TextWrapping="Wrap" TextAlignment="Center"/>
+                            </StackPanel>
+
+                            <!-- Lista con Ítems -->
+                            <ScrollViewer VerticalScrollBarVisibility="Auto" IsVisible="{Binding TieneItems}">
+                                <ItemsControl ItemsSource="{Binding ItemsCarrito}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="vm:CarritoItemViewModel">
+                                            <Border Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="6" Padding="10,8" Margin="0,0,0,6">
+                                                <Grid RowDefinitions="Auto, Auto" ColumnDefinitions="*, Auto">
+                                                    <!-- Fila 1: Nombre y Subtotal -->
+                                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Descripcion}" 
+                                                               FontSize="13" FontWeight="Bold" Foreground="#2C3E50"/>
+                                                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding SubtotalTexto}" 
+                                                               FontSize="13" FontWeight="Bold" Foreground="#27AE60"/>
+
+                                                    <!-- Fila 2: Precio Unitario y Controles de Cantidad -->
+                                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="{Binding PrecioUnitarioTexto, StringFormat='{}c/u: {0}'}" 
+                                                               FontSize="11" Foreground="#7F8C8D" VerticalAlignment="Center"/>
+
+                                                    <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center" Margin="0,4,0,0">
+                                                        <Button Content="-" 
+                                                                Command="{Binding $parent[Window].((vm:AgregarProductosViewModel)DataContext).DecrementarItemCarritoCommand}"
+                                                                CommandParameter="{Binding}"
+                                                                Background="#E2E8F0" Foreground="#2C3E50" Width="26" Height="26" 
+                                                                CornerRadius="4" FontWeight="Bold" Padding="0" 
+                                                                HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Cursor="Hand"/>
+
+                                                        <TextBlock Text="{Binding Cantidad}" FontSize="13" FontWeight="Bold" 
+                                                                   Foreground="#2C3E50" VerticalAlignment="Center" MinWidth="20" TextAlignment="Center"/>
+
+                                                        <Button Content="+" 
+                                                                Command="{Binding $parent[Window].((vm:AgregarProductosViewModel)DataContext).IncrementarItemCarritoCommand}"
+                                                                CommandParameter="{Binding}"
+                                                                Background="#E2E8F0" Foreground="#2C3E50" Width="26" Height="26" 
+                                                                CornerRadius="4" FontWeight="Bold" Padding="0" 
+                                                                HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Cursor="Hand"/>
+
+                                                        <Button Content="🗑️" 
+                                                                Command="{Binding $parent[Window].((vm:AgregarProductosViewModel)DataContext).EliminarItemCarritoCommand}"
+                                                                CommandParameter="{Binding}"
+                                                                Background="Transparent" Foreground="#E74C3C" FontSize="11" Padding="4" Cursor="Hand"/>
+                                                    </StackPanel>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </ScrollViewer>
+                        </Panel>
+                    </Border>
+
+                    <!-- Resumen del Pedido y Botón Confirmar a Mesa -->
+                    <StackPanel Grid.Row="2" Spacing="10">
+                        <!-- Total -->
+                        <Border Background="#F1F5F9" CornerRadius="8" Padding="12,10">
+                            <Grid ColumnDefinitions="*, Auto">
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="Total a Agregar:" FontSize="12" Foreground="#64748B"/>
+                                    <TextBlock Text="{Binding TotalArticulosCarrito, StringFormat='{}{0} productos a la comanda'}" FontSize="11" Foreground="#94A3B8"/>
+                                </StackPanel>
+                                <TextBlock Grid.Column="1" Text="{Binding TotalCarritoTexto}" FontSize="20" FontWeight="Bold" Foreground="#27AE60" VerticalAlignment="Center"/>
+                            </Grid>
+                        </Border>
+
+                        <!-- Mensaje de Estado / Notificación -->
+                        <TextBlock Text="{Binding MensajeEstado}" Foreground="#2980B9" FontSize="11" 
+                                   TextWrapping="Wrap" HorizontalAlignment="Center"
+                                   IsVisible="{Binding MensajeEstado, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+
+                        <!-- Botón Principal: Agregar a Mesa -->
+                        <Button Content="🍽️ Agregar a Mesa" 
+                                Command="{Binding ConfirmarTodoAMesaCommand}"
+                                IsEnabled="{Binding TieneItems}"
+                                Background="#27AE60" Foreground="White" 
+                                Height="46" CornerRadius="8" FontSize="15" FontWeight="Bold"
+                                HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Cursor="Hand"/>
+
+                        <Button Content="Cerrar" 
+                                Command="{Binding CancelarVentanaCommand}"
+                                Background="Transparent" Foreground="#7F8C8D" 
+                                Height="32" FontSize="12" FontWeight="SemiBold"
+                                HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Cursor="Hand"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- ========================================== -->
+        <!-- MODAL OVERLAY: FORMULARIO DE CANTIDAD       -->
+        <!-- ========================================== -->
+        <Grid Grid.RowSpan="2" Background="#80000000" IsVisible="{Binding MostrarFormularioCantidad}">
+            <Border Background="White" CornerRadius="12" Padding="24" Width="450" 
+                    VerticalAlignment="Center" HorizontalAlignment="Center" 
+                    BorderBrush="#BDC3C7" BorderThickness="1">
+                <StackPanel Spacing="14">
+                    <!-- Título del Formulario con Cruz de Cerrar -->
+                    <Grid ColumnDefinitions="*, Auto">
+                        <TextBlock Grid.Column="0" Text="{Binding ItemEnEdicion.Descripcion}" 
+                                   FontSize="20" FontWeight="Bold" Foreground="#2C3E50" TextWrapping="Wrap"/>
+                        <Button Grid.Column="1" Content="✕" Command="{Binding CerrarFormularioCantidadCommand}" 
+                                Background="Transparent" Foreground="#7F8C8D" FontSize="16" FontWeight="Bold" Cursor="Hand"/>
+                    </Grid>
+
+                    <!-- Categoría y Precio Unitario -->
+                    <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                        <Border Background="{Binding ItemEnEdicion.ColorFondoCategoria}" CornerRadius="4" Padding="6,2">
+                            <TextBlock Text="{Binding ItemEnEdicion.CategoriaNombre}" Foreground="{Binding ItemEnEdicion.ColorTextoCategoria}" FontSize="11" FontWeight="Bold"/>
+                        </Border>
+                        <TextBlock Text="•" Foreground="#BDC3C7" VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding ItemEnEdicion.PrecioFormateado, StringFormat='Precio: {0} c/u'}" 
+                                   FontSize="13" FontWeight="SemiBold" Foreground="#27AE60" VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <Separator Background="#E2E8F0"/>
+
+                    <!-- Selector de Cantidad -->
+                    <TextBlock Text="Cantidad:" Foreground="#34495E" FontWeight="SemiBold" FontSize="13"/>
+                    <NumericUpDown Minimum="1" Maximum="99" Increment="1" FormatString="0" 
+                                   Value="{Binding CantidadParaAgregar, Mode=TwoWay}" PlaceholderText="1"/>
+
+                    <!-- Previsualización de Subtotal -->
+                    <Border Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="6" Padding="12,8">
+                        <Grid ColumnDefinitions="*, Auto">
+                            <TextBlock Grid.Column="0" Text="Subtotal a sumar:" FontSize="13" Foreground="#64748B" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="1" Text="{Binding SubtotalEnEdicionTexto}" FontSize="16" FontWeight="Bold" Foreground="#27AE60"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- Mensaje de Validación si aplica -->
+                    <TextBlock Text="{Binding MensajeValidacion}" Foreground="#E74C3C" FontSize="12" TextWrapping="Wrap"
+                               IsVisible="{Binding MensajeValidacion, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+
+                    <!-- 2 Opciones: Cancelar y Agregar Pedido -->
+                    <Grid ColumnDefinitions="*, 1.3*" ColumnSpacing="10" Margin="0,10,0,0">
+                        <!-- Opción 1: Cancelar -->
+                        <Button Grid.Column="0" Content="Cancelar" 
+                                Command="{Binding CerrarFormularioCantidadCommand}" 
+                                Background="#95A5A6" Foreground="White" Height="42" 
+                                CornerRadius="6" FontWeight="Bold" FontSize="13"
+                                HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Cursor="Hand"/>
+
+                        <!-- Opción 2: Agregar Pedido -->
+                        <Button Grid.Column="1" Content="Agregar Pedido" 
+                                Command="{Binding AgregarAlCarritoCommand}" 
+                                Background="#2980B9" Foreground="White" Height="42" 
+                                CornerRadius="6" FontWeight="Bold" FontSize="13"
+                                HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Cursor="Hand"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+    </Grid>
+</Window>

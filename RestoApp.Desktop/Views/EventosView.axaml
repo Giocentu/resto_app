@@ -5,6 +5,22 @@
              x:Name="Root"
              x:DataType="vm:EventosViewModel">
 
+    <UserControl.Styles>
+        <Style Selector="Button.filtroBtn">
+            <Setter Property="Background" Value="#F1F5F9"/>
+            <Setter Property="Foreground" Value="#475569"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Padding" Value="14,6"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+        <Style Selector="Button.filtroBtn.activeFilter">
+            <Setter Property="Background" Value="#8E44AD"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+    </UserControl.Styles>
+
     <Grid RowDefinitions="Auto, *">
         <!-- ========================================== -->
         <!-- FILA 0: ENCABEZADO Y SUBTÍTULO            -->
@@ -67,60 +83,94 @@
                 </ScrollViewer>
             </Border>
 
-            <!-- COLUMNA DERECHA: Catálogo de Tarjetas de Eventos -->
-            <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto">
-                <ItemsControl ItemsSource="{Binding Eventos}">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <UniformGrid Columns="2" HorizontalAlignment="Stretch"/>
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate x:DataType="vm:EventoItemViewModel">
-                            <Border Background="White" BorderBrush="#BDC3C7" BorderThickness="1" CornerRadius="10" Padding="18" Margin="0,0,12,12">
-                                <Grid RowDefinitions="Auto, Auto, *, Auto, Auto">
-                                    
-                                    <!-- Fila 0: Título e Insignia de Estado -->
-                                    <Grid Grid.Row="0" ColumnDefinitions="*, Auto" Margin="0,0,0,6">
-                                        <TextBlock Grid.Column="0" Text="{Binding NombreEvento}" FontSize="18" FontWeight="Bold" Foreground="#2C3E50" TextWrapping="Wrap" VerticalAlignment="Center"/>
-                                        <Border Grid.Column="1" Background="{Binding EstadoBadgeBackground}" CornerRadius="12" Padding="10,4" VerticalAlignment="Center">
-                                            <TextBlock Text="{Binding EstadoBadgeText}" Foreground="{Binding EstadoBadgeForeground}" FontWeight="Bold" FontSize="11"/>
-                                        </Border>
-                                    </Grid>
-
-                                    <!-- Fila 1: Fecha -->
-                                    <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="6" Margin="0,0,0,8">
-                                        <TextBlock Text="📅" FontSize="13" Foreground="#3498DB" VerticalAlignment="Center"/>
-                                        <TextBlock Text="{Binding FechaTexto}" FontSize="13" FontWeight="Bold" Foreground="#3498DB" VerticalAlignment="Center"/>
-                                    </StackPanel>
-
-                                    <!-- Fila 2: Descripción -->
-                                    <TextBlock Grid.Row="2" Text="{Binding Descripcion}" FontSize="13" Foreground="#7F8C8D" TextWrapping="Wrap" Margin="0,0,0,12" MinHeight="36"/>
-
-                                    <!-- Fila 3: Box Reservas Vinculadas -->
-                                    <Border Grid.Row="3" Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="8" Padding="12,10" Margin="0,0,0,12">
-                                        <Grid ColumnDefinitions="*, Auto">
-                                            <TextBlock Grid.Column="0" Text="Reservas Vinculadas:" Foreground="#7F8C8D" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center"/>
-                                            <TextBlock Grid.Column="1" Text="{Binding ReservasVinculadasTexto}" Foreground="#27AE60" FontSize="13" FontWeight="Bold" VerticalAlignment="Center"/>
-                                        </Grid>
-                                    </Border>
-
-                                    <!-- Fila 4: Botón Cambiar Estado Activo/Inactivo -->
-                                    <Button Grid.Row="4" Content="Cambiar Estado Activo/Inactivo" 
-                                            Command="{Binding #Root.DataContext.CambiarEstadoCommand}"
-                                            CommandParameter="{Binding}"
-                                            Background="#34495E" Foreground="White" 
-                                            Height="38" CornerRadius="6" FontSize="12" FontWeight="SemiBold" 
-                                            HorizontalAlignment="Stretch" 
-                                            HorizontalContentAlignment="Center" VerticalContentAlignment="Center" 
-                                            Cursor="Hand"/>
-                                </Grid>
+            <!-- COLUMNA DERECHA: Catálogo de Tarjetas de Eventos con Barra de Filtro -->
+            <Grid Grid.Column="1" RowDefinitions="Auto, *">
+                <!-- Barra de Filtros y Contador -->
+                <Border Grid.Row="0" Background="White" BorderBrush="#BDC3C7" BorderThickness="1" CornerRadius="10" Padding="14,10" Margin="0,0,12,12">
+                    <Grid ColumnDefinitions="Auto, *, Auto">
+                        <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                            <TextBlock Text="Eventos Registrados" FontSize="16" FontWeight="Bold" Foreground="#2C3E50" VerticalAlignment="Center"/>
+                            <Border Background="#EFF6FF" CornerRadius="12" Padding="8,2" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding Eventos.Count, StringFormat='{}{0} eventos'}" Foreground="#3498DB" FontSize="11" FontWeight="Bold"/>
                             </Border>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </ScrollViewer>
+                        </StackPanel>
+
+                        <!-- Filtros: Todos / Activos / Desactivados -->
+                        <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                            <TextBlock Text="Filtro:" Foreground="#64748B" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                            
+                            <Button Content="Todos" 
+                                    Command="{Binding CambiarFiltroEstadoCommand}" CommandParameter="Todos"
+                                    Classes="filtroBtn" Classes.activeFilter="{Binding EsFiltroTodos}"/>
+
+                            <Button Content="Activos" 
+                                    Command="{Binding CambiarFiltroEstadoCommand}" CommandParameter="Activos"
+                                    Classes="filtroBtn" Classes.activeFilter="{Binding EsFiltroActivos}"/>
+
+                            <Button Content="Desactivados" 
+                                    Command="{Binding CambiarFiltroEstadoCommand}" CommandParameter="Desactivados"
+                                    Classes="filtroBtn" Classes.activeFilter="{Binding EsFiltroDesactivados}"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- Catálogo de Tarjetas de Eventos -->
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                    <ItemsControl ItemsSource="{Binding Eventos}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <UniformGrid Columns="2" HorizontalAlignment="Stretch"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:EventoItemViewModel">
+                                <Border Background="White" BorderBrush="#BDC3C7" BorderThickness="1" CornerRadius="10" Padding="18" Margin="0,0,12,12">
+                                    <Grid RowDefinitions="Auto, Auto, *, Auto, Auto">
+                                        
+                                        <!-- Fila 0: Título e Insignia de Estado -->
+                                        <Grid Grid.Row="0" ColumnDefinitions="*, Auto" Margin="0,0,0,6">
+                                            <TextBlock Grid.Column="0" Text="{Binding NombreEvento}" FontSize="18" FontWeight="Bold" Foreground="#2C3E50" TextWrapping="Wrap" VerticalAlignment="Center"/>
+                                            <Border Grid.Column="1" Background="{Binding EstadoBadgeBackground}" CornerRadius="12" Padding="10,4" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding EstadoBadgeText}" Foreground="{Binding EstadoBadgeForeground}" FontWeight="Bold" FontSize="11"/>
+                                            </Border>
+                                        </Grid>
+
+                                        <!-- Fila 1: Fecha -->
+                                        <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="6" Margin="0,0,0,8">
+                                            <TextBlock Text="📅" FontSize="13" Foreground="#3498DB" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{Binding FechaTexto}" FontSize="13" FontWeight="Bold" Foreground="#3498DB" VerticalAlignment="Center"/>
+                                        </StackPanel>
+
+                                        <!-- Fila 2: Descripción -->
+                                        <TextBlock Grid.Row="2" Text="{Binding Descripcion}" FontSize="13" Foreground="#7F8C8D" TextWrapping="Wrap" Margin="0,0,0,12" MinHeight="36"/>
+
+                                        <!-- Fila 3: Box Reservas Vinculadas -->
+                                        <Border Grid.Row="3" Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="8" Padding="12,10" Margin="0,0,0,12">
+                                            <Grid ColumnDefinitions="*, Auto">
+                                                <TextBlock Grid.Column="0" Text="Reservas Vinculadas:" Foreground="#7F8C8D" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                                <TextBlock Grid.Column="1" Text="{Binding ReservasVinculadasTexto}" Foreground="#27AE60" FontSize="13" FontWeight="Bold" VerticalAlignment="Center"/>
+                                            </Grid>
+                                        </Border>
+
+                                        <!-- Fila 4: Botón Cambiar Estado Activo / Desactivado con Color Verde/Rojo -->
+                                        <Button Grid.Row="4" 
+                                                Content="{Binding BotonEstadoTexto}"
+                                                Background="{Binding BotonEstadoBackground}"
+                                                Foreground="White"
+                                                Command="{Binding #Root.DataContext.CambiarEstadoCommand}"
+                                                CommandParameter="{Binding}"
+                                                Height="38" CornerRadius="6" FontSize="13" FontWeight="Bold" 
+                                                HorizontalAlignment="Stretch" 
+                                                HorizontalContentAlignment="Center" VerticalContentAlignment="Center" 
+                                                Cursor="Hand"/>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </Grid>
 
         </Grid>
     </Grid>

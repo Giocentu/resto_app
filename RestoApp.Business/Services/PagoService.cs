@@ -20,10 +20,20 @@ public class PagoService
         return await _pagoRepository.GetPagosConDetallesAsync();
     }
 
+    public async Task<Dictionary<int, CuentaPagoInfoDto>> ObtenerInfoCuentasPagosAsync()
+    {
+        return await _pagoRepository.ObtenerInfoCuentasPagosAsync();
+    }
+
     public async Task<IEnumerable<MetodoPago>> ObtenerMetodosPagoAsync()
     {
         return await _pagoRepository.GetMetodosPagoAsync();
     }
+    public Task<int> CrearCuentaAsync(int idMesa, long? dniEmpleado = null, int? idRol = null)
+    {
+        return _pagoRepository.CrearCuentaSpAsync(idMesa, dniEmpleado, idRol);
+    }
+
     public Task<int> CrearCuentaConItemAsync(
         int idMesa,
         int idItem,
@@ -75,6 +85,26 @@ public class PagoService
     public Task<int> CerrarCuentaAsync(int cuentaId, int idMetodo)
     {
         return _pagoRepository.CerrarCuentaAsync(cuentaId, idMetodo);
+    }
+
+    public Task CancelarCuentaAsync(int cuentaId)
+    {
+        return _pagoRepository.CancelarCuentaAsync(cuentaId);
+    }
+
+    public Task QuitarItemDeCuentaAsync(int cuentaId, int idItem, int cantidad = 1)
+    {
+        return _pagoRepository.QuitarItemDeCuentaSpAsync(cuentaId, idItem, cantidad);
+    }
+
+    public Task<List<CuentaItemDetalleDto>> ObtenerDetalleCuentaAsync(int cuentaId)
+    {
+        return _pagoRepository.ObtenerDetalleCuentaAsync(cuentaId);
+    }
+
+    public Task CambiarMozoCuentaAsync(int cuentaId, long dniEmpleado, int idRol)
+    {
+        return _pagoRepository.CambiarMozoCuentaAsync(cuentaId, dniEmpleado, idRol);
     }
 }
 

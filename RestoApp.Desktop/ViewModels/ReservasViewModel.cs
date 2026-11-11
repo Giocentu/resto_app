@@ -44,6 +44,9 @@ public partial class ReservasViewModel : ObservableObject
     private int _totalPersonasCount;
 
     [ObservableProperty]
+    private int _confirmadasCount;
+
+    [ObservableProperty]
     private int _bajasCount;
 
     partial void OnTextoBusquedaChanged(string value)
@@ -231,6 +234,7 @@ public partial class ReservasViewModel : ObservableObject
     {
         TotalReservasCount = Reservas.Count;
         TotalPersonasCount = Reservas.Sum(r => r.CantidadPersonas);
+        ConfirmadasCount = Reservas.Count(r => r.EstadoTexto == "Confirmada");
         BajasCount = ReservasBajas.Count;
     }
 
